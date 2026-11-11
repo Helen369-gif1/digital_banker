@@ -1,0 +1,1475 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Global Dream — Gia</title>
+<meta name="description" content="Gia — your AI for the life you want to build.">
+<meta name="description" content="Floating soap-bubble portals between Gaussian splat worlds in the browser. Scroll a bubble to change the world inside, click it to grow it and step in, click anywhere to open another. Open source from Simam Digital.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+:root { --fg: #f7f3ff; --muted: #cbc2e6; --glass: rgba(14, 10, 26, .62); --line: rgba(255, 255, 255, .14); --hot: #ff7ae0; --cool: #7ad8ff; color-scheme: dark; }
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; background: #06040c; color: var(--fg); font: 15px/1.4 "Space Grotesk", system-ui, "Segoe UI", sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+#gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#gl.over { cursor: pointer; }
+.glass { background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 16px; }
+#top { position: fixed; z-index: 5; top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; right: 12px; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; }
+#top b { font-weight: 700; letter-spacing: .02em; }
+#top .where { color: var(--muted); font-size: 13px; }
+#top .where i { font-style: normal; color: var(--fg); }
+.grow { flex: 1; }
+.btn { border: 1px solid var(--line); background: rgba(255, 255, 255, .07); border-radius: 11px; padding: 8px 13px; font-weight: 500; white-space: nowrap; }
+.btn.on { background: rgba(255, 122, 224, .22); border-color: rgba(255, 122, 224, .6); }
+#dock { position: fixed; z-index: 5; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 8px; align-items: center; padding: 8px; max-width: calc(100% - 24px); overflow-x: auto; scrollbar-width: none; }
+#dock .label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 0 6px; white-space: nowrap; }
+#worlds { display: flex; gap: 6px; }
+#worlds button { border: 1px solid var(--line); background: rgba(255, 255, 255, .05); border-radius: 999px; padding: 6px 11px; font-size: 13px; white-space: nowrap; }
+#worlds button.next { border-color: var(--cool); background: rgba(122, 216, 255, .16); }
+#worlds button.here { opacity: .45; }
+#hint { position: fixed; z-index: 4; left: 50%; top: calc(74px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); padding: 7px 14px; font-size: 13px; color: var(--muted); transition: opacity .8s; white-space: nowrap; }
+#labels { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+.plabel { position: absolute; transform: translate(-50%, 0); padding: 5px 11px; border-radius: 999px; background: rgba(14, 10, 26, .58); border: 1px solid var(--line); font-size: 12.5px; white-space: nowrap; transition: opacity .3s; }
+.plabel small { color: var(--muted); margin-left: 6px; }
+#title { position: fixed; z-index: 6; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center; opacity: 0; transition: opacity .6s; }
+#title.on { opacity: 1; }
+/* story mode: no interface, captions, letterbox, fades */
+body.story #top, body.story #dock, body.story #credit, body.story #hint, body.story #labels, body.story #title { display: none; }
+body.story canvas { cursor: none; }
+#fade { position: fixed; inset: 0; z-index: 7; background: #000; opacity: 0; pointer-events: none; transition: opacity .9s ease; }
+.bar { position: fixed; left: 0; right: 0; height: 0; z-index: 6; background: #000; transition: height 1.6s cubic-bezier(.6, 0, .2, 1); }
+.bar.t { top: 0; } .bar.b { bottom: 0; }
+body.story.letterbox .bar { height: 9vh; }
+#cap { position: fixed; z-index: 8; left: 50%; bottom: 15vh; width: min(88vw, 980px); transform: translate(-50%, 14px); text-align: center; opacity: 0; transition: opacity 1.1s ease, transform 1.6s cubic-bezier(.2, .7, .2, 1); pointer-events: none; }
+#cap.on { opacity: 1; transform: translate(-50%, 0); }
+#cap b { display: block; font: italic 500 clamp(30px, 4.4vw, 68px)/1.08 "Cormorant Garamond", Georgia, serif; text-wrap: balance; text-shadow: 0 2px 30px rgba(0, 0, 0, .75); }
+#cap span { display: block; margin-top: 14px; font-size: clamp(11px, 1.15vw, 15px); letter-spacing: .32em; text-transform: uppercase; color: #ece6ff; text-shadow: 0 1px 14px rgba(0, 0, 0, .9); }
+#endcard { position: fixed; inset: 0; z-index: 8; display: grid; place-content: center; gap: 14px; text-align: center; opacity: 0; transition: opacity 1.4s ease; pointer-events: none; }
+#endcard.on { opacity: 1; }
+#endcard b { font: 500 clamp(34px, 5vw, 72px)/1 "Cormorant Garamond", Georgia, serif; }
+#endcard span { font-size: clamp(12px, 1.2vw, 16px); letter-spacing: .3em; text-transform: uppercase; color: #d9d0f5; }
+#playbox { position: fixed; inset: 0; z-index: 9; display: none; place-content: center; text-align: center; gap: 16px; background: rgba(4, 3, 9, .55); }
+body.storywait #playbox { display: grid; }
+#playbox button { justify-self: center; font: 500 18px "Space Grotesk", sans-serif; color: #fff; background: linear-gradient(90deg, rgba(255, 122, 224, .35), rgba(122, 216, 255, .35)); border: 1px solid rgba(255, 255, 255, .35); border-radius: 999px; padding: 14px 30px; cursor: pointer; }
+#playbox p { margin: 0; max-width: 36ch; color: var(--muted); font-size: 13px; }
+@media (max-aspect-ratio: 1/1) { #cap { bottom: 19vh; } body.story.letterbox .bar { height: 0; } }
+#title div { font: 700 clamp(30px, 6vw, 64px)/1 "Space Grotesk", sans-serif; letter-spacing: -.01em; text-shadow: 0 6px 40px rgba(0, 0, 0, .6); }
+#title small { display: block; margin-top: 10px; font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+#load { position: fixed; z-index: 9; inset: 0; display: grid; place-items: center; background: #06040c; transition: opacity .7s; }
+#load.done { opacity: 0; pointer-events: none; }
+#load .in { width: min(320px, 80vw); text-align: center; display: flex; flex-direction: column; gap: 12px; }
+#load .bar { height: 3px; background: rgba(255, 255, 255, .12); border-radius: 2px; overflow: hidden; }
+#load .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--hot), var(--cool)); }
+#credit { position: fixed; z-index: 4; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); font-size: 11px; color: rgba(255, 255, 255, .6); text-align: right; max-width: calc(100% - 24px); }
+#credit a { color: inherit; }
+@media (max-width: 760px) {
+  #top { flex-wrap: wrap; gap: 6px; } #top .where { display: none; } #top .grow { flex-basis: 100%; height: 0; } .btn { padding: 7px 10px; font-size: 13px; }
+  #hint { font-size: 12px; top: calc(118px + env(safe-area-inset-top, 0px)); white-space: normal; width: max-content; max-width: calc(100% - 24px); text-align: center; }
+  #top b span { display: none; } #credit { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+}
+/* ---------- Global Dream layer ---------- */
+:root { --cream: rgba(250, 246, 238, .86); --cream-solid: #FAF6EE; --ink: #2B2420; --ink2: #5E5146; --lake: #1F6E8C; --lake2: #164F66; --edge: rgba(255, 255, 255, .7); --shadow: 0 22px 60px rgba(60, 40, 20, .22); }
+body { font-family: Inter, system-ui, "Segoe UI", sans-serif; }
+#top { left: 16px; right: auto; padding: 6px 14px; border-radius: 999px; background: none; border-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; color: var(--ink); box-shadow: none; }
+#top b { font-size: 13px; letter-spacing: .2em; }
+.brandlogo { display: block; height: 52px; width: auto; }
+#top .where, #top .grow, #shapeBtn, #tourBtn, #soundBtn, #qBtn, #credit { display: none !important; }
+#hint { background: var(--cream); border-color: var(--edge); color: var(--ink2); top: auto; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); border-radius: 999px; }
+#dock { background: var(--cream); border-color: var(--edge); border-radius: 999px; padding: 6px; box-shadow: 0 10px 30px rgba(60, 40, 20, .14); }
+#dock .label { display: none; }
+#worlds button { border: none; background: transparent; color: var(--ink); padding: 11px 16px; font-size: 13px; font-weight: 500; min-height: 44px; }
+#worlds button:hover { background: rgba(43, 36, 32, .06); }
+#worlds button.here { opacity: 1; background: var(--lake); color: #fff; font-weight: 600; }
+#worlds button.next { border: none; background: rgba(31, 110, 140, .12); }
+.plabel { background: var(--cream); border: 1px solid var(--edge); color: var(--ink); font-size: 13px; font-weight: 500; padding: 8px 15px; margin-top: 10px; box-shadow: 0 8px 24px rgba(60, 40, 20, .14); }
+.plabel small { display: none; }
+.plabel.word { font: 600 26px/1.1 "Cormorant Garamond", Georgia, serif; padding: 8px 20px; }
+.plabel.pair { white-space: normal; max-width: 44vw; width: max-content; text-align: center; }   /* the two bubbles on a phone: labels wrap to two lines */
+#load { background: #E9E1D4 center / cover no-repeat; }
+#load .in { background: var(--cream); color: var(--ink); padding: 26px 30px; border-radius: 24px; border: 1px solid var(--edge); box-shadow: var(--shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+#load .in b { letter-spacing: .2em; font-size: 13px; }
+#load .bar { background: rgba(43, 36, 32, .12); } #load .bar i { background: var(--lake); }
+.gcard { position: fixed; z-index: 5; background: var(--cream); color: var(--ink); border: 1px solid var(--edge); border-radius: 24px; box-shadow: var(--shadow); backdrop-filter: blur(18px) saturate(1.15); -webkit-backdrop-filter: blur(18px) saturate(1.15); }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+.serif { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; }
+#wtitle { left: 16px; top: calc(98px + env(safe-area-inset-top, 0px)); width: min(420px, calc(100% - 32px)); padding: 22px 26px 24px; display: flex; flex-direction: column; gap: 10px; opacity: 0; transform: translateY(8px); transition: opacity .8s, transform .8s; pointer-events: none; }
+#wtitle.on { opacity: 1; transform: none; pointer-events: auto; }
+#wtitle h1 { margin: 0; font-size: 36px; line-height: 1.05; }
+#wtitle h1.hero { font-size: 64px; letter-spacing: .06em; }
+#wtitle p { margin: 0; font-size: 15px; line-height: 1.5; color: #3F352E; }
+/* everything the world says lives in the title card: fixed from arrival to the next world; past the dock's top it scrolls inside */
+#wtitle { max-height: calc(100vh - 98px - 86px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+#wtitle > * { flex: none; }
+#wtitle .wbody { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(43, 36, 32, .2) transparent; display: flex; flex-direction: column; gap: 12px; }
+#wtitle .wbody.fade { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); }
+.wsec { border-top: 1px solid rgba(43, 36, 32, .12); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.wsec b { font: 600 22px/1.1 "Cormorant Garamond", Georgia, serif; }
+.wsec span { font-size: 14px; line-height: 1.45; color: #4A3F37; }
+.wsec .tags { justify-content: flex-start; }
+.wsteps { flex-direction: row; flex-wrap: wrap; gap: 6px 4px; align-items: center; }
+.wsteps i { font-style: normal; font-size: 13px; font-weight: 500; padding: 7px 12px; border-radius: 999px; background: rgba(43, 36, 32, .06); color: var(--ink2); }
+.wsteps em { font-style: normal; color: var(--ink2); opacity: .6; }
+/* arrival, once per world: the card slides in from the top left, then the blocks one by one (--i), each heading starting in lake blue,
+   a wave of lake across the tags (--j) and the Move steps lighting up in turn; --t scales every time (0.7 on a phone) */
+#wtitle { --t: 1; }
+#wtitle.on { animation: wtIn calc(.9s * var(--t)) cubic-bezier(.2, .7, .2, 1) both; }
+#wtitle .wsec { --at: calc(.3s + var(--i) * .12s); animation: wsIn calc(.6s * var(--t)) ease-out calc(var(--at) * var(--t)) both; }
+#wtitle .wsec b { animation: wsInk calc(1.5s * var(--t)) ease-out calc(var(--at) * var(--t)) both; }
+#wtitle .tags i { animation: tagWave calc(1.25s * var(--t)) linear calc((var(--at) + .5s + var(--j) * .15s) * var(--t)) both; }
+#wtitle .wsteps i { animation: stepLit calc(.4s * var(--t)) ease-out calc((var(--at) + .5s + var(--j) * .35s) * var(--t)) both; }
+@keyframes wtIn { from { opacity: 0; transform: translate(-30px, -30px); } to { opacity: 1; transform: none; } }
+@keyframes wsIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes wsInk { from { color: var(--lake); } to { color: var(--ink); } }
+@keyframes tagWave { 0% { background-color: rgba(31, 110, 140, .1); color: var(--lake2); animation-timing-function: ease-out; } 20%, 52% { background-color: var(--lake); color: #fff; animation-timing-function: ease-in-out; } 100% { background-color: rgba(31, 110, 140, .1); color: var(--lake2); } }
+@keyframes stepLit { to { background-color: var(--lake); color: #fff; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.gbtn { align-self: flex-start; font: 600 14px Inter, sans-serif; color: #fff; background: var(--lake); border: none; text-decoration: none; padding: 13px 22px; border-radius: 999px; cursor: pointer; min-height: 44px; }
+.gbtn:hover { background: var(--lake2); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.tags i { font-style: normal; font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 999px; background: rgba(31, 110, 140, .1); color: var(--lake2); }
+/* Gia */
+#giaPill { right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 14px; padding: 8px 20px 8px 8px; border-radius: 999px; cursor: pointer; border: 1px solid var(--edge); text-align: left; font: inherit; color: var(--ink); transition: opacity .4s; }
+#giaPill .av { position: relative; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #EDE3D3; flex: none; box-shadow: 0 0 0 3px var(--cream-solid), 0 0 0 5px rgba(31, 110, 140, .25); transition: box-shadow .5s; }
+#giaPill.new .av { box-shadow: 0 0 0 3px var(--cream-solid), 0 0 0 6px rgba(31, 110, 140, .7); }
+#giaPill .av > * { width: 100%; height: 100%; object-fit: cover; display: block; }
+#giaPill b { display: block; font-size: 16px; } #giaPill span { font-size: 13px; color: var(--ink2); }
+body.gia-open #giaPill { opacity: 0; pointer-events: none; }
+#giaFig { position: fixed; z-index: 4; right: -10px; bottom: 0; height: min(84vh, 820px); aspect-ratio: 720 / 980; opacity: 0; transform: translateY(30px); transition: opacity .7s, transform .9s cubic-bezier(.2, .7, .2, 1); pointer-events: none; filter: drop-shadow(0 24px 40px rgba(40, 25, 10, .28)); }
+#giaFig > * { width: 100%; height: 100%; display: block; }
+body.gia-open #giaFig { opacity: 1; transform: none; }
+#giaWin { z-index: 6; right: calc(min(84vh, 820px) * 0.6); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 170px); display: flex; flex-direction: column; opacity: 0; transform: translateY(12px); transition: opacity .6s, transform .6s; pointer-events: none; }
+body.gia-open #giaWin { opacity: 1; transform: none; pointer-events: auto; }
+#giaWin header { display: flex; justify-content: space-between; align-items: center; padding: 18px 18px 4px 28px; }
+#giaWin .x { width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: var(--ink2); display: grid; place-items: center; cursor: pointer; }
+#giaWin .x:hover { background: rgba(43, 36, 32, .06); }
+#giaBody { overflow-y: auto; padding: 4px 28px 28px; display: flex; flex-direction: column; gap: 14px; }
+#giaBody > * { opacity: 0; transform: translateY(6px); transition: opacity .7s, transform .7s; }
+#giaBody > .in { opacity: 1; transform: none; }
+#giaBody h2 { margin: 0; font-size: 30px; line-height: 1.08; } #giaBody h3 { margin: 6px 0 0; font-size: 24px; line-height: 1.1; }
+#giaBody p { margin: 0; font-size: 15px; line-height: 1.55; color: #3F352E; }
+#giaBody .q { font: italic 500 21px/1.3 "Cormorant Garamond", Georgia, serif; color: var(--ink); }
+#giaBody .strong { font-weight: 600; color: var(--ink); }
+#giaBody .small { font-size: 13px; color: var(--ink2); }
+.box { background: rgba(243, 236, 223, .9); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
+.box .row { display: flex; justify-content: space-between; gap: 12px; } .box .row em { font-style: normal; font-weight: 600; color: var(--lake2); white-space: nowrap; }
+.box .li { display: flex; gap: 10px; align-items: center; } .box .li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--lake); flex: none; }
+.bar2 { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; font-size: 13px; } .bar2 span { height: 6px; border-radius: 3px; background: rgba(43, 36, 32, .1); overflow: hidden; } .bar2 span i { display: block; height: 100%; background: var(--lake); }
+.steps4 { display: grid; gap: 8px; } .steps4 div { display: flex; gap: 12px; align-items: baseline; font-size: 15px; } .steps4 div b { font-size: 12px; color: var(--lake2); letter-spacing: .1em; }
+#giaWin.finale { width: min(480px, calc(100vw - 32px)); }
+#giaWin.finale h2 { font-size: 44px; }
+#gdVeil { position: fixed; inset: 0; z-index: 2; background: var(--cream-solid); opacity: 0; pointer-events: none; transition: opacity .48s cubic-bezier(.4, 0, .2, 1); }
+#gdVeil.on { opacity: 1; }
+/* attention cue, 4 s cycle: for ~2 s a gold ring emerges from behind the avatar's frame, spreads ~20 px past the portrait and dissolves,
+   while the pill warms to peach and back; then ~2 s of stillness. The ring lives on the pill, since .av clips its children;
+   --av / --avx are the avatar's size and left offset; z-index -1 keeps it under the avatar and the text. */
+@keyframes giaWarm { 0% { background-color: rgba(250, 246, 238, .86); animation-timing-function: ease-in-out; } 25% { background-color: rgba(235, 207, 165, .98); animation-timing-function: ease-in-out; } 50%, 100% { background-color: rgba(250, 246, 238, .86); } }
+@keyframes giaRing { 0% { opacity: 0; transform: scale(1); animation-timing-function: ease-out; } 6% { opacity: 1; transform: scale(1.05); animation-timing-function: ease-out; } 50%, 100% { opacity: 0; transform: scale(1.4); } }
+#giaPill { --av: 64px; --avx: 8px; animation: giaWarm 4s 1s infinite; }
+#giaPill::after { content: ""; position: absolute; z-index: -1; top: 50%; left: calc(var(--avx) - 5px); width: calc(var(--av) + 10px); height: calc(var(--av) + 10px); margin-top: calc(var(--av) / -2 - 5px);
+  box-sizing: border-box; border: 3.5px solid #C58B35; border-radius: 50%; box-shadow: 0 0 10px 1px rgba(197, 139, 53, .45); pointer-events: none; opacity: 0; animation: giaRing 4s 1s infinite; }
+#giaPill:hover, #giaPill:focus-visible { animation: none; } #giaPill:hover::after, #giaPill:focus-visible::after { animation: none; opacity: .8; transform: scale(1.07); }
+#giaPill:focus-visible { outline: 2px solid var(--lake); outline-offset: 3px; }
+body.gia-open #giaPill, body.gia-open #giaPill::after { animation: none; } body.gia-open #giaPill::after { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { #giaPill, #giaPill::after { animation: none; } }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 900px) {
+  .brandlogo { height: 38px; }
+  #wtitle { top: calc(76px + env(safe-area-inset-top, 0px)); padding: 16px 18px; } #wtitle h1 { font-size: 26px; } #wtitle p.lead { display: none; } #wtitle h1.hero { font-size: 44px; } #wtitle p { font-size: 14px; }
+  #wtitle { max-height: min(34vh, calc(44vh - 90px)); gap: 8px; --t: .7; } #wtitle .wbody { gap: 8px; max-height: 40vh; transition: opacity .4s, max-height .4s, margin-top .4s; }
+  .plabel { white-space: normal; max-width: 56vw; width: max-content; text-align: center; }   /* bubble labels wrap to two lines, as for the pair */
+  body.gia-open #wtitle .wbody { opacity: 0; max-height: 0; margin-top: -8px; pointer-events: none; }   /* Gia open: the card keeps only the world's title */
+  .wsec { padding-top: 8px; gap: 6px; } .wsec b { font-size: 17.5px; } .wsec span { display: none; } .wsec span.solo { display: block; font-size: 13px; }
+  .wsteps { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; flex: none; } .wsteps i { font-size: 12px; padding: 5px 9px; white-space: nowrap; flex: none; }
+  #giaPill { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); padding: 6px; } #giaPill .t { display: none; } #giaPill .av { width: 56px; height: 56px; } #giaPill { --av: 56px; --avx: 6px; }
+  #giaFig { height: 30vh; right: -6px; bottom: calc(52vh - 4px); z-index: 5; }
+  #giaWin { left: 0; right: 0; bottom: 0; width: 100%; max-height: 56vh; border-radius: 28px 28px 0 0; }
+  #giaWin.full { max-height: 90vh; }
+  #hint { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  #dock { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); } #worlds { overflow-x: auto; } #worlds button { padding: 10px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { #giaBody > *, #wtitle, #giaWin, #giaFig { transition: none; }
+  #wtitle.on, #wtitle .wsec { animation: fadeIn .3s both; } #wtitle .wsec b, #wtitle .tags i, #wtitle .wsteps i { animation: none; }
+  #wtitle .wsteps i { background-color: var(--lake); color: #fff; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+  "@sparkjsdev/spark": "https://cdn.jsdelivr.net/npm/@sparkjsdev/spark@2.2.0/dist/spark.module.js"
+} }
+</script>
+</head>
+<body>
+<canvas id="gl" aria-label="A lakeside villa to walk through, with bubbles that open onto other rooms"></canvas>
+<div id="labels"></div>
+<header id="top" class="glass">
+  <img src="brand/glonari-logo-160.png" alt="Glonari — Experience more." class="brandlogo" width="533" height="160">
+  <span class="where">You are in <i id="here">…</i></span>
+  <div class="grow"></div>
+  <button class="btn on" id="shapeBtn" title="Portal shape: click for the next one">Shape: Blob</button>
+  <button class="btn" id="tourBtn">Auto tour</button>
+  <button class="btn on" id="soundBtn" aria-pressed="true">Sound on</button>
+  <button class="btn" id="qBtn" title="Picture quality. Auto adapts to this device.">Auto</button>
+</header>
+<div id="gdVeil" aria-hidden="true"></div>
+<div id="hint" class="glass">Scroll on a bubble to change its world · click it, or walk into it, to step in · click anywhere to open another · drag to look · hold or W A S D to walk</div>
+<div id="dock" class="glass"><div id="worlds"></div></div>
+<div class="bar t"></div><div class="bar b"></div><div id="fade"></div>
+<div id="cap"><b></b><span></span></div>
+<div id="endcard"><b>Simam Digital</b><span>Gaussian splat worlds in the browser</span><span style="letter-spacing:.12em;text-transform:none">lab.simamdigital.com</span></div>
+<div id="playbox"><button id="playBtn">Play the story</button><p>Sound on. Record at 1080 × 1920 for Reels and TikTok, or full screen for YouTube. R replays, Esc stops. Add &amp;letterbox for cinema bars.</p></div>
+<div id="title"><div id="titleT"></div><small id="titleS"></small></div>
+<div id="credit">Inspired by <a href="https://x.com/XRarchitect" target="_blank" rel="noopener">Ian Curtis (@XRarchitect)</a> of World Labs · Open source on <a href="https://github.com/Simam-Digital-Ltd/splat-portals" target="_blank" rel="noopener">GitHub</a> · AI-generated worlds by Simam Digital</div>
+<div id="load"><div class="in"><b>GLOBAL DREAM</b><div class="bar"><i id="loadBar"></i></div><span id="loadMsg" style="color:var(--muted);font-size:13px"></span></div></div>
+
+<script type="module">
+import * as THREE from "three";
+import { SparkRenderer, SplatMesh, dyno } from "@sparkjsdev/spark";
+
+const BASE = location.pathname.includes("/demos/") ? "/demos/portals/" : "./";
+const Q = new URLSearchParams(location.search), DEBUG = Q.has("debug"), STORY = Q.has("story");
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const PANO = new URLSearchParams(location.search).get("mode") !== "splat";   // Global Dream: the worlds as sharp 360° panoramas (?mode=splat for the 3D splats)
+const PHONE = matchMedia("(pointer: coarse)").matches;
+let MAXP = PHONE ? 2 : 3;   // bubbles at once (each one draws a whole extra world every frame); quality may lower it
+const $ = (id) => document.getElementById(id);
+const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+
+// ---------- the worlds (AI-generated Gaussian splats). flip: stored y-down, so turn it the right way up ----------
+// ---------- the worlds are listed in worlds.json; a story can bring its own (they stay out of the dock) ----------
+const WORLDS = await (await fetch(BASE + "worlds.json")).json();
+const SNAME = (Q.get("story") || "default").replace(/[^\w-]/g, "");
+const SDEF = STORY ? await fetch(`${BASE}stories/${SNAME}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null) : null;
+for (const w of SDEF?.worlds || []) if (!WORLDS.some((x) => x.id === w.id)) WORLDS.push({ ...w, hidden: true });
+const WIX = (id) => WORLDS.findIndex((w) => w.id === id), V3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+const story = { cam: null, run: 0 };   // ?story owns the camera while it plays
+if (Q.has("flips")) Q.get("flips").split("").forEach((c, i) => WORLDS[i] && (WORLDS[i].flip = c === "1"));
+
+// ---------- renderer ----------
+const canvas = $("gl");
+function noGL(msg) { $("load").classList.remove("done"); $("load").querySelector("b").textContent = "This browser can't draw the 3D worlds"; $("loadMsg").textContent = msg; $("loadBar").parentElement.style.display = "none"; }
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance", preserveDrawingBuffer: DEBUG }); }
+catch (e) { noGL("It needs WebGL 2, which is off or missing here. Try a recent Chrome, Edge, Firefox or Safari with hardware acceleration switched on."); throw e; }
+canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); noGL("The graphics driver was reset. Reload the page to carry on."); });
+
+// ---------- quality: a starting level from the device, then it adapts to the frame rate ----------
+// scale: render resolution. ps: resolution of the view inside a bubble. pr: pixel-ratio cap. np: spark rate.
+// std / px: how far each splat spreads (smaller is cheaper to fill). sortMs: how often splats re-sort. mod: re-run the world effect every n frames.
+const STEPS = [
+  { name: "Light", scale: 0.55, ps: 0.5, pr: 1, maxp: 1, np: 0.3, std: 2.0, px: 96, sortMs: 80, blurN: 8, mod: 4, spare: 0, skip: true },
+  { name: "Balanced", scale: 0.75, ps: 0.6, pr: 1.25, maxp: 2, np: 0.55, std: 2.3, px: 200, sortMs: 40, blurN: 14, mod: 2, spare: 1, skip: false },
+  { name: "High", scale: 0.9, ps: 0.8, pr: 1.5, maxp: 3, np: 0.8, std: 2.6, px: 360, sortMs: 16, blurN: 20, mod: 1, spare: 1, skip: false },
+  { name: "Full", scale: 1, ps: 1, pr: 1.75, maxp: 3, np: 1, std: Math.sqrt(8), px: 512, sortMs: 0, blurN: 28, mod: 1, spare: 2, skip: false },
+];
+const gl0 = renderer.getContext(), dbgInfo = gl0.getExtension("WEBGL_debug_renderer_info");
+const GPU = dbgInfo ? String(gl0.getParameter(dbgInfo.UNMASKED_RENDERER_WEBGL)) : "";
+const SOFT = /swiftshader|llvmpipe|softpipe|basic render|software/i.test(GPU);   // no graphics card in use at all
+const WEAK = /mali-[2-7]\d\d|mali-g[1-5]\d\b|adreno[^0-9]*[3-5]\d\d|powervr|gma /i.test(GPU) || (navigator.deviceMemory ?? 8) <= 4 || (navigator.hardwareConcurrency ?? 8) <= 4;
+const QP = { light: 0, balanced: 1, high: 2, full: 3 }[Q.get("quality")];
+const QMIN = PANO ? 2 : PHONE ? 1 : 2;   // Global Dream: keep the picture sharp
+const startStep = PANO ? (PHONE ? 2 : 3) : Math.max(QMIN, SOFT ? 0 : WEAK ? 1 : PHONE || /intel/i.test(GPU) ? 2 : 3), qTop = PHONE ? 2 : 3;
+let qAuto = QP === undefined && !STORY, step = QP ?? (STORY ? 3 : startStep), QL = STEPS[step], lastUp = -1, quietUntil = 0;
+const upFails = [0, 0, 0, 0];
+function tuneSpark(w) { w.spark.maxStdDev = QL.std; w.spark.maxPixelRadius = QL.px; w.spark.minSortIntervalMs = QL.sortMs; }
+function applyQuality() {
+  QL = STEPS[step]; MAXP = Math.min(QL.maxp, PHONE ? 2 : 3);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, QL.pr, PHONE ? 1.4 : 1.75)); resize();
+  for (const pr of cache.values()) pr.then(tuneSpark, () => {});
+  sparkGeo.setDrawRange(0, Math.max(8, Math.round(NS * QL.np))); postMat.uniforms.uN.value = QL.blurN; postMat.uniforms.uSharp.value = [0, 0.22, 0.32, 0.38][step];
+  while (portals.length > MAXP) { const old = portals.find((p) => !p.expand); if (!old) break; removePortal(old); }
+  $("qBtn").textContent = (qAuto ? "Auto: " : "") + QL.name; evict();
+}
+const camera = new THREE.PerspectiveCamera(70, 1, 0.05, 2000);
+const rtMain = new THREE.WebGLRenderTarget(1, 1);
+const res = new THREE.Vector2(1, 1);
+
+// ---------- each world: its own scene and SparkRenderer, so each sorts for its own camera ----------
+const cache = new Map();
+// world files are kept in the browser's cache storage, so a second visit (or a world seen before) opens from disk
+const STORE = "splat-portals-v2";
+const SLOW_NET = !!navigator.connection && (navigator.connection.saveData || /2g|3g/.test(navigator.connection.effectiveType || ""));
+const openStore = () => (self.caches ? caches.open(STORE).catch(() => null) : Promise.resolve(null));
+if (self.caches) caches.keys().then((ks) => ks.filter((k) => k.startsWith("splat-portals-") && k !== STORE).forEach((k) => caches.delete(k))).catch(() => {});
+async function fetchBytes(url, onProg) {
+  const store = await openStore(); let r = store ? await store.match(url).catch(() => null) : null; const fresh = !r;
+  if (!r) r = await fetch(url);
+  if (!r.ok) throw new Error(url + " " + r.status);
+  if (fresh && store) store.put(url, r.clone()).catch(() => {});
+  const n = +r.headers.get("content-length") || 0, rd = r.body.getReader(), parts = []; let got = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; onProg?.(n ? got / n : 0); }
+  const o = new Uint8Array(got); let k = 0; for (const p of parts) { o.set(p, k); k += p.length; } return o;
+}
+function loadWorld(i, onProg) {   // the light version first, unless the full file is already on disk; the full one swaps in behind it
+  if (cache.has(i)) return cache.get(i);
+  const W = WORLDS[i], p = (async () => {
+    if (PANO || !W.lite || STORY || (await stored(BASE + W.file))) return buildWorld(i, W.file, onProg);   // the story records at full quality
+    const rec = await buildWorld(i, W.lite, onProg); rec.lite = true; if (step > 0) queueUpgrade(i, rec); return rec;   // Light quality keeps the light version
+  })();
+  cache.set(i, p); return p;
+}
+const stored = async (url) => { const st = await openStore(); return !!(st && (await st.match(url).catch(() => null))); };
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const upgrading = new Set(); let upQ = Promise.resolve();
+function queueUpgrade(i, lite) { upgrading.add(i); upQ = upQ.then(() => upgrade(i, lite)).finally(() => upgrading.delete(i)); }
+async function upgrade(i, lite) {   // one at a time, in the order the worlds were opened
+  try {
+    if ((await cache.get(i)) !== lite) return;   // already gone
+    const full = await buildWorld(i, WORLDS[i].file);
+    while (busy()) await wait(300);   // never swap mid-transition
+    if (!cache.has(i) || (await cache.get(i)) !== lite) { scrap(full); return; }
+    cache.set(i, Promise.resolve(full)); full.grid = lite.grid; full.U.bp.value.copy(lite.U.bp.value);
+    if (A === lite) A = full;
+    for (const P of portals) if (P.B === lite) { P.B = full; setClip(full, true); }
+    scrap(lite);
+  } catch (e) { console.warn("upgrade", e); }
+}
+function scrap(w) { try { w.mesh.dispose?.(); w.spark.dispose?.(); } catch {} }
+async function buildPano(i, onProg) {   // a world as its own 360° photo on a big sphere around the point it was taken from
+  const W = WORLDS[i], scene = new THREE.Scene(); scene.background = new THREE.Color(W.bg ?? 0x06040c);
+  const url = BASE + (PHONE ? `pano/${W.id}.webp` : `pano/${W.id}-8k.webp`);
+  const blob = new Blob([await fetchBytes(url, onProg)], { type: "image/webp" }), bmp = await createImageBitmap(blob, { imageOrientation: "flipY" });
+  const tex = new THREE.Texture(bmp); tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex.needsUpdate = true;
+  const geo = new THREE.SphereGeometry(200, 128, 64); geo.scale(-1, 1, 1);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, depthWrite: false });
+  const mesh = new THREE.Mesh(geo, mat); mesh.rotation.y = -Math.PI / 2; mesh.updateMatrixWorld(true); mesh.updateVersion = () => {}; scene.add(mesh);
+  const U = { clip: { value: new THREE.Vector4() }, burst: { value: 0 }, bp: { value: new THREE.Vector3() }, glowP: { value: new THREE.Vector3() }, glowR: { value: 0 }, t: { value: 0 } };
+  return { i, scene, mesh, U, S: null, windy: false, pano: true, grid: new Uint8Array(1), spark: { dispose() { tex.dispose(); bmp.close?.(); geo.dispose(); mat.dispose(); } } };
+}
+async function buildWorld(i, file, onProg) {
+  if (PANO) return buildPano(i, onProg);
+    const W = WORLDS[i], scene = new THREE.Scene(); scene.background = new THREE.Color(W.bg ?? 0x06040c); const spark = new SparkRenderer({ renderer }); scene.add(spark);
+    const S = W.scene ? await (await fetch(BASE + W.scene)).json() : null;
+    const mesh = new SplatMesh({ fileBytes: await fetchBytes(BASE + file, onProg), fileType: "pcsogszip" });
+    await mesh.initialized;
+    if (W.flip) mesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
+    let crop = new THREE.Vector4(0, 0, 0, 1e9);
+    const WS = (W.wind?.spheres || []).slice(0, 4), wind = {}, windT = {};
+    if (S) {   // place the capture in metres, y up, and crop the far, thin edges of the scan
+      const M = new THREE.Matrix4().fromArray(S.matrix).transpose(); M.decompose(mesh.position, mesh.quaternion, mesh.scale); mesh.updateMatrixWorld(true);
+      const mid = S.path.reduce((a, x) => a.add(V3(x.p)), new THREE.Vector3()).multiplyScalar(1 / S.path.length).setY(0);
+      const c = mid.applyMatrix4(M.clone().invert()); crop.set(c.x, c.y, c.z, (S.crop_m || 90) / Math.abs(mesh.scale.x));
+    }
+    const U = { clip: dyno.dynoVec4(new THREE.Vector4(0, 0, 0, -1e9)), burst: dyno.dynoFloat(0), bp: dyno.dynoVec3(new THREE.Vector3()), glowP: dyno.dynoVec3(new THREE.Vector3(1e9, 0, 0)), glowR: dyno.dynoFloat(0), t: dyno.dynoFloat(0), crop: dyno.dynoVec4(crop),
+      grade: dyno.dynoVec4(new THREE.Vector4(W.grade?.exposure ?? 0, W.grade?.shadows ?? 0, W.grade?.warmth ?? 0, W.grade?.saturation ?? 1)) };
+    if (WS.length) {   // wind: spheres in world metres [x, y, z, radius, ground y, canopy top y]; the shader works in the splat's own space, so pass both ways
+      mesh.updateMatrixWorld(true); const e = mesh.matrixWorld.elements, iv = new THREE.Matrix3().setFromMatrix4(mesh.matrixWorld).invert().elements, wd = W.wind, v3 = (a, b, c) => dyno.dynoVec3(new THREE.Vector3(a, b, c));
+      Object.assign(wind, { wr0: v3(e[0], e[4], e[8]), wr1: v3(e[1], e[5], e[9]), wr2: v3(e[2], e[6], e[10]), wt: v3(e[12], e[13], e[14]),
+        ir0: v3(iv[0], iv[3], iv[6]), ir1: v3(iv[1], iv[4], iv[7]), ir2: v3(iv[2], iv[5], iv[8]),
+        wp: dyno.dynoVec4(new THREE.Vector4(wd.strength ?? 0.12, wd.speed ?? 1.6, wd.gust ?? 0.5, wd.flutter ?? 0.3)),
+        wq: dyno.dynoVec4(new THREE.Vector4(wd.direction ?? 0.6, wd.travel ?? 2, wd.leavesOnly === false ? 0 : 1, 0)) });
+      for (const k of ["wr0", "wr1", "wr2", "wt", "ir0", "ir1", "ir2"]) windT[k] = "vec3"; windT.wp = windT.wq = "vec4";
+      WS.forEach((q, k) => { wind["s" + k] = dyno.dynoVec4(new THREE.Vector4(q[0], q[1], q[2], q[3])); wind["g" + k] = dyno.dynoVec4(new THREE.Vector4(k + 1, q[4], q[5], 0)); windT["s" + k] = windT["g" + k] = "vec4"; });
+    }
+    const windGL = (i, o) => !WS.length ? "" : `
+          { vec3 wpos = vec3(dot(${i.wr0}, p), dot(${i.wr1}, p), dot(${i.wr2}, p)) + ${i.wt};
+            float sw = 0.0, hh = 0.0, tid = 0.0;
+            ${WS.map((_, k) => `{ float d = distance(wpos, ${i["s" + k]}.xyz); if (d < ${i["s" + k]}.w) {
+              float h = clamp((wpos.y - ${i["g" + k]}.y) / max(${i["g" + k]}.z - ${i["g" + k]}.y, 1e-3), 0.0, 1.0);
+              float q = pow(h, 1.3) * (1.0 - smoothstep(${i["s" + k]}.w * 0.75, ${i["s" + k]}.w, d)); if (q > sw) { sw = q; hh = h; tid = ${i["g" + k]}.x; } } }`).join("\n            ")}
+            vec4 cl = ${i.gsplat}.rgba; sw *= mix(1.0, smoothstep(0.0, 0.05, cl.g - max(cl.r, cl.b)), ${i.wq}.z);   // leaves sway; stone, walls and signs do not
+            if (sw > 0.0) {
+              float ph = fract(tid * 0.61803) * 6.28318 + 0.6 * sin(wpos.x * 0.37) + 0.6 * sin(wpos.z * 0.29), tt = ${i.t};
+              vec2 wd = vec2(cos(${i.wq}.x), sin(${i.wq}.x));
+              float mag = ${i.wp}.x * sw * (1.0 + ${i.wp}.z * sin(tt * 0.5 + ph)) * sin(tt * ${i.wp}.y - hh * ${i.wq}.y + ph);   // bend travels up the tree, with gusts
+              float flick = ${i.wp}.x * ${i.wp}.w * sw * sin(tt * ${i.wp}.y * 3.1 + ph * 2.3 + hh * 17.0);   // leaf flutter, across the wind
+              vec3 off = vec3(wd.x * mag - wd.y * flick, 0.0, wd.y * mag + wd.x * flick);
+              ${o.gsplat}.center += vec3(dot(${i.ir0}, off), dot(${i.ir1}, off), dot(${i.ir2}, off));
+            } }`;
+    mesh.objectModifier = dyno.dynoBlock({ gsplat: dyno.Gsplat }, { gsplat: dyno.Gsplat }, ({ gsplat }) => {
+      const d = new dyno.Dyno({ inTypes: { gsplat: dyno.Gsplat, clip: "vec4", burst: "float", bp: "vec3", gp: "vec3", gr: "float", t: "float", crop: "vec4", grade: "vec4", ...windT }, outTypes: { gsplat: dyno.Gsplat },
+        statements: ({ inputs: i, outputs: o }) => dyno.unindentLines(`
+          ${o.gsplat} = ${i.gsplat};
+          vec3 p = ${i.gsplat}.center;
+          { vec3 c = ${i.gsplat}.rgba.rgb * exp2(${i.grade}.x);   // the world's grade (worlds.json "grade")
+            c *= 1.0 + ${i.grade}.y * (1.0 - smoothstep(0.0, 0.6, dot(c, vec3(0.2126, 0.7152, 0.0722))));   // lift the shadows, keeping their colour
+            c += ${i.grade}.z * vec3(0.035, 0.012, -0.03);
+            c = mix(vec3(dot(c, vec3(0.2126, 0.7152, 0.0722))), c, ${i.grade}.w);
+            vec3 k = max(c - 0.75, 0.0); c = min(c, 0.75) + 0.25 * (1.0 - exp(-k * 4.0));   // soft shoulder: bright, never clipped
+            ${o.gsplat}.rgba.rgb = c; }
+          float side = dot(${i.clip}.xyz, p) + ${i.clip}.w;
+          ${o.gsplat}.rgba.a *= 1.0 - smoothstep(-0.04, 0.0, side);
+          ${o.gsplat}.rgba.a *= step(distance(p, ${i.crop}.xyz), ${i.crop}.w);
+          ${windGL(i, o)}
+          float dg = distance(p, ${i.gp});
+          float ring = exp(-pow((dg - ${i.gr}) * 2.2, 2.0));
+          float tw = 0.5 + 0.5 * sin(${i.t} * 7.0 + dot(p, vec3(91.7, 47.3, 13.1)));
+          ${o.gsplat}.rgba.rgb += vec3(0.75, 0.35, 1.0) * ring * tw * 0.3;
+          if (${i.burst} > 0.0) {
+            float h = fract(sin(dot(p, vec3(12.99, 78.23, 37.71))) * 43758.55);
+            vec3 dir = normalize(p - ${i.bp} + vec3(h - 0.5, fract(h * 7.1) - 0.5, fract(h * 3.7) - 0.5));
+            ${o.gsplat}.center = p + dir * ${i.burst} * (0.6 + h * 2.4);
+            ${o.gsplat}.scales *= 1.0 - 0.75 * ${i.burst};
+            ${o.gsplat}.rgba.rgb = mix(${o.gsplat}.rgba.rgb, vec3(1.0, 0.75, 1.0), ${i.burst} * 0.5);
+            ${o.gsplat}.rgba.a *= 1.0 - smoothstep(0.55, 1.0, ${i.burst});
+          }`) });
+      return { gsplat: d.apply({ gsplat, clip: U.clip, burst: U.burst, bp: U.bp, gp: U.glowP, gr: U.glowR, t: U.t, crop: U.crop, grade: U.grade, ...wind }).gsplat };
+    });
+    mesh.updateGenerator(); scene.add(mesh); scene.updateMatrixWorld(true);
+    const rec = { i, scene, spark, mesh, U, S, windy: WS.length > 0 }; tuneSpark(rec);
+    quietUntil = performance.now() + 1500; return rec;   // the collision grid is built only when you enter the world
+}
+// solid space: a 12 cm voxel grid of the world's opaque, small splats (so sparks can hit walls, beds and floors)
+const GC = 0.12, GNX = 240, GNY = 92, GNZ = 240, GX0 = -14.4, GY0 = -4.4, GZ0 = -14.4;
+function buildGrid(w) {
+  const g = new Uint8Array(GNX * GNY * GNZ), M = w.mesh.matrixWorld, v = new THREE.Vector3();
+  try {
+    w.mesh.forEachSplat((i, c, sc, q, o) => {
+      if (o < 0.3 || Math.max(sc.x, sc.y, sc.z) > 0.45) return;
+      v.copy(c).applyMatrix4(M); const x = Math.floor((v.x - GX0) / GC), y = Math.floor((v.y - GY0) / GC), z = Math.floor((v.z - GZ0) / GC);
+      if (x < 0 || y < 0 || z < 0 || x >= GNX || y >= GNY || z >= GNZ) return;
+      const k = (y * GNZ + z) * GNX + x; if (g[k] < 255) g[k]++;
+    });
+  } catch (e) { console.warn("grid", e); }
+  w.grid = g;
+}
+function solid(g, x, y, z) {
+  const ix = Math.floor((x - GX0) / GC), iy = Math.floor((y - GY0) / GC), iz = Math.floor((z - GZ0) / GC);
+  if (ix < 0 || iy < 0 || iz < 0 || ix >= GNX || iy >= GNY || iz >= GNZ) return 0;
+  return g[(iy * GNZ + iz) * GNX + ix] >= 2 ? 1 : 0;
+}
+function warmList() {   // the worlds one scroll away from each bubble, the bubble you face first
+  const out = [], u = used(), F = focusPortal();
+  for (const P of [...portals].sort((a, b) => (b === F) - (a === F))) for (const dir of [1, -1])
+    for (let k = 1; k <= WORLDS.length; k++) { const i = (((P.w + dir * k) % WORLDS.length) + WORLDS.length) % WORLDS.length; if (!u.has(i)) { if (!out.includes(i)) out.push(i); break; } }
+  return out.slice(0, QL.spare);
+}
+let warming = false;
+async function prewarm() {   // decode those worlds ahead of time, one by one, so a scroll swaps instantly
+  if (warming || STORY) return; warming = true;
+  try { for (const i of warmList()) { if (cache.has(i)) continue; if (portals.some((p) => p.loading) || busy()) break; await loadWorld(i); await new Promise((r) => setTimeout(r, 400)); } }
+  catch (e) { console.warn("prewarm", e); } finally { warming = false; }
+}
+async function prefetchAll() {   // then download every other world into cache storage in the background (not on slow or metered connections)
+  const store = await openStore(); if (!store || SLOW_NET) return;
+  const order = [...WORLDS.keys()].map((k) => (here + k) % WORLDS.length).filter((i) => !WORLDS[i].hidden).slice(0, PHONE ? 4 : WORLDS.length);
+  for (const i of order) {
+    const url = BASE + (PANO ? (PHONE ? `pano/${WORLDS[i].id}.webp` : `pano/${WORLDS[i].id}-8k.webp`) : WORLDS[i].file);
+    try {
+      if (await store.match(url)) continue;
+      while (portals.some((p) => p.loading) || busy() || upgrading.size) await wait(1000);
+      const r = await fetch(url); if (r.ok) await store.put(url, r);
+      await new Promise((r) => setTimeout(r, 600));
+    } catch { return; }   // storage full or offline: stop quietly
+  }
+}
+async function evict() {   // keep the GPU light: the world you are in, the bubbles' worlds, and the ones a scroll away
+  if (STORY) return;   // the story keeps its few worlds ready
+  const keep = new Set([here, ...portals.map((p) => p.w), ...warmList()]);
+  for (const [i, pr] of [...cache]) {
+    if (keep.has(i)) continue;
+    cache.delete(i); try { scrap(await pr); } catch {}
+  }
+}
+function setClip(w, on) {   // seen through a bubble: hide what lies between the far camera and the far portal (world z > 0)
+  if (!on) { w.U.clip.value.set(0, 0, 0, -1e9); w.mesh.updateVersion(); return; }
+  const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0).applyMatrix4(w.mesh.matrixWorld.clone().invert());
+  w.U.clip.value.set(pl.normal.x, pl.normal.y, pl.normal.z, pl.constant); w.mesh.updateVersion();
+}
+const toLocal = (w, v) => v.clone().applyMatrix4(w.mesh.matrixWorld.clone().invert());
+
+// ---------- shaders shared by every bubble ----------
+const PORTAL_FS = `
+  uniform sampler2D tB; uniform vec2 uRes; uniform float uT, uOpen, uShape, uLoading, uSeed, uFlash, uJig, uDraw, uStart; uniform float uRing[40]; varying vec2 vP;
+  float ringAt(float ang) { float f = (ang / 6.2831853 + 0.5) * 40.0, fl = floor(f); int i0 = int(mod(fl, 40.0)), i1 = int(mod(fl + 1.0, 40.0)); float t = f - fl; t = t * t * (3.0 - 2.0 * t); return mix(uRing[i0], uRing[i1], t); }
+  float h(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+  float n3(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(h(i), h(i + vec3(1,0,0)), f.x), mix(h(i + vec3(0,1,0)), h(i + vec3(1,1,0)), f.x), f.y),
+               mix(mix(h(i + vec3(0,0,1)), h(i + vec3(1,0,1)), f.x), mix(h(i + vec3(0,1,1)), h(i + vec3(1,1,1)), f.x), f.y), f.z); }
+  float fbm(vec3 p) { return 0.55 * n3(p) + 0.3 * n3(p * 2.1) + 0.15 * n3(p * 4.3); }
+  float sdBox(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
+  float sdTri(vec2 p, float r) { const float k = 1.7320508; p.x = abs(p.x) - r; p.y = p.y + r / k; if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) / 2.0; p.x -= clamp(p.x, -2.0 * r, 0.0); return -length(p) * sign(p.y); }
+  float sdShape(vec2 p) {   // the sorcerer shapes at unit size: ring, square, triangle, door, diamond (spiral ends as a ring)
+    if (uShape < 3.5 || uShape > 7.5) return length(p) - 0.72;
+    if (uShape < 4.5) return sdBox(p, vec2(0.62), 0.04);
+    if (uShape < 5.5) return sdTri(p, 0.69);
+    if (uShape < 6.5) return sdBox(p, vec2(0.5, 0.95), 0.06);
+    return sdBox(mat2(0.7071, -0.7071, 0.7071, 0.7071) * p, vec2(0.58), 0.03);
+  }
+  vec3 film(float x) { return 0.55 + 0.45 * cos(6.2831 * (x + vec3(0.0, 0.33, 0.67))); }
+  void main() {
+    vec2 p = vP; float ang = atan(p.y, p.x), open = uOpen, d, dR = 0.0, drawn = 1.0, head = 0.0;
+    if (uShape < 0.5) {   // blob: an organic, slowly breathing outline
+      vec2 cs = vec2(cos(ang), sin(ang));
+      float wob = fbm(vec3(cs * 1.4 + uSeed, uT * 0.33)) - 0.5, wob2 = fbm(vec3(cs * 3.1 - uSeed, uT * 0.6)) - 0.5;
+      float R = 0.74 * open * (1.0 + ringAt(ang) + 0.24 * wob + 0.08 * wob2);
+      d = length(p) - R;
+    } else if (uShape < 1.5) { float R = 0.66 * open * (1.0 + ringAt(ang)); R += 0.01 * sin(ang * 3.0 + uT * 2.1); d = length(p) - R; }
+    else if (uShape < 2.5) { d = sdBox(p, vec2(0.62, 0.98) * open, 0.18 * open) - ringAt(ang) * 0.7 * open; d += (fbm(vec3(p * 5.0, uT * 0.7)) - 0.5) * 0.13 * open; }
+    else {   // sorcerer: the rim stays full size while the view irises open inside it
+      float rs = max(open, 1.0), io = max(open, 1e-3), wob = ringAt(ang) * 0.6;
+      dR = sdShape(p / rs) * rs - wob * rs; d = sdShape(p / io) * io - wob * io;
+      float phi = mod(ang - uStart, 6.2831853), sweep = uDraw * 6.2831853;
+      if (uShape > 7.5 && uDraw < 1.0) {   // spiral: drawn from the centre outward in two turns
+        float best = 1e3; for (int k = 0; k < 2; k++) { float th = phi + 6.2831853 * float(k); if (th <= uDraw * 12.566) best = min(best, abs(length(p) - 0.72 * th / 12.566)); }
+        dR = best; float th0 = uStart + uDraw * 12.566; head = exp(-length(p - 0.72 * uDraw * vec2(cos(th0), sin(th0))) * 26.0) * step(0.001, uDraw);
+      } else if (uDraw < 1.0) {   // drawn round the outline by a white-hot point
+        drawn = smoothstep(sweep + 0.02, sweep - 0.08, phi); float hd = abs(phi - sweep); hd = min(hd, 6.2831853 - hd);
+        head = exp(-hd * 9.0) * exp(-abs(dR) * 40.0) * step(0.001, uDraw);
+      }
+    }
+    float alive = step(0.02, open), inside = (1.0 - smoothstep(-0.015, 0.015, d)) * alive * (1.0 - uLoading);
+    vec2 suv = gl_FragCoord.xy / uRes;
+    vec2 nrm = normalize(p + 1e-4);
+    if (uShape < 1.5 || (uShape > 2.5 && uShape < 3.5) || uShape > 7.5) suv += nrm * smoothstep(-0.25, 0.0, d) * 0.04 * min(open, 1.5) * vec2(uRes.y / uRes.x, 1.0);   // lens bend near the edge
+    suv += nrm * sin(length(p) * 26.0 - uT * 7.0) * 0.006 * uJig * inside;   // the jiggle ripples through the view inside
+    vec3 col = texture2D(tB, suv).rgb * inside;
+    float a = inside;
+    if (uShape < 1.5) {
+      // soap film: a soft rainbow halo just outside, a thin bright rim, a tint just inside, one highlight
+      float rim = exp(-abs(d) * 60.0) * alive, halo = exp(-max(d, 0.0) * 14.0) * step(0.0, d) * alive, fres = smoothstep(-0.3, 0.0, d) * inside;
+      vec3 tf = film(ang / 6.2831 * 1.3 + uT * 0.12 + length(p) * 1.4 + uSeed);
+      float core = exp(-abs(d) * 34.0) * alive, glow = exp(-max(d, 0.0) * 7.0) * step(0.0, d) * alive;
+      vec3 hot = mix(vec3(1.0, 0.6, 0.95), vec3(0.65, 0.85, 1.0), 0.5 + 0.5 * sin(ang * 2.0 + uT * 0.8));
+      col += vec3(1.0, 0.93, 1.0) * core * 1.1 + hot * glow * 0.85 + tf * (rim * 0.7 + fres * 0.14);
+      vec2 hl = p - vec2(-0.24, 0.27) * min(open, 1.0); col += vec3(1.0) * exp(-dot(hl, hl) * 300.0) * 0.8 * inside;
+      a = max(a, max(core * 0.9, glow * 0.55));
+    } else if (uShape > 2.5) {   // sorcerer: white-hot core, flickering orange fire, sparks racing round the rim
+      float core = exp(-abs(dR) * 70.0), glow = exp(-abs(dR) * 13.0);
+      float flick = 0.55 + 0.45 * fbm(vec3(ang * 5.0 - uT * 8.0, length(p) * 4.0, uT * 1.7));
+      float streak = pow(0.5 + 0.5 * sin(ang * 22.0 - uT * 15.0), 8.0) + pow(0.5 + 0.5 * sin(ang * 9.0 + uT * 11.0 + 1.3), 10.0);
+      col += (vec3(1.0, 0.93, 0.72) * core * 1.5 + vec3(1.0, 0.42, 0.06) * glow * (0.85 * flick + 0.7 * streak) + vec3(1.0, 0.7, 0.3) * core * streak) * drawn;
+      col += vec3(1.0, 0.85, 0.55) * head * 2.2;
+      a = max(a, max(core * 0.95, glow * 0.6 * flick) * drawn); a = max(a, min(head * 1.5, 1.0));
+    } else {
+      float core = exp(-abs(d) * 55.0), halo = exp(-max(d, 0.0) * 11.0) * step(0.0, d);
+      vec3 c = mix(vec3(1.0, 0.55, 0.95), vec3(0.55, 0.85, 1.0), 0.5 + 0.5 * sin(ang * 2.0 + uT));
+      col += vec3(1.0, 0.97, 1.0) * core * 1.6 + c * halo * 0.7; a = max(a, core * 0.95);
+    }
+    if (uLoading > 0.5) { float sw = exp(-pow(length(p) - 0.45 - 0.05 * sin(ang * 6.0 + uT * 4.0), 2.0) * 200.0); col += film(ang / 6.28 + uT * 0.3) * sw; a = max(a, sw * 0.8); }
+    col += vec3(1.0, 0.85, 1.0) * uFlash * inside;
+    gl_FragColor = vec4(col, clamp(a, 0.0, 1.0));
+  }`;
+const SPARK_VS = `
+  attribute vec4 seed; uniform float uT, uOpen, uShape, uPx, uFloor, uBoost, uFire; varying float vA, vKind; varying vec3 vC;
+  vec2 rim(float a) {
+    if (uShape < 1.5) return vec2(cos(a), sin(a)) * 0.72;
+    vec2 b = vec2(0.62, 0.98); vec2 d = vec2(cos(a), sin(a)); float s = min(b.x / max(abs(d.x), 1e-3), b.y / max(abs(d.y), 1e-3)); return d * s;
+  }
+  void main() {
+    float bubble = step(0.78, seed.w);   // a few soap bubbles; the rest are soft wisps
+    float life = mix(3.0 + seed.y * 3.0, 3.5 + seed.y * 3.0, bubble), t = fract(uT / life + seed.x);
+    float a = seed.z * 6.2831 + uT * (0.35 + seed.w * 0.6) * (seed.w > 0.5 ? 1.0 : -1.0);
+    vec2 r = rim(a) * min(uOpen, 1.4);
+    vec3 p;
+    if (bubble > 0.5) { p = vec3(r * (1.0 + t * 0.4), (seed.y - 0.5) * 0.4 + t * 0.5); p.y += t * (0.5 + seed.x * 0.8); p.x += sin(uT * 1.3 + seed.z * 20.0) * 0.08 * t; }
+    else {
+      float a2 = a + t * (seed.y - 0.5) * 2.5; vec2 d2 = vec2(cos(a2), sin(a2));   // wisps curl outward and rise, like smoke off the rim
+      p = vec3(r * (1.0 + t * (0.25 + 0.5 * seed.w)) + d2 * 0.12 * sin(t * 6.0 + seed.x * 30.0), (seed.y - 0.5) * 0.3 + sin(uT * 0.7 + seed.z * 9.0) * 0.08);
+      p.y += t * t * (0.35 + 0.5 * seed.x);
+    }
+    vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
+    float tw = mix(0.45 * (0.8 + 0.2 * sin(uT * 1.7 + seed.x * 40.0)), 1.0, bubble);   // wisps are faint and steady
+    vA = (1.0 - t) * smoothstep(0.0, 0.08, t) * tw * min(uOpen * 1.5, 1.0) * (1.0 + uBoost); vKind = bubble;
+    vC = mix(vec3(1.0, 0.45, 0.95), vec3(0.6, 0.85, 1.0), seed.z); vC = mix(vC, vec3(1.0), 0.45); vC = mix(vC, mix(vec3(1.0, 0.55, 0.15), vec3(1.0, 0.85, 0.5), seed.z), uFire);
+    float sz = mix(0.06 + 0.1 * seed.y, 0.05 + 0.09 * seed.y, bubble);
+    gl_PointSize = clamp(sz * (1.0 + uBoost * 1.5) * uPx / -mv.z, 1.0, mix(48.0, 64.0, bubble));
+  }`;
+const SPARK_FS = `varying float vA, vKind; varying vec3 vC;
+  void main() { vec2 d = gl_PointCoord - 0.5; float r = length(d) * 2.0; if (r > 1.0) discard;
+    if (vKind > 0.5) { float ring = smoothstep(0.74, 0.86, r) * (1.0 - smoothstep(0.9, 1.0, r)); float ang = atan(d.y, d.x);
+      vec3 film = 0.55 + 0.45 * cos(6.2831 * (ang / 6.2831 + r + vec3(0.0, 0.33, 0.67)));
+      vec2 hl = d - vec2(-0.18, 0.18); float spec = exp(-dot(hl, hl) * 160.0);
+      gl_FragColor = vec4((film * ring * 0.9 + vec3(1.0) * spec * 0.9 + film * 0.06) * vA, 1.0); return; }
+    float q = r * r; gl_FragColor = vec4(vC * exp(-q * 3.2) * vA, 1.0); }`;
+const NS = REDUCED ? 30 : PHONE ? 60 : 110;
+const seeds = new Float32Array(NS * 4); for (let i = 0; i < NS * 4; i++) seeds[i] = Math.random();
+const sparkGeo = new THREE.BufferGeometry(); sparkGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(NS * 3), 3)); sparkGeo.setAttribute("seed", new THREE.BufferAttribute(seeds, 4));
+const quad = new THREE.PlaneGeometry(4.2, 4.2);
+
+// ---------- bubbles ----------
+const fx = new THREE.Scene();
+const portals = [];
+let shape = 0;
+const SHAPES = ["Blob", "Bubble", "Doorway", "Ring", "Square", "Triangle", "Door", "Diamond", "Spiral"], DRAW = [950, 1400];   // draw-on time: outlines, spiral
+const shapeIx = (n) => SHAPES.findIndex((x) => x.toLowerCase() === String(n).toLowerCase());
+function polyR(a, n, a0) { const st = 6.2831853 / n, m = (((a - a0) % st) + st) % st; return Math.cos(Math.PI / n) / Math.cos(m - Math.PI / n); }
+function shapeR(a) {   // the sorcerer outline's radius at an angle (matches sdShape in the shader)
+  switch (shape) { case 4: return 0.877 * polyR(a, 4, Math.PI / 4); case 5: return 0.8 * polyR(a, 3, Math.PI / 2);
+    case 6: return Math.min(0.5 / Math.max(Math.abs(Math.cos(a)), 1e-3), 0.95 / Math.max(Math.abs(Math.sin(a)), 1e-3)); case 7: return 0.82 * polyR(a, 4, 0); default: return 0.72; }
+}
+function makePortal(w, at) {
+  const P = { w, B: null, loading: true, rt: new THREE.WebGLRenderTarget(1, 1), camB: new THREE.PerspectiveCamera(70, 1, 0.05, 2000),
+    group: new THREE.Group(), pos: at.clone(), vel: new THREE.Vector3(), anchor: at.clone(), yaw: 0,
+    open: 0, opening: { t0: performance.now() + (shape > 2.5 ? DRAW[shape === 8 ? 1 : 0] : 0), from: 0 }, drawT0: performance.now(), draw: shape > 2.5 ? 0 : 1, start: -1.5708 + (Math.random() - 0.5) * 0.8, expand: null, seed: Math.random() * 10, flash: 0, PA: new THREE.Matrix4(), PAinv: new THREE.Matrix4(), prevZ: 1, label: document.createElement("div"), ring: new Float32Array(40), ringV: new Float32Array(40), lastVel: new THREE.Vector3(), emitAcc: 0 };
+  P.yaw = Math.atan2(pos.x - at.x, pos.z - at.z);
+  P.rt.setSize(Math.round(res.x * QL.ps), Math.round(res.y * QL.ps));
+  P.mat = new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, side: THREE.DoubleSide, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+    uniforms: { tB: { value: P.rt.texture }, uRes: { value: res }, uT: { value: 0 }, uOpen: { value: 0 }, uShape: { value: shape }, uDraw: { value: P.draw }, uStart: { value: P.start }, uLoading: { value: 1 }, uSeed: { value: P.seed }, uFlash: { value: 0 }, uJig: { value: 0 }, uRing: { value: new Array(40).fill(0) } },
+    vertexShader: `varying vec2 vP; void main() { vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, fragmentShader: PORTAL_FS });
+  P.sparkMat = new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uT: { value: 0 }, uOpen: { value: 0 }, uShape: { value: shape }, uFire: { value: shape > 2.5 ? 1 : 0 }, uPx: { value: 800 }, uFloor: { value: -1.2 }, uBoost: { value: 0 } }, vertexShader: SPARK_VS, fragmentShader: SPARK_FS });
+  P.surface = new THREE.Mesh(quad, P.mat); P.surface.renderOrder = 1;
+  P.sparks = new THREE.Points(sparkGeo, P.sparkMat); P.sparks.frustumCulled = false; P.sparks.renderOrder = 2;
+  P.group.add(P.surface, P.sparks); fx.add(P.group);
+  P.label.className = "plabel"; $("labels").append(P.label);
+  portals.push(P); setWorld(P, w); if (shape > 2.5) sfxIgnite(DRAW[shape === 8 ? 1 : 0] / 1000); else sfxChime(); poke(P, Math.random() * 6.28, 0.25); return P;
+}
+function removePortal(P) {
+  const k = portals.indexOf(P); if (k >= 0) portals.splice(k, 1);
+  fx.remove(P.group); P.rt.dispose(); P.mat.dispose(); P.sparkMat.dispose(); P.label.remove();
+}
+async function setWorld(P, w) {
+  P.w = w; P.loading = true; P.mat.uniforms.uLoading.value = 1; P.label.textContent = WORLDS[w].label || WORLDS[w].name; P.label.dataset.k = ""; updateDock();
+  const world = await loadWorld(w); if (P.w !== w || !portals.includes(P)) return;
+  if (!world.grid) (self.requestIdleCallback || setTimeout)(() => world.grid || buildGrid(world), { timeout: 2500 });   // collisions built while the bubble sits idle
+  P.B = world; setClip(world, true); P.loading = false; P.mat.uniforms.uLoading.value = 0; P.flash = 1; label(P); updateDock(); evict(); setTimeout(prewarm, 500); burst(P, 260); poke(P, Math.random() * 6.28, 0.35);
+}
+function label(P) { P.label.textContent = WORLDS[P.w].label || WORLDS[P.w].name; P.label.dataset.k = ""; }
+const used = () => new Set([here, ...portals.map((p) => p.w), ...WORLDS.flatMap((w, i) => (w.hidden ? [i] : []))]);   // hidden worlds never come up in a bubble
+function freeWorld(from, dir = 1) { const u = used(); for (let k = 1; k <= WORLDS.length; k++) { const i = (((from + dir * k) % WORLDS.length) + WORLDS.length) % WORLDS.length; if (!u.has(i)) return i; } return null; }
+function cycle(P, dir) { const u = used(); u.delete(P.w); for (let k = 1; k <= WORLDS.length; k++) { const i = (((P.w + dir * k) % WORLDS.length) + WORLDS.length) % WORLDS.length; if (!u.has(i)) { setWorld(P, i); sfxBlip(); sfxSwish(Math.max(-0.8, Math.min(0.8, P.pos.clone().project(camera).x))); return; } } }
+function setShape(v) {
+  shape = ((v % SHAPES.length) + SHAPES.length) % SHAPES.length; $("shapeBtn").textContent = "Shape: " + SHAPES[shape];
+  for (const P of portals) { P.mat.uniforms.uShape.value = shape; P.sparkMat.uniforms.uShape.value = shape; P.sparkMat.uniforms.uFire.value = shape > 2.5 ? 1 : 0; }
+}
+$("shapeBtn").onclick = () => {   // next shape; sorcerer shapes redraw themselves on every bubble
+  setShape(shape + 1); if (shape < 3) return; sfxIgnite(DRAW[shape === 8 ? 1 : 0] / 1000);
+  for (const P of portals) if (!P.expand) { P.drawT0 = performance.now(); P.draw = 0; P.mat.uniforms.uDraw.value = 0; }
+};
+
+// ---------- sparks: simulated in world space, they fall, drift, hit the room and split ----------
+const NP = REDUCED ? 800 : PHONE ? 2600 : 6500;
+const sp = { p: new Float32Array(NP * 3), v: new Float32Array(NP * 3), life: new Float32Array(NP), max: new Float32Array(NP), g: new Float32Array(NP), state: new Uint8Array(NP), gen: new Uint8Array(NP), head: 0 };
+const spGeo = new THREE.BufferGeometry();
+const aPos = new THREE.BufferAttribute(sp.p, 3), aCol = new THREE.BufferAttribute(new Float32Array(NP * 3), 3), aA = new THREE.BufferAttribute(new Float32Array(NP), 1), aS = new THREE.BufferAttribute(new Float32Array(NP), 1), aSeed = new THREE.BufferAttribute(new Float32Array(NP).map(() => Math.random()), 1);
+for (const at of [aPos, aCol, aA, aS]) at.setUsage(THREE.DynamicDrawUsage);
+spGeo.setAttribute("position", aPos); spGeo.setAttribute("col", aCol); spGeo.setAttribute("alpha", aA); spGeo.setAttribute("size", aS); spGeo.setAttribute("seed", aSeed);
+const spMat = new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uT: { value: 0 }, uPx: { value: 800 } },
+  vertexShader: `attribute vec3 col; attribute float alpha, size, seed; uniform float uT, uPx; varying vec3 vC; varying float vA;
+    void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv;
+      vA = alpha * (0.65 + 0.35 * sin(uT * (11.0 + seed * 17.0) + seed * 60.0)); vC = col; gl_PointSize = alpha > 0.0 ? clamp(size * uPx / -mv.z, 1.5, 22.0) : 0.0; }`,
+  fragmentShader: `varying vec3 vC; varying float vA; void main() { vec2 d = gl_PointCoord - 0.5; float q = dot(d, d) * 4.0; if (q > 1.0) discard; gl_FragColor = vec4(vC * (exp(-q * 6.0) * 1.6 + 0.45 * exp(-q * 1.6)) * vA, 1.0); }` });
+const sparkPts = new THREE.Points(spGeo, spMat); sparkPts.frustumCulled = false; sparkPts.renderOrder = 3; fx.add(sparkPts);
+const ND = REDUCED ? 150 : PHONE ? 350 : 800, dSeed = new Float32Array(ND * 4); for (let i = 0; i < ND * 4; i++) dSeed[i] = Math.random();
+const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(ND * 3), 3)); dustGeo.setAttribute("seed", new THREE.BufferAttribute(dSeed, 4));
+const dustMat = new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending,
+  uniforms: { uT: { value: 0 }, uPx: { value: 800 }, uCam: { value: new THREE.Vector3() }, uTint: { value: new THREE.Color(1, 0.88, 0.7) }, uAmt: { value: 0.75 } },
+  vertexShader: `attribute vec4 seed; uniform float uT, uPx, uAmt; uniform vec3 uCam, uTint; varying float vA; varying vec3 vC;
+    void main() { const float B = 8.0;
+      vec3 q = seed.xyz * B + vec3(sin(uT * 0.11 + seed.w * 20.0) * 0.6 + uT * 0.05, sin(uT * 0.07 + seed.x * 13.0) * 0.4 + uT * 0.02, cos(uT * 0.09 + seed.y * 17.0) * 0.6);
+      vec3 p = uCam + mod(q - uCam + B * 0.5, B) - B * 0.5;   // the box wraps round you, so the air is never empty
+      vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv; float d = -mv.z;
+      vA = uAmt * smoothstep(0.3, 1.2, d) * (1.0 - smoothstep(B * 0.35, B * 0.5, length(p - uCam))) * (0.45 + 0.55 * sin(uT * (0.8 + seed.w * 1.7) + seed.x * 50.0));
+      vC = uTint; gl_PointSize = d > 0.0 ? clamp((0.018 + 0.03 * seed.w) * uPx / d, 1.2, 12.0) : 0.0; }`,
+  fragmentShader: `varying float vA; varying vec3 vC; void main() { vec2 d = gl_PointCoord - 0.5; float q = dot(d, d) * 4.0; if (q > 1.0) discard; gl_FragColor = vec4(vC * exp(-q * 4.0) * max(vA, 0.0), 1.0); }` });
+const dust = new THREE.Points(dustGeo, dustMat); dust.frustumCulled = false; dust.renderOrder = 0; fx.add(dust);
+const DUST_TINT = { sea: [0.82, 0.93, 1], wind: [1, 0.84, 0.6], room: [1, 0.88, 0.7] };
+let dustFor = -1;
+const PAL = [[1, 0.5, 0.92], [0.78, 0.52, 1], [1, 1, 1], [0.58, 0.86, 1], [1, 0.82, 0.55]];
+const PAL_FIRE = [[1, 0.95, 0.8], [1, 0.75, 0.3], [1, 0.55, 0.12], [1, 0.4, 0.08], [1, 0.85, 0.5]];
+let curPal = PAL, inheritCol = -1;   // sparks that split keep their parent's colour
+function spawn(x, y, z, vx, vy, vz, life, size, heavy, gen = 0) {
+  let i = sp.head; for (let k = 0; k < 24 && sp.state[i] !== 0; k++) i = (i + 1) % NP; sp.head = (i + 1) % NP;
+  sp.p.set([x, y, z], i * 3); sp.v.set([vx, vy, vz], i * 3); sp.life[i] = sp.max[i] = life; sp.g[i] = heavy ? 5.5 : 0.7 + Math.random() * 0.8; sp.state[i] = 1; sp.gen[i] = gen; aS.array[i] = size;
+  if (inheritCol >= 0) aCol.array.copyWithin(i * 3, inheritCol * 3, inheritCol * 3 + 3); else aCol.array.set(curPal[(Math.random() * (Math.random() < 0.35 ? 3 : curPal.length)) | 0], i * 3);
+}
+const _lp = new THREE.Vector3(), _ld = new THREE.Vector3(), _lv = new THREE.Vector3();
+function ringR(P, ang) { const f = (ang / 6.2831853 + 0.5) * 40, i0 = ((Math.floor(f) % 40) + 40) % 40, t = f - Math.floor(f); return P.ring[i0] * (1 - t) + P.ring[(i0 + 1) % 40] * t; }
+function emitFrom(P, n, speed = 1) {
+  const fire = shape > 2.5, R0 = (shape === 2 ? 0.7 : shape === 1 ? 0.66 : 0.74) * Math.min(P.open, 3), rs = Math.min(Math.max(P.open, 1), 3); curPal = fire ? PAL_FIRE : PAL;
+  for (let k = 0; k < n; k++) {
+    const a = (Math.random() - 0.5) * 6.2831853, R = fire ? shapeR(a) * rs * (1 + ringR(P, a) * 0.6) * (0.97 + Math.random() * 0.06) : R0 * (1 + ringR(P, a)) * (0.88 + Math.random() * 0.18), ca = Math.cos(a), sa = Math.sin(a);
+    _lp.set(ca * R * P.surface.scale.x, sa * R * P.surface.scale.y, (Math.random() - 0.5) * 0.06).applyMatrix4(P.PA);
+    const out = (0.15 + Math.random() * 0.55) * speed, tan = fire ? (0.5 + Math.random() * 1.3) * speed : (Math.random() - 0.5) * 1.2 * speed;   // fire flings sparks off along the spin
+    _ld.set(ca * out - sa * tan, sa * out + ca * tan + Math.random() * 0.15, (Math.random() - 0.5) * 0.5 * speed).applyQuaternion(P.group.quaternion);
+    const heavy = Math.random() < 0.28;
+    spawn(_lp.x, _lp.y, _lp.z, _ld.x + P.vel.x * 0.2, _ld.y + P.vel.y * 0.2, _ld.z + P.vel.z * 0.2, 1.2 + Math.random() * (heavy ? 3.4 : 2.2), 0.022 + Math.random() * 0.04, heavy);
+  }
+}
+const burst = (P, n) => emitFrom(P, n, 1.8);
+function emitHead(P, n) {   // the white-hot point drawing the shape throws off a shower of sparks
+  curPal = PAL_FIRE; const s8 = shape === 8, th = P.start + P.draw * (s8 ? 12.566 : 6.2832), R = s8 ? 0.72 * P.draw : shapeR(th), ca = Math.cos(th), sa = Math.sin(th);
+  for (let k = 0; k < n; k++) {
+    _lp.set(ca * R + (Math.random() - 0.5) * 0.03, sa * R + (Math.random() - 0.5) * 0.03, (Math.random() - 0.5) * 0.04).applyMatrix4(P.PA);
+    const v = 0.8 + Math.random() * 2.2, out = (Math.random() - 0.3) * 0.8;
+    _ld.set(-sa * v + ca * out, ca * v + sa * out + Math.random() * 0.3, (Math.random() - 0.5) * 0.8).applyQuaternion(P.group.quaternion);
+    const heavy = Math.random() < 0.35; spawn(_lp.x, _lp.y, _lp.z, _ld.x, _ld.y, _ld.z, 0.5 + Math.random() * (heavy ? 1.8 : 1.0), 0.02 + Math.random() * 0.035, heavy);
+  }
+}
+let hitsThisFrame = 0;
+function stepSparks(dt) {
+  const g = A?.grid, P3 = sp.p, V3s = sp.v; let children = 0; hitsThisFrame = 0;
+  for (let i = 0; i < NP; i++) {
+    const st = sp.state[i]; if (!st) continue;
+    sp.life[i] -= dt; if (sp.life[i] <= 0) { sp.state[i] = 0; aA.array[i] = 0; continue; }
+    const j = i * 3; let x = P3[j], y = P3[j + 1], z = P3[j + 2];
+    if (st === 1) {
+      let vx = V3s[j], vy = V3s[j + 1] - sp.g[i] * dt, vz = V3s[j + 2]; const dr = Math.exp(-dt * (sp.g[i] > 3 ? 0.4 : 1.4)); vx *= dr; vy *= dr; vz *= dr;
+      const nx = x + vx * dt, ny = y + vy * dt, nz = z + vz * dt;
+      if (g && solid(g, nx, ny, nz)) {
+        // surface normal from the solid space around the hit, then bounce with friction
+        let ax = solid(g, nx - GC, ny, nz) - solid(g, nx + GC, ny, nz), ay = solid(g, nx, ny - GC, nz) - solid(g, nx, ny + GC, nz), az = solid(g, nx, ny, nz - GC) - solid(g, nx, ny, nz + GC);
+        let L = Math.hypot(ax, ay, az); if (L < 0.5) { ax = -vx; ay = -vy; az = -vz; L = Math.hypot(ax, ay, az) || 1; } ax /= L; ay /= L; az /= L;
+        const vn = vx * ax + vy * ay + vz * az, spd = Math.hypot(vx, vy, vz);
+        if (vn < 0) { vx -= 1.4 * vn * ax; vy -= 1.4 * vn * ay; vz -= 1.4 * vn * az; }
+        vx *= 0.62; vy *= 0.62; vz *= 0.62; hitsThisFrame++;
+        if (spd > 0.55 && sp.gen[i] < 2 && children < 60) { inheritCol = i;   // a hard hit splits into smaller sparks
+          for (let c = 0; c < 2; c++) { children++; spawn(x, y, z, vx + ax * spd * 0.5 + (Math.random() - 0.5) * spd * 0.8, vy + ay * spd * 0.5 + Math.random() * spd * 0.4, vz + az * spd * 0.5 + (Math.random() - 0.5) * spd * 0.8, 0.35 + Math.random() * 0.6, aS.array[i] * 0.6, false, sp.gen[i] + 1); }
+        }
+        if (Math.hypot(vx, vy, vz) < 0.14) { sp.state[i] = 2; sp.life[i] = Math.min(sp.life[i], 0.8 + Math.random() * 1.6); }   // settles as glowing dust
+      } else { x = nx; y = ny; z = nz; }
+      V3s[j] = vx; V3s[j + 1] = vy; V3s[j + 2] = vz; P3[j] = x; P3[j + 1] = y; P3[j + 2] = z;
+    }
+    const age = sp.max[i] - sp.life[i]; aA.array[i] = Math.min(1, age * 8) * Math.min(1, sp.life[i] / (st === 2 ? 1.2 : 0.6)) * (st === 2 ? 0.7 : 1);
+  }
+  inheritCol = -1; aPos.needsUpdate = aCol.needsUpdate = aA.needsUpdate = aS.needsUpdate = true;
+}
+function clearSparks() { sp.state.fill(0); aA.array.fill(0); aA.needsUpdate = true; }
+// rim springs: inertia when the bubble moves, waves round the ring, and pokes from the cursor
+function poke(P, ang, amt) { for (let i = 0; i < 40; i++) { const a = (i / 40 - 0.5) * 6.2831853; let d = Math.abs(a - ang); d = Math.min(d, 6.2831853 - d); P.ringV[i] += amt * Math.exp(-d * d * 6); } sfxWobble(Math.min(1, Math.abs(amt) * 3)); }
+const _acc = new THREE.Vector3(), _q = new THREE.Quaternion();
+function stepRing(P, dt) {
+  _acc.subVectors(P.vel, P.lastVel).divideScalar(Math.max(dt, 1e-3)); P.lastVel.copy(P.vel);
+  _q.copy(P.group.quaternion).invert(); _acc.applyQuaternion(_q);
+  const sub = 3, h = dt / sub; let energy = 0;
+  for (let s2 = 0; s2 < sub; s2++) for (let i = 0; i < 40; i++) {
+    const a = (i / 40 - 0.5) * 6.2831853, f = -(_acc.x * Math.cos(a) + _acc.y * Math.sin(a)) * 0.035;
+    const lap = P.ring[(i + 39) % 40] + P.ring[(i + 1) % 40] - 2 * P.ring[i];
+    P.ringV[i] += (-62 * P.ring[i] - 2.6 * P.ringV[i] + 55 * lap + f + (Math.random() - 0.5) * 3.5) * h;
+    P.ring[i] = Math.max(-0.28, Math.min(0.28, P.ring[i] + P.ringV[i] * h));
+  }
+  for (let i = 0; i < 40; i++) { P.mat.uniforms.uRing.value[i] = P.ring[i]; energy += Math.abs(P.ringV[i]); }
+  P.mat.uniforms.uJig.value = Math.min(1, energy / 6);
+}
+
+// ---------- final pass: radial motion blur, chromatic split, flash ----------
+const postMat = new THREE.ShaderMaterial({
+  uniforms: { tMain: { value: rtMain.texture }, uBlur: { value: 0 }, uFlash: { value: 0 }, uC: { value: new THREE.Vector2(0.5, 0.5) }, uN: { value: 28 }, uTx: { value: new THREE.Vector2(1e-3, 1e-3) }, uSharp: { value: 0.35 } },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tMain; uniform float uBlur, uFlash, uN, uSharp; uniform vec2 uC, uTx; varying vec2 vUv;
+    void main() {
+      vec2 dir = vUv - uC;
+      if (uBlur < 0.003) {
+        vec3 c0 = texture2D(tMain, vUv).rgb;
+        if (uSharp > 0.0) { vec3 nb = (texture2D(tMain, vUv + vec2(uTx.x, 0.0)).rgb + texture2D(tMain, vUv - vec2(uTx.x, 0.0)).rgb + texture2D(tMain, vUv + vec2(0.0, uTx.y)).rgb + texture2D(tMain, vUv - vec2(0.0, uTx.y)).rgb) * 0.25;
+          c0 = max(c0 + (c0 - nb) * uSharp, 0.0); }
+        c0 *= mix(1.0, smoothstep(1.15, 0.35, length(dir)), 0.1); gl_FragColor = vec4(c0 + vec3(1.0, 0.82, 1.0) * uFlash, 1.0); return; }
+      vec3 acc = vec3(0.0); float w = 0.0;
+      for (int i = 0; i < 28; i++) { if (float(i) >= uN) break; float k = float(i) / (uN - 1.0), s = 1.0 - uBlur * k, wt = 1.0 - k * 0.6;
+        acc.r += texture2D(tMain, uC + dir * (s - uBlur * 0.06)).r * wt; acc.g += texture2D(tMain, uC + dir * s).g * wt; acc.b += texture2D(tMain, uC + dir * (s + uBlur * 0.06)).b * wt; w += wt; }
+      vec3 col = acc / w; float v = smoothstep(1.15, 0.35, length(dir) * (1.0 + uBlur * 1.2)); col *= mix(1.0, v, 0.1 + uBlur * 0.6);
+      gl_FragColor = vec4(col + vec3(1.0, 0.82, 1.0) * uFlash, 1.0);
+    }`,
+});
+const post = new THREE.Scene(), postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+post.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMat));
+function resize() {
+  const w = innerWidth, h = innerHeight, pr = renderer.getPixelRatio() * QL.scale;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  res.set(Math.round(w * pr), Math.round(h * pr)); rtMain.setSize(res.x, res.y); postMat.uniforms.uTx.value.set(1 / res.x, 1 / res.y); for (const P of portals) P.rt.setSize(Math.round(res.x * QL.ps), Math.round(res.y * QL.ps));
+}
+addEventListener("resize", resize); resize();
+
+// ---------- sound (Web Audio, no files): a calm bed for each world, whooshes that follow the bubbles, and small effects ----------
+let AC = null, soundOn = false, bus = null, verb = null, hum = null, amb = null, swoosh = null, WN = null, lastCrackle = 0, lastWobble = 0;
+function ac() { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended" && soundOn) AC.resume(); return AC; }
+function noiseBuf(c, sec, pink) {   // white noise, or a rough pink (softer, like air or the sea)
+  const b = c.createBuffer(1, Math.ceil(c.sampleRate * sec), c.sampleRate), d = b.getChannelData(0); let b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < d.length; i++) { const w = Math.random() * 2 - 1; if (!pink) { d[i] = w; continue; } b0 = 0.997 * b0 + 0.029591 * w; b1 = 0.985 * b1 + 0.032534 * w; b2 = 0.95 * b2 + 0.048056 * w; d[i] = (b0 + b1 + b2 + w * 0.05) * 2.2; }
+  return b;
+}
+const white = () => WN || (WN = noiseBuf(AC, 2, false));
+function out() {   // one bus for everything: a gentle compressor, plus a shared reverb send
+  const c = ac(); if (bus) return bus;
+  const comp = c.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3; comp.connect(c.destination);
+  bus = c.createGain(); bus.gain.value = soundOn ? 1 : 0; bus.connect(comp);
+  const ir = c.createBuffer(2, c.sampleRate * 3.2, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3.2); }
+  const cv = c.createConvolver(); cv.buffer = ir; verb = c.createGain(); verb.gain.value = 0.5; verb.connect(cv).connect(bus);
+  return bus;
+}
+function send(node, wet) { const g = AC.createGain(); g.gain.value = wet; node.connect(g).connect(verb); node.connect(bus); }
+function panned(node, pan, wet) { const p = AC.createStereoPanner ? AC.createStereoPanner() : null; if (!p) return send(node, wet); p.pan.value = pan; node.connect(p); send(p, wet); return p; }
+
+// each world has its own key and air: the sea swelling on the beach, wind in the desert, a low, dark room in the church
+const MOODS = {
+  bedroom: { root: 146.83, air: "room", wave: 0.04, bright: 900 },
+  pavilion: { root: 164.81, air: "sea", wave: 0.11, bright: 1100 },
+  gallery: { root: 130.81, air: "room", wave: 0.05, bright: 1000 },
+  tombs: { root: 110, air: "wind", wave: 0.07, bright: 800 },
+  church: { root: 98, air: "room", wave: 0.03, bright: 650 },
+  bay: { root: 155.56, air: "sea", wave: 0.12, bright: 1000 },
+  pyramids: { root: 116.54, air: "wind", wave: 0.08, bright: 850 },
+  "rock-tomb": { root: 103.83, air: "wind", wave: 0.05, bright: 700 },
+};
+const PROG = [[0, 7, 11, 14, 19], [-3, 4, 7, 11, 16], [-7, 0, 4, 9, 14], [-5, 2, 7, 9, 14]];   // Imaj9, vi9, IVmaj9, Vsus: slow, never quite resolving
+function startAmbient() {
+  const c = AC, t = c.currentTime;
+  const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = 0.4;
+  const pad = c.createGain(); pad.gain.value = 0; pad.gain.setTargetAtTime(0.05, t, 3); lp.connect(pad); send(pad, 0.7);   // fades in over a few seconds
+  const lfo = c.createOscillator(), lfoG = c.createGain(); lfo.frequency.value = 0.045; lfoG.gain.value = 260; lfo.connect(lfoG).connect(lp.frequency); lfo.start();
+  const voices = PROG[0].map(() => { const o1 = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(); o2.type = "triangle"; o2.detune.value = 6; g.gain.value = 0;
+    o1.connect(g); o2.connect(g); g.connect(lp); o1.start(); o2.start(); return { o1, o2, g }; });
+  const n = c.createBufferSource(); n.buffer = noiseBuf(c, 6, true); n.loop = true;   // air: soft noise that swells like waves or wind
+  const nf = c.createBiquadFilter(); nf.type = "lowpass"; nf.frequency.value = 500; const ng = c.createGain(); ng.gain.value = 0;
+  const sw = c.createOscillator(), swG = c.createGain(); sw.frequency.value = 0.09; swG.gain.value = 0; sw.connect(swG).connect(ng.gain); sw.start();
+  n.connect(nf).connect(ng); send(ng, 0.4); n.start();
+  amb = { lp, voices, nf, ng, sw, swG, chord: 0, mood: MOODS.bedroom };
+  setMood(WORLDS[here].id);
+  setInterval(() => { if (amb && soundOn && !document.hidden) { amb.chord++; setChord(); } }, 13000);
+  twinkle();
+}
+function setChord() {
+  const t = AC.currentTime, r = amb.mood.root, ch = PROG[amb.chord % PROG.length];
+  amb.voices.forEach((v, i) => { const f = r * Math.pow(2, ch[i] / 12); v.o1.frequency.setTargetAtTime(f, t, 2.5); v.o2.frequency.setTargetAtTime(f * 2, t, 2.5); v.g.gain.setTargetAtTime(i > 2 ? 0.1 : 0.18, t, 2); });
+}
+function setMood(id) {
+  if (!amb) return; const m = MOODS[id] || WORLDS.find((w) => w.id === id)?.mood || MOODS.bedroom, t = AC.currentTime; amb.mood = m;
+  amb.lp.frequency.setTargetAtTime(m.bright, t, 2);
+  amb.nf.type = m.air === "wind" ? "bandpass" : "lowpass"; amb.nf.frequency.setTargetAtTime(m.air === "sea" ? 700 : m.air === "wind" ? 1300 : 380, t, 2);
+  amb.ng.gain.setTargetAtTime(m.wave * 0.9, t, 2.5); amb.swG.gain.setTargetAtTime(m.wave * 0.8, t, 2.5); amb.sw.frequency.setTargetAtTime(m.air === "sea" ? 0.1 : 0.05, t, 1);
+  if (hum) { hum.o1.frequency.setTargetAtTime(m.root, t, 2); hum.o2.frequency.setTargetAtTime(m.root * 1.5, t, 2); }
+  setChord();
+}
+function twinkle() {   // now and then, one soft bell from the current chord, somewhere to the side
+  setTimeout(twinkle, 4000 + Math.random() * 5000);
+  if (!amb || !soundOn || document.hidden) return; const c = AC, t = c.currentTime, ch = PROG[amb.chord % PROG.length];
+  const o = c.createOscillator(), g = c.createGain(); o.frequency.value = amb.mood.root * 4 * Math.pow(2, ch[(Math.random() * ch.length) | 0] / 12);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.018, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
+  o.connect(g); panned(g, Math.random() * 1.4 - 0.7, 0.9); o.start(t); o.stop(t + 2.7);
+}
+function startSwoosh() {   // the air the bubbles push as they move, and the rush when you turn or walk
+  const c = AC, n = c.createBufferSource(); n.buffer = white(); n.loop = true;
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 0.9; f.frequency.value = 400; const g = c.createGain(); g.gain.value = 0;
+  n.connect(f).connect(g); const p = panned(g, 0, 0.25); n.start(); swoosh = { f, g, p: p && p.pan ? p : null };
+}
+function setSwoosh(amt, pan) {
+  if (!swoosh) return; const t = AC.currentTime, a = Math.min(1, amt);
+  swoosh.g.gain.setTargetAtTime(a * a * 0.16, t, 0.08); swoosh.f.frequency.setTargetAtTime(280 + a * 1700, t, 0.1);
+  if (swoosh.p) swoosh.p.pan.setTargetAtTime(Math.max(-0.9, Math.min(0.9, pan)), t, 0.1);
+}
+function sfxSwish(pan = 0) {   // a quick swish when a bubble changes world
+  if (!soundOn || !AC || !bus) return; const c = AC, t = c.currentTime, n = c.createBufferSource(); n.buffer = white();
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 2; f.frequency.setValueAtTime(600, t); f.frequency.exponentialRampToValueAtTime(4200, t + 0.18); f.frequency.exponentialRampToValueAtTime(900, t + 0.42);
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+  n.connect(f).connect(g); panned(g, pan, 0.35); n.start(t, Math.random() * 1.4); n.stop(t + 0.5);
+}
+function sfxWhoosh(dur) {   // stepping through: a long rising rush with a low swell under it
+  if (!soundOn) return; const c = ac(); out(); const t = c.currentTime, b = c.createBuffer(1, c.sampleRate * (dur + 0.2), c.sampleRate), dd = b.getChannelData(0); for (let i = 0; i < dd.length; i++) dd[i] = Math.random() * 2 - 1;
+  const n = c.createBufferSource(); n.buffer = b; const f = c.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 1.4;
+  f.frequency.setValueAtTime(240, t); f.frequency.exponentialRampToValueAtTime(3800, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(400, t + dur);
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  const o = c.createOscillator(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(38, t + dur); const og = c.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.35, t + dur * 0.5); og.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(f).connect(g); send(g, 0.45); o.connect(og).connect(bus); n.start(t); n.stop(t + dur + 0.1); o.start(t); o.stop(t + dur + 0.1);
+}
+function tone(fqs, gap, len, vol) { if (!soundOn || !bus) return; const c = AC, t = c.currentTime; fqs.forEach((fq, i) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = fq; const st = t + i * gap;
+  g.gain.setValueAtTime(0.0001, st); g.gain.exponentialRampToValueAtTime(vol, st + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, st + len); o.connect(g); send(g, 0.6); o.start(st); o.stop(st + len + 0.05); }); }
+function ensureAudio() {
+  if (!soundOn) return; const c = ac(); out(); if (hum) return;
+  const g = c.createGain(); g.gain.value = 0; g.connect(bus);   // the hum and fizz of a nearby bubble
+  const o1 = c.createOscillator(), o2 = c.createOscillator(); o1.frequency.value = 110; o2.frequency.value = 165; o1.type = o2.type = "sine";
+  const n = c.createBufferSource(); n.buffer = noiseBuf(c, 2, false); n.loop = true; const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 2400; f.Q.value = 3;
+  const ng = c.createGain(); ng.gain.value = 0.35; const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 0.35; lg.gain.value = 600; lfo.connect(lg).connect(f.frequency);
+  o1.connect(g); o2.connect(g); n.connect(f).connect(ng).connect(g); o1.start(); o2.start(); n.start(); lfo.start(); hum = Object.assign(g, { o1, o2 });
+  startAmbient(); startSwoosh();
+}
+function setHum(level) { if (hum && AC) hum.gain.setTargetAtTime(soundOn ? level : 0, AC.currentTime, 0.25); }
+function sfxShimmer() {   // a soft, airy shimmer as a bubble is about to open
+  if (!soundOn || !bus) return; const c = AC, t = c.currentTime, n = c.createBufferSource(); n.buffer = white(); n.loop = true;
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 6; f.frequency.setValueAtTime(5200, t); f.frequency.exponentialRampToValueAtTime(8200, t + 1.2);
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+  n.connect(f).connect(g); panned(g, 0, 0.8); n.start(t, Math.random()); n.stop(t + 1.7);
+}
+function sfxIgnite(dur) {
+  if (!soundOn || !bus) return; const c = AC, t = c.currentTime, n = c.createBufferSource(); n.buffer = white(); n.loop = true;
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 0.8; f.frequency.setValueAtTime(400, t); f.frequency.exponentialRampToValueAtTime(2600, t + dur);
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.15); g.gain.setTargetAtTime(0.09, t + 0.2, 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.5);
+  n.connect(f).connect(g); panned(g, 0, 0.5); n.start(t, Math.random()); n.stop(t + dur + 0.6); setTimeout(() => sfxChime(), dur * 1000);
+}
+function sfxCrackle(k) {
+  if (!soundOn || !bus || performance.now() - lastCrackle < 45) return; lastCrackle = performance.now(); const c = AC, t = c.currentTime, len = 0.02 + Math.random() * 0.03;
+  const b = c.createBuffer(1, Math.ceil(c.sampleRate * len), c.sampleRate), dd = b.getChannelData(0); for (let i = 0; i < dd.length; i++) dd[i] = (Math.random() * 2 - 1) * (1 - i / dd.length);
+  const n = c.createBufferSource(); n.buffer = b; n.playbackRate.value = 0.7 + Math.random() * 1.2; const f = c.createBiquadFilter(); f.type = "highpass"; f.frequency.value = 2500 + Math.random() * 3000;
+  const g = c.createGain(); g.gain.value = 0.02 + 0.06 * k; n.connect(f).connect(g); panned(g, Math.random() * 1.2 - 0.6, 0.2); n.start(t);
+}
+function sfxWobble(k) {
+  if (!soundOn || !bus || k < 0.15 || performance.now() - lastWobble < 260) return; lastWobble = performance.now(); const c = AC, t = c.currentTime;
+  const o = c.createOscillator(), g = c.createGain(); o.type = "sine"; o.frequency.setValueAtTime(240, t); o.frequency.exponentialRampToValueAtTime(520, t + 0.09); o.frequency.exponentialRampToValueAtTime(300, t + 0.22);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05 * k, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26); o.connect(g); send(g, 0.3); o.start(t); o.stop(t + 0.3);
+}
+const sfxChime = () => tone([523.3, 659.3, 784, 1046.5, 1318.5], 0.07, 1.8, 0.07), sfxBlip = () => tone([880, 1320], 0.05, 0.35, 0.05);
+$("soundBtn").onclick = () => {
+  soundOn = !soundOn; $("soundBtn").textContent = soundOn ? "Sound on" : "Sound off"; $("soundBtn").classList.toggle("on", soundOn); $("soundBtn").setAttribute("aria-pressed", soundOn);
+  if (soundOn) { ensureAudio(); bus.gain.setTargetAtTime(1, AC.currentTime, 0.2); sfxChime(); }
+  else if (AC && bus) { bus.gain.setTargetAtTime(0, AC.currentTime, 0.15); setTimeout(() => !soundOn && AC.suspend(), 600); }
+};
+document.addEventListener("visibilitychange", () => { if (!AC) return; if (document.hidden) AC.suspend(); else if (soundOn) AC.resume(); });
+
+// ---------- you ----------
+let yaw = 0, pitch = -0.06, yawVel = 0; const pos = new THREE.Vector3(), keys = {};
+// Global Dream: input moves a target; the camera glides to it (critically damped, speed-limited), and a release leaves a short, soft drift
+const camT = { yaw: 0, pitch: -0.06, vy: 0, vp: 0, v: 0, fling: 0, lt: 0 };
+function damp(cur, tgt, vel, smooth, maxSpeed, dt) {   // smooth-damp: ease-in/ease-out, never overshoots, frame-rate independent
+  const o = 2 / Math.max(1e-4, smooth), x = o * dt, e = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x), maxCh = maxSpeed * smooth;
+  const ch = THREE.MathUtils.clamp(cur - tgt, -maxCh, maxCh), t2 = cur - ch, tmp = (vel + o * ch) * dt;
+  let nv = (vel - o * tmp) * e, out = t2 + (ch + tmp) * e;
+  if ((tgt - cur > 0) === (out > tgt)) { out = tgt; nv = 0; }
+  return [out, nv];
+}
+function applyCam() { camera.position.copy(pos); camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, "YXZ")); camera.updateMatrixWorld(); }
+const fwd = () => new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+function portalAt(x, y) {   // the bubble under a screen point, nearest first
+  let best = null, bd = 1e9;
+  for (const P of portals) {
+    if (P.open < 0.5 || P.expand) continue; const c = P.group.position.clone().project(camera); if (c.z > 1) continue;
+    const sx = (c.x * 0.5 + 0.5) * innerWidth, sy = (-c.y * 0.5 + 0.5) * innerHeight, dist = camera.position.distanceTo(P.group.position);
+    const rpx = (0.74 * P.open / dist) * (innerHeight / 2) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const d = Math.hypot(x - sx, y - sy); if (d < rpx && dist < bd) { best = P; bd = dist; }
+  }
+  return best;
+}
+// Global Dream: two bubbles on a phone sit side by side under the title card, k times smaller. A bubble k times smaller is the same
+// bubble seen from 1/k times farther away, so it is placed there: the world inside, the sparks, the click and the step-in all scale alike
+function screenAt(xc, yc, k, ang) {   // the point that shows at screen (xc, yc) in the resting 70° view, as far away as makes a bubble k times smaller
+  const tv = Math.tan(THREE.MathUtils.degToRad(35)), th = tv * innerWidth / innerHeight;
+  const d = new THREE.Vector3((xc / innerWidth * 2 - 1) * th, (1 - yc / innerHeight * 2) * tv, -1).normalize().applyEuler(new THREE.Euler(pitch, ang, 0, "YXZ"));
+  return pos.clone().addScaledVector(d, 2.6 / k);
+}
+const bubbleR0 = () => (0.74 / 2.6 / Math.tan(THREE.MathUtils.degToRad(35))) * innerHeight / 2;   // a normal bubble's radius on screen, px
+function pairAt(side, ang) {
+  const r0 = bubbleR0(), k = Math.min(0.55, 0.2 * innerWidth / r0), r = r0 * k;   // two must fit across
+  const card = 76 + Math.min(0.34 * innerHeight, 0.44 * innerHeight - 90);   // the title card at its tallest
+  const yc = (card + 12 + r + innerHeight - 212 - 1.15 * r) / 2, xc = innerWidth * (side < 0 ? 0.27 : 0.73);   // between the card and the label's room above Gia's button
+  return screenAt(xc, yc, k, ang);
+}
+// one bubble on a phone: in the middle, between the title card and its label's room 12 px above Gia's button and the hint; smaller only if it must be.
+// Measured once per world (and again on resize) so it keeps its size and place while the card folds for Gia or the label shows the Gallery words
+function soloAt(P, ang) {
+  if (!P.soloG || P.soloG.w !== innerWidth || P.soloG.h !== innerHeight) {
+    const t = $("wtitle"), cardB = t.offsetTop + t.offsetHeight, lim = Math.min($("giaPill").getBoundingClientRect().top, $("hint").getBoundingClientRect().top) - 12;
+    const r0 = bubbleR0(), lh = P.label.offsetHeight + 10, k = Math.min(1, (lim - cardB - 12 - lh) / (2.39 * r0)), r = r0 * k;   // the label hangs 1.15 r below the centre; 0.12 r each way for the sway
+    const yc = Math.max(cardB + 12 + 1.12 * r, Math.min(innerHeight / 2 + 0.1 * r0, lim - lh - 1.27 * r));
+    P.soloG = { w: innerWidth, h: innerHeight, k: Math.max(0.3, k), yc };
+  }
+  return screenAt(innerWidth / 2, P.soloG.yc, P.soloG.k, ang);
+}
+let drag = null;
+addEventListener("pointerdown", () => ensureAudio(), { once: true }); addEventListener("keydown", () => ensureAudio(), { once: true }); addEventListener("wheel", () => ensureAudio(), { once: true });
+canvas.addEventListener("pointerdown", (e) => { GD.touch(); GD.closeGia(); camT.fling = 0; camT.v = 0; camT.lt = performance.now(); drag = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, P: portalAt(e.clientX, e.clientY), swiped: false, t0: performance.now(), moved: false, walk: false }; canvas.setPointerCapture(e.pointerId); stopTour(); });
+canvas.addEventListener("pointermove", (e) => {
+  if (!drag) {
+    canvas.classList.toggle("over", !!portalAt(e.clientX, e.clientY));
+    for (const P of portals) { if (P.open < 0.6 || P.expand) continue; const c = P.group.position.clone().project(camera); if (c.z > 1) continue;
+      const sx = (c.x * 0.5 + 0.5) * innerWidth, sy = (-c.y * 0.5 + 0.5) * innerHeight, dist = camera.position.distanceTo(P.group.position);
+      const rpx = (0.74 * P.open / dist) * (innerHeight / 2) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), d = Math.hypot(e.clientX - sx, e.clientY - sy);
+      if (Math.abs(d - rpx) < rpx * 0.18) { const spd = Math.min(1, Math.hypot(e.movementX || 0, e.movementY || 0) / 40); if (spd > 0.05) { poke(P, Math.atan2(sy - e.clientY, e.clientX - sx), spd * 0.45 * Math.sign(rpx - d || 1)); emitFrom(P, 6, 1.2); } } }
+    return;
+  }
+  
+  if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) > 8) drag.moved = true;
+  if (drag.swiped || busy()) return;
+  const k = e.pointerType === "touch" ? 0.0048 : 0.0036, dx = (e.clientX - drag.x) * k, dy = (e.clientY - drag.y) * k, tn = performance.now(), dtm = Math.max(8, tn - camT.lt) / 1000;
+  camT.yaw -= dx; camT.pitch = THREE.MathUtils.clamp(camT.pitch - dy, -1.0, 1.0); camT.v = camT.v * 0.6 + (-dx / dtm) * 0.4; camT.lt = tn;
+  drag.x = e.clientX; drag.y = e.clientY;
+});
+canvas.addEventListener("pointerup", (e) => {
+  const d = drag; drag = null; if (d && d.moved && performance.now() - camT.lt < 90) camT.fling = THREE.MathUtils.clamp(camT.v, -1.6, 1.6);
+  if (STORY || !d || d.walk || d.swiped || Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 6 || busy() || !A) return;
+  const P = portalAt(e.clientX, e.clientY);
+  if (P) return expandPortal(P);
+  return;   // Global Dream: the scenario places the bubbles
+  // open another bubble where you clicked
+  const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera);
+  let hit = null; try { hit = ray.intersectObject(A.mesh, false).find((h) => h.distance > 0.9 && h.distance < 10); } catch {}
+  const at = hit ? hit.point.clone().lerp(camera.position, Math.min(0.5, 0.45 / hit.distance)) : ray.ray.at(2.6, new THREE.Vector3());
+  at.y = Math.min(Math.max(at.y, pos.y - 0.7), pos.y + 0.6);
+  const w = freeWorld(portals.length ? portals[portals.length - 1].w : here); if (w === null) return;
+  if (portals.length >= MAXP) removePortal(portals[0]);
+  makePortal(w, at);
+});
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault(); if (STORY) return; GD.touch(); GD.stopCycle(); const P = portalAt(e.clientX, e.clientY);
+  if (P) return;   // Global Dream: the world in a bubble changes only by a click on it or a button in the menu
+  if (!busy() && !PANO) pos.addScaledVector(fwd(), -e.deltaY * 0.0025);
+}, { passive: false });
+addEventListener("keydown", (e) => { if (STORY) return storyKey(e); GD.touch(); keys[e.code] = true; if (e.code === "KeyC" && !e.ctrlKey && !e.metaKey) copyCam(); if (e.code === "Space") { e.preventDefault(); const P = nearest(); if (P) expandPortal(P); } });
+addEventListener("keyup", (e) => (keys[e.code] = false));
+const nearest = () => portals.filter((p) => p.B && p.open > 0.5).sort((a, b) => a.group.position.distanceTo(camera.position) - b.group.position.distanceTo(camera.position))[0];
+
+// ---------- dock: the worlds, applied to the bubble nearest the middle of the view ----------
+for (const [i, W] of WORLDS.entries()) { if (W.hidden) continue; const b = document.createElement("button"); b.textContent = W.name; b.dataset.i = i; b.onclick = () => { GD.touch(); GD.stopCycle(); jumpTo(i); }; $("worlds").append(b); }
+function focusPortal() { let best = null, bs = -2; for (const P of portals) { const v = P.group.position.clone().sub(camera.position).normalize(), s = v.dot(new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion)); if (s > bs) { bs = s; best = P; } } return best; }
+function updateDock() { $("here").textContent = WORLDS[here].name; const F = focusPortal(); for (const b of $("worlds").children) { const i = +b.dataset.i; b.classList.toggle("here", i === here); b.classList.toggle("next", !!F && i === F.w); } }
+
+// ---------- stepping in: the bubble grows until it fills the view, then that world is yours ----------
+let A = null, here = 0, arrive = null, flash = 0, blur = 0; const blurC = new THREE.Vector2(0.5, 0.5);
+const busy = () => portals.some((p) => p.expand);
+function expandPortal(P) {
+  if (!P.B || P.expand || busy()) return;
+  P.expand = { t0: performance.now(), dur: REDUCED ? 500 : 1250, from: P.open, pos0: pos.clone() }; sfxWhoosh(REDUCED ? 0.5 : 1.25);
+}
+function enter(P, walk = false) {   // walk: stepping through on foot is seamless, like Portal; clicking keeps the cinematic arrival
+  // carry your pose across the portal so the picture does not jump: what you saw through it is now around you
+  pos.copy(pos.clone().applyMatrix4(P.PAinv)); yaw -= P.yaw; camT.yaw -= P.yaw;
+  if (A) { A.U.burst.value = 0; A.U.glowR.value = 0; A.mesh.updateVersion(); }
+  A = P.B; if (!A.grid) buildGrid(A); setClip(A, false); here = P.w; clearSparks(); setMood(WORLDS[here].id);
+  for (const Q2 of [...portals]) removePortal(Q2);
+  A.U.bp.value.copy(toLocal(A, pos)); arrive = REDUCED || walk ? null : { t0: performance.now() };
+  if (!walk) flash = 1; if (!STORY) GD.onEnter(); updateDock();
+  setTimeout(() => { if (!STORY && !portals.length) GD.spawnBubbles(); }, REDUCED ? 300 : 1500);
+  evict(); setTimeout(prewarm, 2500);
+}
+let jumping = false;
+async function jumpTo(i) {   // Global Dream: a menu button takes you straight into that world, facing its start view
+  if (jumping || busy() || i === here || !A) return; jumping = true;
+  const veil = $("gdVeil"); veil.classList.add("on"); await wait(REDUCED ? 0 : 480);
+  let w; try { w = await loadWorld(i); } catch { veil.classList.remove("on"); jumping = false; return; }
+  for (const Q2 of [...portals]) removePortal(Q2);
+  if (A) { A.U.burst.value = 0; A.U.glowR.value = 0; A.mesh.updateVersion(); }
+  A = w; if (!A.grid) buildGrid(A); setClip(A, false); here = i; clearSparks(); setMood(WORLDS[i].id); arrive = null;
+  pos.set(0, 0, 0); yaw = camT.yaw = 0; pitch = camT.pitch = -0.06; camT.vy = camT.vp = camT.fling = camT.v = 0; yawVel = 0;
+  A.U.bp.value.copy(toLocal(A, pos)); GD.onEnter(); updateDock();
+  setTimeout(() => { if (!portals.length) GD.spawnBubbles(); }, REDUCED ? 100 : 650);
+  evict(); setTimeout(prewarm, 2500);
+  await wait(80); veil.classList.remove("on"); jumping = false;
+}
+function title(t, s) { $("titleT").textContent = t; $("titleS").textContent = s; $("title").classList.add("on"); setTimeout(() => $("title").classList.remove("on"), 1800); }
+
+// ---------- auto tour ----------
+let tour = 0;
+function stopTour() { if (tour) { clearInterval(tour); tour = 0; $("tourBtn").classList.remove("on"); } }
+$("tourBtn").onclick = () => {
+  if (tour) return stopTour(); $("tourBtn").classList.add("on"); let n = 0;
+  tour = setInterval(() => { const P = nearest(); if (!P) return; n++; if (n % 3) cycle(P, 1); else { setShape(shape + 1); expandPortal(P); } }, 2600);
+};
+
+function copyCam() {   // for story files: where you stand and what you look at, as JSON
+  const s0 = lookOf(3), r = (v) => [+v.x.toFixed(2), +v.y.toFixed(2), +v.z.toFixed(2)];
+  const txt = JSON.stringify({ world: WORLDS[here].id, p: r(s0.p), look: r(s0.look), fov: Math.round(s0.fov) });
+  const show = () => title("Camera copied", txt); navigator.clipboard ? navigator.clipboard.writeText(txt).then(show, show) : show(); console.log(txt);
+}
+// ---------- story: a short, captioned film for social video. ?story, then Play ----------
+const ez = (k) => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2);
+const pause = (ms, run) => new Promise((r, x) => setTimeout(() => (run === story.run ? r() : x("stopped")), ms));
+const until = (f, run) => new Promise((r, x) => { const c = () => (run !== story.run ? x("stopped") : f() ? r() : setTimeout(c, 50)); c(); });
+function caption(big, small, ms) { const c = $("cap"); c.querySelector("b").textContent = big; c.querySelector("span").textContent = small || ""; c.classList.add("on"); clearTimeout(c.tm); c.tm = setTimeout(() => c.classList.remove("on"), ms); }
+const fadeTo = (o, ms = 900) => { $("fade").style.transition = `opacity ${ms}ms ease`; $("fade").style.opacity = o; };
+function routeOf(w) {   // the capture's walk, smoothed to one point a second, as a curve to glide along
+  if (w.route) return w.route; const S = w.S, pts = [];
+  for (let t = 0.5; t < S.duration_s; t += 1) { const win = S.path.filter((x) => Math.abs(x.t - t) < 1.2); if (win.length) pts.push(win.reduce((a, x) => a.add(V3(x.p)), new THREE.Vector3()).multiplyScalar(1 / win.length)); }
+  return (w.route = new THREE.CatmullRomCurve3(pts));
+}
+function glide(w, a, b, ms, lift = 0.35) {   // a slow dolly along the walk, looking a little ahead and up
+  const C = routeOf(w), t0 = performance.now();
+  return (now) => { const u = a + (b - a) * Math.min(1, (now - t0) / ms), p = C.getPointAt(u).add(new THREE.Vector3(0, lift, 0));
+    return { p, look: C.getPointAt(Math.min(1, u + 0.08)).add(new THREE.Vector3(0, lift + 0.55, 0)), fov: 60 }; };
+}
+function move(from, to, ms, e = ez) {   // a crane or push between two framed shots
+  const t0 = performance.now();
+  return (now) => { const k = e(Math.min(1, (now - t0) / ms)); return { p: from.p.clone().lerp(to.p, k), look: from.look.clone().lerp(to.look, k), fov: from.fov + (to.fov - from.fov) * k }; };
+}
+const lookOf = (d = 5) => ({ p: pos.clone(), look: pos.clone().add(new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(pitch, yaw, 0, "YXZ")).multiplyScalar(d)), fov: camera.fov });
+function drift(ms, dyaw, push, rise = 0) {   // from wherever you are: a slow turn with a gentle push
+  const s0 = lookOf(), f0 = s0.look.clone().sub(s0.p).setY(0).normalize(), t0 = performance.now(), y0 = yaw, p0 = pitch;
+  return (now) => { const k = ez(Math.min(1, (now - t0) / ms)), y = y0 + dyaw * k, p = s0.p.clone().addScaledVector(f0, push * k).add(new THREE.Vector3(0, rise * k, 0));
+    return { p, look: p.clone().add(new THREE.Vector3(-Math.sin(y), Math.sin(p0) * 0.6 - 0.02, -Math.cos(y)).multiplyScalar(5)), fov: s0.fov }; };
+}
+async function cutTo(i) {   // change the world you stand in without a portal (an edit cut)
+  const w = await loadWorld(i); for (const Q2 of [...portals]) removePortal(Q2);
+  if (A) { A.U.burst.value = 0; A.U.glowR.value = 0; A.mesh.updateVersion(); }
+  A = w; if (!A.grid) buildGrid(A); setClip(A, false); here = i; clearSparks(); setMood(WORLDS[i].id); updateDock();
+}
+function stopStory() { story.run++; story.cam = null; $("cap").classList.remove("on"); $("endcard").classList.remove("on"); fadeTo(0, 300); }
+function storyKey(e) { if (e.code === "Escape") { stopStory(); document.body.classList.add("storywait"); } if (e.code === "KeyR") playStory(); }
+const EASE = { inout: ez, in: (k) => k * k, out: (k) => 1 - (1 - k) * (1 - k), linear: (k) => k };
+const shotOf = (o) => o && { p: V3(o.p), look: V3(o.look), fov: o.fov ?? 64 };
+function aheadOf(st) {   // a point relative to where you look: ahead, turned, to the side, up
+  const y = yaw + (st.turn ?? 0), f = new THREE.Vector3(-Math.sin(y), 0, -Math.cos(y)), side = st.side ?? 0;
+  return pos.clone().addScaledVector(f, st.ahead ?? 2.8).add(new THREE.Vector3(-f.z * side, st.rise ?? -0.1, f.x * side));
+}
+function camOf(st, named) {
+  const e = EASE[st.ease] || ez, ms = st.ms ?? 3000;
+  switch (st.camera) {
+    case "glide": return A.S ? glide(A, st.from ?? 0, st.to ?? 1, ms, st.lift ?? 0.35) : null;   // along a captured walk (worlds with a scene.json)
+    case "move": return move(shotOf(st.from) || lookOf(), shotOf(st.to), ms, e);
+    case "drift": return drift(ms, st.turn ?? 0, st.push ?? 0, st.rise ?? 0);
+    case "face": case "approach": {   // turn to a bubble, or push in to it
+      const P = named[st.portal], s0 = lookOf(), tgt = P.pos.clone().add(new THREE.Vector3(0, -(st.aimLow ?? 0), 0));
+      const p = st.camera === "face" ? s0.p.clone() : P.pos.clone().addScaledVector(P.pos.clone().sub(s0.p).setY(0).normalize(), -(st.distance ?? 1.5)).setY(s0.p.y);
+      return move(s0, { p, look: tgt, fov: st.fov ?? s0.fov }, ms, e);
+    }
+    case "hold": { const s0 = lookOf(); return () => s0; }
+  }
+  console.warn("story: unknown camera", st.camera); return null;
+}
+const SOUNDS = { crackle: () => sfxShimmer(), shimmer: () => sfxShimmer(), wobble: () => sfxWobble(1), whoosh: () => sfxWhoosh(1.2), chime: () => sfxChime(), blip: () => sfxBlip(), swish: () => sfxSwish(0) };
+async function doStep(st, named, run) {   // one step of a story file; "wait" (ms) after any step pauses before the next
+  if (st.cut !== undefined) { const i = WIX(st.cut); if (i < 0) throw new Error("story: no world " + st.cut); await cutTo(i); const s0 = lookOf(); story.cam = () => s0; }
+  else if (st.camera) story.cam = camOf(st, named);
+  else if (st.fade !== undefined) fadeTo(st.fade, st.ms ?? 900);
+  else if (st.caption !== undefined) caption(st.caption, st.small, st.ms ?? 4000);
+  else if (st.sound) SOUNDS[st.sound]?.();
+  else if (st.open) { if (st.shape) setShape(shapeIx(st.shape)); const P = makePortal(WIX(st.open), st.at ? V3(st.at) : aheadOf(st)); named[st.name || st.open] = P; }
+  else if (st.shape) setShape(shapeIx(st.shape));
+  else if (st.world) { const P = named[st.in]; if (P) { setWorld(P, WIX(st.world)); sfxBlip(); sfxSwish(0.2); } }
+  else if (st.waitOpen) { const P = named[st.waitOpen]; await until(() => P.B && !P.loading && P.open > 0.9, run); }
+  else if (st.enter) {
+    const P = named[st.enter]; await until(() => P.B && !P.loading, run); story.cam = null; expandPortal(P);
+    await until(() => here === P.w && !busy(), run); const s0 = lookOf(); story.cam = () => s0;
+  }
+  else if (st.end !== undefined) $("endcard").classList.toggle("on", !!st.end);
+}
+async function playStory() {
+  stopStory(); if (!SDEF) return; const run = ++story.run, named = {};
+  document.body.classList.remove("storywait"); document.body.classList.add("story"); document.body.classList.toggle("letterbox", !!(SDEF.letterbox || Q.has("letterbox")));
+  ensureAudio(); fadeTo(1, 10);
+  const ids = new Set(); for (const st of SDEF.steps) for (const k of ["cut", "open", "world"]) if (typeof st[k] === "string") ids.add(st[k]);
+  try {
+    await Promise.all([...ids].map((id) => loadWorld(WIX(id))));   // everything the story needs is decoded before it starts
+    for (const st of SDEF.steps) { await doStep(st, named, run); if (st.wait) await pause(st.wait, run); }
+  } catch (e) { if (e !== "stopped") console.warn(e); }
+}
+if (STORY) {
+  $("playBtn").onclick = playStory;
+  if (SDEF?.end) { const ec = $("endcard"); ec.innerHTML = ""; ec.append(Object.assign(document.createElement("b"), { textContent: SDEF.end.title || "" }), ...(SDEF.end.lines || []).map((l) => Object.assign(document.createElement("span"), { textContent: l }))); }
+  if (!SDEF) { $("playBtn").textContent = `No story at stories/${SNAME}.json`; $("playBtn").disabled = true; }
+}
+
+// ---------- Global Dream: scenario layer (titles, bubble texts, attention points, Gia window, idle turning) ----------
+const GD = (() => {
+  const S = { entered: 0, lastInput: performance.now(), titleT: 0, titleStage: 0, seen: {}, finaleShown: false, cycle: null, cycleDone: {}, visits: {}, focusT: 0, idleK: 0 };
+  const W = () => WORLDS[here], ID = (i) => WORLDS[i].id;
+  const ROT = THREE.MathUtils.degToRad(+(Q.get("spin") || 6));                 // idle turning, rad/s (about 6°/s: one turn a minute), clockwise
+  const IDLE_MS = +(Q.get("idlems") || 8000), IDLE_ON = Q.get("idle") !== "off";   // ?idle=off: behaves like the original, no turning, bubbles stay put              // no input for this long: the view starts turning again
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // ----- Gia video: WebM with alpha where it plays, else the stacked MP4 (colour over mask) drawn into a canvas -----
+  const SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+  function giaVideo(webm, stacked, poster) {
+    const v = document.createElement("video"); v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+    if (!SAFARI && v.canPlayType('video/webm; codecs="vp9"')) { v.src = webm; v.poster = poster; v.play().catch(() => {}); return v; }
+    const c = document.createElement("canvas"), g = c.getContext("2d"), sc = document.createElement("canvas"), sg = sc.getContext("2d", { willReadFrequently: true }); c.setAttribute("aria-hidden", "true");
+    v.src = stacked; v.play().catch(() => {});
+    const img = new Image(); img.src = poster; img.onload = () => { if (!c.width) { c.width = img.width; c.height = img.height; g.drawImage(img, 0, 0); } };
+    const draw = () => {
+      if (v.readyState >= 2 && v.videoWidth && c.isConnected) {
+        const w = v.videoWidth, h = v.videoHeight >> 1;
+        if (sc.width !== w || sc.height !== h * 2) { sc.width = w; sc.height = h * 2; }
+        if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+        sg.drawImage(v, 0, 0); const top = sg.getImageData(0, 0, w, h), m = sg.getImageData(0, h, w, h).data, a = top.data;
+        for (let i = 3; i < a.length; i += 4) a[i] = m[i - 3];
+        g.putImageData(top, 0, 0);
+      }
+      if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(draw); else requestAnimationFrame(draw);
+    };
+    draw(); return c;
+  }
+  // ----- DOM -----
+  const ui = {};
+  function build() {
+    ui.title = el("div", "gcard"); ui.title.id = "wtitle"; document.body.append(ui.title);
+    ui.fig = el("div"); ui.fig.id = "giaFig"; ui.fig.append(giaVideo("gia/gia-idle.webm", "gia/gia-idle-stacked.mp4", "gia/gia-poster.webp")); document.body.append(ui.fig);
+    ui.pill = el("button", "gcard"); ui.pill.id = "giaPill"; ui.pill.setAttribute("aria-label", "Meet Gia");
+    const av = el("span", "av"); av.append(giaVideo("gia/gia-avatar.webm", "gia/gia-avatar-stacked.mp4", "gia/gia-avatar-poster.webp"));
+    ui.pill.append(av, el("span", "t", "<b>Meet Gia</b><span>Your AI for the life you want to build.</span>"));
+    ui.pill.onclick = () => openGia(); document.body.append(ui.pill);
+    ui.win = el("section", "gcard"); ui.win.id = "giaWin"; ui.win.setAttribute("aria-label", "Gia"); ui.win.setAttribute("aria-live", "polite");
+    ui.win.innerHTML = `<header><span class="eyebrow">Gia</span><button class="x" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><div id="giaBody"></div>`;
+    ui.body = ui.win.querySelector("#giaBody"); ui.win.querySelector(".x").onclick = closeGia; document.body.append(ui.win);
+    addEventListener("keydown", (e) => { if (e.code === "Escape" && document.body.classList.contains("gia-open")) closeGia(); });
+    document.fonts?.ready.then(() => fadeTitle());
+    $("hint").textContent = PANO ? (PHONE ? "Drag to look" : "Drag to look around") : PHONE ? "Drag to look · Hold to walk" : "Drag to look around · Hold to walk";
+    if (DEBUG) { ui.dbg = el("div", null); ui.dbg.style.cssText = "position:fixed;z-index:9;left:10px;bottom:70px;font:12px ui-monospace,monospace;color:#fff;background:#0009;padding:4px 8px;border-radius:6px"; document.body.append(ui.dbg); }
+  }
+  // ----- input: anything you do stops the idle turning for a while -----
+  function touch() { S.lastInput = performance.now(); }
+  // ----- world title, and under it everything the world says: bubble texts, the Gallery cycle, captions, the Move steps -----
+  function worldBlocks() {   // --i / --j: each block's and each tag's or step's place in line, for the CSS delays of the arrival accents
+    const w = W(), sec = (h, p, tags) => `${h ? `<b>${esc(h)}</b>` : ""}${p ? `<span${h ? "" : ` class="solo"`}>${esc(p)}</span>` : ""}${tags ? `<div class="tags">${tags.map((t, j) => `<i style="--j:${j}">${esc(t)}</i>`).join("")}</div>` : ""}`;
+    const out = (w.bubbles || []).filter((b) => b.text).map((b) => sec(b.text.h, b.text.p));
+    if (w.cycle) out.push(sec(w.cycle.intro), sec(w.cycle.after.h, w.cycle.after.p));
+    for (const p of w.points || []) out.push(sec(p.h, p.p, p.tags));
+    const html = out.map((s, i) => `<div class="wsec" style="--i:${i}">${s}</div>`);
+    if (w.steps) html.push(`<div class="wsec wsteps" style="--i:${html.length}">${w.steps.items.map((x, j) => `<i style="--j:${j}">${esc(x)}</i>`).join("<em>→</em>")}</div>`);
+    return html.length ? `<div class="wbody">${html.join("")}</div>` : "";
+  }
+  function setTitle(html) {
+    ui.title.innerHTML = html + worldBlocks();
+    const b = ui.title.querySelector(".wbody"); if (b) { b.onscroll = fadeTitle; fadeTitle(); }
+  }
+  function fadeTitle() {   // the soft fade at the bottom only while there is more to scroll to
+    const b = ui.title.querySelector(".wbody"); if (b) b.classList.toggle("fade", b.scrollHeight - b.clientHeight - b.scrollTop > 2);
+  }
+  function showTitle() {
+    const T = W().title, g = ID(here) === "gallery" && !S.visits.gallery;
+    setTitle(g ? `<h1 class="serif hero">${esc(T.h)}</h1><p>${esc(T.lead)}</p>`
+      : `${T.eyebrow ? `<div class="eyebrow">${esc(T.eyebrow)}</div>` : ""}<h1 class="serif">${esc(T.h)}</h1>${T.lead ? `<p class="lead">${esc(T.lead)}</p>` : ""}`);
+    ui.title.classList.remove("on"); void ui.title.offsetWidth; ui.title.classList.add("on");   // the card slides in from the top left again on every arrival
+    S.titleT = performance.now(); S.titleStage = g ? 1 : 2;
+  }
+  function heroStage2() {   // Gallery: GIA → Start with Gia. Talk. Explore. Plan. [Meet Gia]
+    const T = W().title; S.titleStage = 3;
+    setTitle(`<h1 class="serif">${esc(T.h2)}</h1><p>${esc(T.lead2)}</p><button class="gbtn">${esc(T.cta)}</button>`);
+    ui.title.querySelector("button").onclick = () => openGia(); S.titleT = performance.now(); if (document.body.classList.contains("gia-open")) fitWin();
+    for (const P of portals) P.soloG = null;   // the card changed height: a lone bubble on a phone measures its room again
+  }
+  const hideTitle = () => ui.title.classList.remove("on");
+  // ----- entering a world -----
+  function onEnter() {
+    touch(); S.entered = performance.now(); S.lastInput = performance.now() - IDLE_MS + 6000;   // the view starts turning ~6 s after you arrive
+    closeGia(true); S.cycle = null; S.focusT = 0;
+    showTitle(); S.visits[ID(here)] = (S.visits[ID(here)] || 0) + 1;
+    ui.pill.classList.toggle("new", !S.seen[ID(here)] && !!W().gia);
+  }
+  function spawnBubbles() {
+    const f = fwd(), right = new THREE.Vector3(-f.z, 0, f.x), list = (W().bubbles || []).filter((b) => !(b.desktopOnly && PHONE) && WIX(b.to) >= 0), pair = PHONE && list.length === 2;
+    for (const b of list) {
+      const side = b.side || 0, at = pair ? pairAt(side, yaw) : pos.clone().addScaledVector(f, 2.6).addScaledVector(right, side * 1.15 + 0.35).add(new THREE.Vector3(0, -0.2, 0));
+      const P = makePortal(WIX(b.to), at); P.side = side; if (pair) P.pair = side < 0 ? -1 : 1; if (PHONE && list.length === 1) { P.solo = true; P.pos.copy(soloAt(P, yaw)); P.anchor.copy(P.pos); }
+    }
+  }
+  // ----- Gia window -----
+  const block = (html, cls) => el("div", cls || null, html);
+  function giaBlocks(G) {
+    const out = [];
+    if (G.h) out.push(block(`<h2 class="serif">${esc(G.h)}</h2>`));
+    for (const p of G.p || []) out.push(block(`<p>${esc(p)}</p>`));
+    if (G.steps) out.push(block(G.steps.map((s, i) => `<div><b>0${i + 1}</b><span>${esc(s)}</span></div>`).join(""), "steps4"));
+    if (G.list) out.push(block(`<div class="eyebrow">${esc(G.list.title)}</div>` + G.list.items.map((s) => `<div class="li">${esc(s)}</div>`).join(""), "box"));
+    if (G.request) out.push(block(`<div class="eyebrow">${esc(G.request.title)}</div><div>${esc(G.request.lead)}</div>` + G.request.rows.map((r) => `<div class="row"><span>${esc(r[0])}</span><em>${esc(r[1])}</em></div>`).join(""), "box"));
+    if (G.quote) out.push(block(`<p class="q">“${esc(G.quote)}”</p>`));
+    if (G.capacity) out.push(block(`<p class="q">“${esc(G.capacity.text)}”</p>` + G.capacity.bars.map((b) => `<div class="bar2"><b>${esc(b[0])}</b><span><i style="width:${Math.round(b[1] * 100)}%"></i></span></div>`).join("") + `<div class="small">${esc(G.capacity.note)}</div>`, "box"));
+    for (const p of G.after || []) out.push(block(`<p class="strong">${esc(p)}</p>`));
+    if (G.phases) out.push(block(G.phases.map((x) => `<div class="eyebrow">${esc(x[0])}</div><div>${esc(x[1])}</div>`).join(""), "box"));
+    if (G.close) out.push(block(`<p class="strong">${esc(G.close)}</p>`));
+    if (G.small) out.push(block(`<p class="small">${esc(G.small)}</p>`));
+    if (G.button) {
+      const b = G.button.href ? el("a", "gbtn", esc(G.button.label)) : el("button", "gbtn", esc(G.button.label));
+      if (G.button.href) b.href = G.button.href; else b.onclick = () => action(G.button.action);
+      out.push(b);
+    }
+    return out;
+  }
+  function chapterBlocks(C) {
+    const out = [];
+    for (const s of C) {
+      out.push(block(`<h3 class="serif">${esc(s.h)}</h3>`));
+      for (const p of s.p || []) out.push(block(`<p>${esc(p)}</p>`));
+      if (s.strong) out.push(block(`<p class="strong">${esc(s.strong)}</p>`));
+      if (s.tags) out.push(block(`<div class="tags" style="justify-content:flex-start">${s.tags.map((t) => `<i>${esc(t)}</i>`).join("")}</div>`));
+      for (const p of s.after || []) out.push(block(`<p>${esc(p)}</p>`));
+      if (s.quote) out.push(block(`<p class="q">“${esc(s.quote)}”</p>`));
+    }
+    return out;
+  }
+  function fill(blocks) {   // the text arrives a paragraph at a time; a click shows the rest at once
+    ui.body.innerHTML = ""; ui.body.scrollTop = 0; blocks.forEach((b) => ui.body.append(b));
+    clearTimeout(S.fillT); let k = 0; const step = () => { if (k < blocks.length) { blocks[k++].classList.add("in"); S.fillT = setTimeout(step, REDUCED ? 0 : 450); } }; step();
+    ui.body.onclick = () => { clearTimeout(S.fillT); blocks.forEach((b) => b.classList.add("in")); };
+  }
+  function openGia(kind) {
+    const w = W(), G = kind === "finale" ? w.finale : w.gia; if (!G) return;
+    ui.win.classList.toggle("finale", kind === "finale"); ui.win.classList.remove("full");
+    fill(w.finale && kind !== "finale" ? [...giaBlocks(G), ...giaBlocks(w.finale)] : giaBlocks(G)); document.body.classList.add("gia-open"); fitWin();
+    S.seen[w.id] = true; ui.pill.classList.remove("new"); touch();
+  }
+  function asideAngle() {   // the view angle (right +) of the middle of the free space left of Gia's window
+    const r = ui.win.getBoundingClientRect(), xc = Math.max(170, (r.left - 24) / 2 + 8);
+    const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+    return Math.atan(((xc - innerWidth / 2) / (innerWidth / 2)) * tanH);
+  }
+  const MOBILE = matchMedia("(max-width: 760px), (pointer: coarse) and (max-width: 900px)");
+  function fitWin() {   // Gia's window under the title card when they share a column; a tall card gives up room (it scrolls) so the window keeps 260 px
+    ui.title.style.maxHeight = "";
+    if (PHONE || MOBILE.matches) { ui.win.style.maxHeight = ""; fadeTitle(); return; }
+    let t = ui.title.getBoundingClientRect(); const r = ui.win.getBoundingClientRect(), overlapX = ui.title.classList.contains("on") && r.left < t.right + 16;
+    if (overlapX && document.body.classList.contains("gia-open") && innerHeight - (t.bottom + 16) - 92 < 260) {
+      ui.title.style.maxHeight = Math.max(140, innerHeight - 92 - 260 - 16 - t.top) + "px"; t = ui.title.getBoundingClientRect();
+    }
+    ui.win.style.maxHeight = overlapX ? Math.max(260, innerHeight - (t.bottom + 16) - 92) + "px" : "";
+    fadeTitle();
+  }
+  addEventListener("resize", () => fitWin());
+  function closeGia(silent) { document.body.classList.remove("gia-open"); clearTimeout(S.fillT); if (ui.title.style.maxHeight) { ui.title.style.maxHeight = ""; fadeTitle(); } if (!silent) touch(); }
+  function action(a) {
+    if (a === "chapter") { ui.win.classList.add("full"); fill(chapterBlocks(W().chapter || [])); }
+    else if (a === "cycle") { closeGia(); startCycle(); }
+  }
+  // ----- Gallery: the bubble pages through Home / Money / Move / Business / What comes next, then settles on Home -----
+  async function startCycle() {
+    const C = W().cycle, P = portals[0]; if (!C || !P || S.cycle) return; S.cycle = { stage: "intro", word: "" }; S.cycleDone.gallery = true;
+    const run = S.cycle; await wait(1600);
+    for (const [id, word] of C.words) {
+      if (S.cycle !== run || !portals.includes(P)) return;
+      run.stage = "words"; run.word = word; setWorld(P, WIX(id));
+      const t0 = performance.now(); while (P.loading && performance.now() - t0 < 5000) await wait(100); await wait(1700);
+    }
+    if (S.cycle !== run || !portals.includes(P)) return; run.stage = "after"; run.word = ""; setWorld(P, WIX("home"));
+    await wait(9000); if (S.cycle === run) S.cycle = null;
+  }
+  function stopCycle() { if (S.cycle) S.cycle = null; }
+  // ----- every frame -----
+  const lonNow = () => { let d = -THREE.MathUtils.radToDeg(yaw); d = ((d + 180) % 360 + 360) % 360 - 180; return d; };
+  function frame(dt, now) {
+    if (!A) return;
+    const idle = IDLE_ON && !REDUCED && !busy() && now - S.lastInput > IDLE_MS;
+    S.idleK = idle ? Math.min(1, S.idleK + dt / 3) : Math.max(0, S.idleK - dt / 0.8);   // the calm turn eases in and out
+    const ik = S.idleK * S.idleK * (3 - 2 * S.idleK);
+    if (ik > 0) { camT.yaw -= ROT * ik * dt; if (idle) camT.pitch += (-0.06 - camT.pitch) * Math.min(1, dt * 0.5); }
+    if (camT.fling) { camT.yaw += camT.fling * dt; camT.fling *= Math.exp(-dt * 2.6); if (Math.abs(camT.fling) < 0.01) camT.fling = 0; }
+    camT.yaw = yaw + THREE.MathUtils.clamp(camT.yaw - yaw, -1.2, 1.2);   // never let the target run far ahead: no long, runaway turns
+    [yaw, camT.vy] = damp(yaw, camT.yaw, camT.vy, 0.22, 2.4, dt);
+    [pitch, camT.vp] = damp(pitch, camT.pitch, camT.vp, 0.26, 1.6, dt);
+    yawVel = camT.vy;
+    // in the calm mode the bubbles float in front of you and come with you as the view turns
+    // title stages
+    const since = now - S.titleT;
+    if (S.titleStage === 1 && (since > 7000 || (S.lastInput > S.titleT + 1500 && since > 3000))) heroStage2();
+    // Gia opens once per world at its key moment: a few seconds after the title, if you are not walking
+    const w = W(), open = document.body.classList.contains("gia-open");
+    // finale: in the last world, once its story was seen, the bubble to the start in view for 3 s
+    const F = focusPortal();
+    const inView = F && !F.expand && F.open > 0.6 && (() => { const c = F.pos.clone().project(camera); return c.z < 1 && Math.abs(c.x) < 0.6 && Math.abs(c.y) < 0.8; })();
+    S.focusT = inView ? S.focusT + dt : 0;
+    // Gallery: the cycle starts by itself if you keep the bubble in view
+    // (bubble texts, captions and the Move steps are all in the title card, shown from arrival: nothing here follows the view)
+    // bubble labels: the chapter name, or the word while the Gallery cycle runs
+    for (const P of portals) { const word = S.cycle && S.cycle.stage === "words" && P === portals[0] ? S.cycle.word : null;
+      const txt = word || WORLDS[P.w].label; if (P.label.dataset.k !== txt) { P.label.dataset.k = txt; P.label.textContent = txt; P.label.classList.toggle("word", !!word); P.label.classList.toggle("pair", !!P.pair); } }
+    if (PANO && !busy()) pos.multiplyScalar(Math.exp(-dt * 2.5));
+    for (const P of portals) { if (P.expand) continue; const d = pos.clone().sub(P.pos).setY(0), L = d.length(); if (L < 0.9 && L > 1e-4) pos.add(d.multiplyScalar((0.9 - L) / L)); }
+    if (ui.dbg) ui.dbg.textContent = `${ID(here)} · lon ${lonNow().toFixed(0)}° · pos ${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)} · ${S.idleK > 0 ? "idle" : "walk"}`;
+  }
+  return { build, touch, onEnter, spawnBubbles, frame, stopCycle, openGia, asideAngle, closeGia: () => { if (document.body.classList.contains("gia-open")) closeGia(); } };
+})();
+
+// ---------- start ----------
+applyQuality(); applyCam();
+const only = Q.has("only") ? +Q.get("only") : null;
+const START = WIX("gallery");   // Global Dream: open in the Gallery
+$("load").style.backgroundImage = `url(${BASE}pano/gallery.webp)`; GD.build();
+A = await loadWorld(only ?? (SDEF ? WIX(SDEF.steps.find((x) => x.cut)?.cut) : START), (f) => ($("loadBar").style.width = `${Math.round(100 * f)}%`)); here = only ?? (SDEF ? WIX(SDEF.steps.find((x) => x.cut)?.cut) : START); buildGrid(A);
+if (STORY) { setMood(WORLDS[here].id); document.body.classList.add("story", "storywait"); const c0 = SDEF?.steps.find((x) => x.camera); if (c0 && c0.camera !== "drift") story.cam = camOf({ ...c0, ms: 1, to: c0.from ?? c0.to }, {}); }
+if (Q.has("yaw")) yaw = +Q.get("yaw");
+camT.yaw = yaw; camT.pitch = pitch;
+$("load").classList.add("done"); updateDock(); if (!STORY) GD.onEnter();
+if (!STORY) setTimeout(() => GD.spawnBubbles(), 500);
+setTimeout(() => ($("hint").style.opacity = 0), 10000);
+if (Q.has("shape") && shapeIx(Q.get("shape")) >= 0) setShape(shapeIx(Q.get("shape")));
+if (Q.has("tour")) setTimeout(() => $("tourBtn").click(), 2500);
+if (only === null && !STORY) setTimeout(prefetchAll, 6000);
+if (DEBUG) window.__gd = GD;
+if (DEBUG) window.__p = { cache, warmList, get here() { return here; }, get QL() { return QL; }, get step() { return step; }, GPU, get AC() { return AC; }, get amb() { return amb; }, get A() { return A; }, portals, makePortal, expandPortal, cycle, setShape, camera, get pos() { return pos; }, set yaw(v) { yaw = v; }, get yaw() { return yaw; }, set pitch(v) { pitch = v; } };
+
+// ---------- quality governor: steps down when frames run slow, and back up when there is room ----------
+let ema = 16, slowT = 0, fastT = 0, coolT = 0, frameN = 0, statT = 0;
+const stats = Q.has("stats") ? Object.assign(document.createElement("div"), { style: "position:fixed;z-index:9;left:10px;bottom:10px;font:12px ui-monospace,monospace;color:#fff;background:#0009;padding:4px 8px;border-radius:6px" }) : null;
+if (stats) document.body.append(stats);
+function govern(ft, now) {
+  if (document.hidden || ft > 250 || now < quietUntil || !A || portals.some((p) => p.loading)) { slowT = fastT = 0; return; }   // ignore stalls while worlds load
+  ema += (ft - ema) * 0.06;
+  if (stats && now - statT > 500) { statT = now; stats.textContent = `${Math.round(1000 / ema)} fps · ${QL.name}${qAuto ? " (auto)" : ""} · ${res.x}×${res.y}`; }
+  if (!qAuto || now < coolT) return;
+  if (ema > 30) { slowT += ft; fastT = 0; } else if (ema < 19) { fastT += ft; slowT = 0; } else { slowT = Math.max(0, slowT - ft); fastT = 0; }
+  if (slowT > (ema > 50 ? 600 : 1500) && step > QMIN) { if (lastUp === step) upFails[step]++; step--; applyQuality(); slowT = 0; coolT = now + (ema > 50 ? 1200 : 2500); ema = Math.min(ema, 40); }   // very slow: drop faster
+  else if (fastT > 6000 && step < qTop && upFails[step + 1] < 2) { step++; lastUp = step; applyQuality(); fastT = 0; coolT = now + 3000; }
+}
+$("qBtn").onclick = () => {   // Auto, then each level by hand, then back to Auto
+  if (qAuto) { qAuto = false; step = 0; } else if (step < 3) step++; else { qAuto = true; step = startStep; upFails.fill(0); }
+  applyQuality();
+};
+
+// ---------- frame ----------
+let last = performance.now(), dockT = 0;
+const _r = new THREE.Vector3();
+renderer.setAnimationLoop((now) => {
+  const ft = now - last, dt = Math.min(0.05, ft / 1000); last = now; const t = now / 1000; frameN++; govern(ft, now);
+  if (!busy() && !PANO) {
+    const f0 = fwd(); _r.set(-f0.z, 0, f0.x); const sp = (keys.ShiftLeft ? 3 : 1.4) * dt;
+    if (keys.KeyW || keys.ArrowUp) pos.addScaledVector(f0, sp); if (keys.KeyS || keys.ArrowDown) pos.addScaledVector(f0, -sp);
+    if (keys.KeyA || keys.ArrowLeft) pos.addScaledVector(_r, -sp); if (keys.KeyD || keys.ArrowRight) pos.addScaledVector(_r, sp);
+    if (keys.KeyQ) pos.y -= sp; if (keys.KeyE) pos.y += sp;
+    if (drag && !drag.swiped && (drag.walk || (!drag.moved && now - drag.t0 > 380))) { drag.walk = true; pos.addScaledVector(f0, 1.2 * dt); }
+  }
+  yawVel *= Math.exp(-dt * 6);
+  if (!STORY) GD.frame(dt, now);
+  let fov = 70; blur = 0;
+  const f = fwd(), right = new THREE.Vector3(-f.z, 0, f.x);
+  // bubbles: soft spring physics; they drift back into view when you turn away and sway when you look around
+  for (const [k, P] of [...portals].entries()) {
+    if (!portals.includes(P)) continue;
+    if (!P.expand) {
+      const toA = P.anchor.clone().sub(pos), dist = toA.length(), ang = Math.acos(THREE.MathUtils.clamp(toA.clone().setY(0).normalize().dot(f), -1, 1));
+      {   // Global Dream: its place is a fixed angle from where you look (aside while Gia is open), always 2.6 m away
+        const aside = document.body.classList.contains("gia-open") && !PHONE ? GD.asideAngle() : null;   // Gia open: centred in the free space left of her window
+        const off = P.pair || P.solo ? 0 : aside !== null ? aside - (P.side === -1 ? 0.55 : 0) : P.side ? P.side * 0.34 + 0.2 : 0.13;   // two bubbles sit a little right, clear of the title card
+        let ta = yaw - off; if (P.ang === undefined) { P.ang = ta; P.angV = 0; }
+        ta = P.ang + (((ta - P.ang) % 6.2832) + 9.4248) % 6.2832 - 3.1416;
+        [P.ang, P.angV] = damp(P.ang, ta, P.angV, 0.5, 2.2, dt);
+        P.lift = (P.lift ?? 0) + ((aside !== null ? -0.15 : 0) - (P.lift ?? 0)) * Math.min(1, dt * 3);
+        if (P.pair) P.anchor.copy(pairAt(P.pair, P.ang));   // phone, two bubbles: smaller, side by side under the title card
+        else if (P.solo) P.anchor.copy(soloAt(P, P.ang));   // phone, one bubble: in the middle, clear of the card, Gia's button and the hint
+        else P.anchor.set(pos.x - Math.sin(P.ang) * 2.6, pos.y - 0.2 + P.lift, pos.z - Math.cos(P.ang) * 2.6);
+      }
+      const target = P.anchor.clone().add(new THREE.Vector3(Math.sin(t * 0.5 + P.seed) * 0.09, Math.sin(t * 0.9 + P.seed * 2) * 0.06, Math.cos(t * 0.4 + P.seed) * 0.09));
+      P.vel.addScaledVector(target.clone().sub(P.pos), 9 * dt).multiplyScalar(Math.exp(-dt * 4.5));
+      P.vel.addScaledVector(right, -yawVel * 0.004);
+      P.pos.addScaledVector(P.vel, dt);
+      if (P.pos.clone().sub(pos).setY(0).length() > 1.2) P.yaw = Math.atan2(pos.x - P.pos.x, pos.z - P.pos.z);   // always turned towards you
+      const sq = Math.min(0.12, P.vel.length() * 0.08);   // jelly wobble on the surface only (the world mapping stays rigid)
+      P.surface.scale.set(1 + 0.03 * Math.sin(t * 2.3 + P.seed) + sq, 1 + 0.03 * Math.sin(t * 2.3 + P.seed + 3.1) - sq * 0.6, 1); P.sparks.scale.copy(P.surface.scale);
+    }
+    P.group.position.copy(P.pos); P.group.rotation.set(0, P.yaw, 0); P.group.updateMatrixWorld(true);
+    P.PA.copy(P.group.matrixWorld); P.PAinv.copy(P.PA).invert();
+    if (P.opening) { const k2 = Math.min(1, Math.max(0, (now - P.opening.t0) / 1100)); P.open = P.opening.from + (1 - P.opening.from) * (1 - Math.pow(2, -10 * k2) * Math.cos(k2 * 9.4)); if (k2 >= 1) { P.open = 1; P.opening = null; } }
+    if (P.expand) {
+      const k2 = Math.min(1, (now - P.expand.t0) / P.expand.dur), e = ease(k2);
+      P.open = P.expand.from + e * 9; pos.copy(P.expand.pos0).lerp(P.pos, e * 0.35);
+      blur = Math.sin(Math.PI * Math.min(1, k2 * 1.15)) * (REDUCED ? 0.12 : 0.5); fov = 70 + Math.sin(Math.PI * k2) * 18;
+      const c = P.pos.clone().project(camera); blurC.set(THREE.MathUtils.clamp(c.x * 0.5 + 0.5, 0.2, 0.8), THREE.MathUtils.clamp(c.y * 0.5 + 0.5, 0.2, 0.8));
+      if (A) { A.U.bp.value.copy(toLocal(A, P.pos)); A.U.burst.value = Math.max(0, (k2 - 0.3) / 0.4) * 0.5; A.mesh.updateVersion(); }
+      P.sparkMat.uniforms.uBoost.value = blur * 2;
+      if (k2 >= 0.88) { applyCam(); enter(P); continue; }
+    }
+    if (P.B && P.open > 0.9 && !P.expand) {   // walking into a bubble also takes you through
+      const l = camera.position.clone().applyMatrix4(P.PAinv);
+      if (P.prevZ > 0 && l.z <= 0 && Math.hypot(l.x, l.y) < 0.7) { /* Global Dream: enter only by a click */ }
+      if (!P.B.grid && camera.position.distanceTo(P.pos) < 3) buildGrid(P.B);   // close to a bubble: have its world's collisions ready before you cross
+      P.prevZ = l.z;
+    }
+    if (Math.random() < dt * 0.9) poke(P, (Math.random() - 0.5) * 6.28, (Math.random() - 0.5) * 0.5);   // it never sits still
+    stepRing(P, dt);
+    if (P.draw < 1) { P.draw = Math.min(1, (now - P.drawT0) / DRAW[shape === 8 ? 1 : 0]); P.mat.uniforms.uDraw.value = P.draw; emitHead(P, Math.ceil(dt * (PHONE ? 500 : 1100) * QL.np)); }
+    if (P.B && P.open > 0.3) { P.emitAcc += dt * (P.expand ? 2200 : (PHONE ? 420 : 900)) * Math.min(P.open, 1.5) * QL.np; const n = P.emitAcc | 0; P.emitAcc -= n; emitFrom(P, n, P.expand ? 2.2 : 1); }
+    P.flash = Math.max(0, P.flash - dt * 2.5);
+    P.mat.uniforms.uOpen.value = Math.max(0, P.open); P.sparkMat.uniforms.uOpen.value = Math.max(0.15, Math.min(P.open, 1.3)); P.mat.uniforms.uT.value = P.sparkMat.uniforms.uT.value = t; P.mat.uniforms.uFlash.value = P.flash * 0.6;
+    P.sparkMat.uniforms.uPx.value = res.y / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  }
+  if (story.cam && !busy()) { const c = story.cam(now), d = c.look.clone().sub(c.p).normalize(), y0 = yaw; pos.copy(c.p); yaw = Math.atan2(-d.x, -d.z); pitch = Math.asin(THREE.MathUtils.clamp(d.y, -1, 1)); fov = c.fov ?? 64;
+    let dy = yaw - y0; dy -= Math.round(dy / 6.2832) * 6.2832; yawVel = dy / Math.max(dt, 1e-3); }
+  applyCam();
+  if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+  if (arrive && A) { const k = Math.min(1, (now - arrive.t0) / 1900); A.U.burst.value = 0.9 * (1 - ease(k)); A.mesh.updateVersion(); if (k >= 1) { A.U.burst.value = 0; arrive = null; } }
+  if (A) { A.U.t.value = t; const P0 = nearest(); if (P0) { A.U.glowP.value.copy(toLocal(A, P0.pos)); A.U.glowR.value = 0.75 * Math.min(P0.open, 1); } else A.U.glowR.value = 0; if (arrive || ((portals.length || A.windy) && frameN % QL.mod === 0)) A.mesh.updateVersion(); }
+  flash = Math.max(0, flash - dt * 2.2);
+  if (dustFor !== here) { dustFor = here; const W0 = WORLDS[here], m = MOODS[W0.id] || W0.mood || MOODS.bedroom; dustMat.uniforms.uTint.value.setRGB(...(DUST_TINT[m.air] || DUST_TINT.room)); dustMat.uniforms.uAmt.value = W0.dust ?? 0.75; }
+  dustMat.uniforms.uT.value = t; dustMat.uniforms.uCam.value.copy(camera.position); dustMat.uniforms.uPx.value = res.y / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  stepSparks(dt); spMat.uniforms.uT.value = t; spMat.uniforms.uPx.value = res.y / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  { let lvl = 0; for (const P of portals) lvl += Math.min(P.open, 1) / Math.max(1, camera.position.distanceTo(P.pos) ** 2); setHum(Math.min(0.06, lvl * 0.05) + (busy() ? 0.05 : 0)); }
+  if (swoosh) { let best = 0, pan = 0; for (const P of portals) { const v = P.vel.length(); if (v > best) { best = v; pan = P.pos.clone().project(camera).x; } }
+    const walking = ["KeyW", "KeyS", "KeyA", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].some((k) => keys[k]) || drag?.walk ? 0.22 : 0;
+    setSwoosh(best * 0.9 + Math.min(0.6, Math.abs(yawVel) * 0.08) + walking, pan); }
+  for (const P of portals) { const c = P.pos.clone().add(new THREE.Vector3(0, -0.85 * Math.min(P.open, 1), 0)).project(camera), vis = c.z < 1 && P.open > 0.6 && !P.expand && Math.abs(c.x) < 1 && Math.abs(c.y) < 1;
+    P.label.style.opacity = vis ? 1 : 0; if (vis) { P.label.style.left = (c.x * 0.5 + 0.5) * innerWidth + "px"; P.label.style.top = (-c.y * 0.5 + 0.5) * innerHeight + "px"; } }
+  // render: each bubble's world from its matching camera, then yours, then the bubbles, then the lens pass
+  let pk = 0;
+  for (const P of portals) {
+    if (!P.B) continue;
+    if (QL.skip && !P.expand && (frameN + pk++) % 2) continue;   // Light: each bubble's world redraws every other frame
+    P.camB.fov = camera.fov; P.camB.aspect = camera.aspect; P.camB.updateProjectionMatrix();
+    P.camB.matrixWorld.multiplyMatrices(P.PAinv, camera.matrixWorld); P.camB.matrixWorld.decompose(P.camB.position, P.camB.quaternion, P.camB.scale); P.camB.updateMatrixWorld(true);
+    renderer.setRenderTarget(P.rt); renderer.clear(); renderer.render(P.B.scene, P.camB);
+  }
+  renderer.setRenderTarget(rtMain); renderer.clear();
+  if (A) renderer.render(A.scene, camera);
+  renderer.autoClear = false; renderer.render(fx, camera); renderer.autoClear = true;
+  postMat.uniforms.uBlur.value = blur; postMat.uniforms.uFlash.value = flash * 0.5; postMat.uniforms.uC.value.copy(blurC);
+  renderer.setRenderTarget(null); renderer.render(post, postCam);
+  if (now - dockT > 400) { dockT = now; updateDock(); }
+});
+</script>
+</body>
+</html>

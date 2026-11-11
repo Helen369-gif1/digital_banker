@@ -1,0 +1,560 @@
+[
+ {
+  "id": "gallery",
+  "name": "Start",
+  "label": "Start with Gia",
+  "file": "worlds/gallery.sog",
+  "pano": "pano/gallery.webp",
+  "title": {
+   "eyebrow": "",
+   "h": "GIA",
+   "lead": "Your AI for the life you want to build.",
+   "h2": "Start with Gia.",
+   "lead2": "Talk. Explore. Plan.",
+   "cta": "Meet Gia"
+  },
+  "bubbles": [
+   {
+    "to": "home",
+    "text": {
+     "h": "One conversation can change what you see next.",
+     "p": "Gia helps you make sense of where you are, what you want, and what your next step could be."
+    }
+   }
+  ],
+  "cycle": {
+   "words": [
+    [
+     "home",
+     "A home."
+    ],
+    [
+     "money",
+     "Money."
+    ],
+    [
+     "move",
+     "A move."
+    ],
+    [
+     "business",
+     "Business."
+    ],
+    [
+     "next",
+     "What comes next."
+    ]
+   ],
+   "intro": "Your life isn’t made of separate decisions.",
+   "after": {
+    "h": "One place to understand what’s possible.",
+    "p": "Gia helps you see how those decisions connect — and what opportunities may be relevant to you. She brings your goals, progress and next steps into one clear picture."
+   }
+  },
+  "gia": {
+   "h": "One conversation can change what you see next.",
+   "p": [
+    "Gia helps you make sense of where you are, what you want, and what your next step could be."
+   ],
+   "steps": [
+    "Ask a question.",
+    "Explore an idea.",
+    "Compare possibilities.",
+    "Build a plan."
+   ],
+   "after": [
+    "You don’t need to know where to start. You can start with Gia."
+   ],
+   "button": {
+    "label": "Explore with Gia",
+    "action": "cycle"
+   }
+  },
+  "points": [],
+  "bg": 12556402
+ },
+ {
+  "id": "home",
+  "name": "Home",
+  "label": "Chapter 01 · Find a Home",
+  "file": "worlds/home.sog",
+  "pano": "pano/home.webp",
+  "title": {
+   "eyebrow": "Chapter 01 · Find a Home",
+   "h": "Find a home that fits the life you want.",
+   "lead": "Gia helps you explore homes, understand what fits your needs, and make clearer decisions about where and how you want to live."
+  },
+  "bubbles": [
+   {
+    "to": "money",
+    "text": {
+     "h": "See the Home as Part of Your Life.",
+     "p": "A home is more than a property. It is part of the life you are building."
+    }
+   }
+  ],
+  "gia": {
+   "h": "AI should know more than your question. It should know you.",
+   "p": [
+    "Most AI starts over every time you ask. Gia is built as an ongoing relationship. She remembers what you want her to remember — and becomes more helpful over time."
+   ],
+   "list": {
+    "title": "What Gia remembers",
+    "items": [
+     "Moving to the city in spring",
+     "Prefers a quiet neighbourhood",
+     "Home budget agreed in March",
+     "Daughter starts school in September",
+     "Works from home three days a week"
+    ]
+   },
+   "quote": "The home you saved just dropped in price. It still fits your budget, and it’s close to the school. Want me to arrange a viewing?",
+   "after": [
+    "Gia remembered. Gia noticed. Gia acted."
+   ],
+   "phases": [
+    [
+     "At first",
+     "What you want. What matters. How you like things done."
+    ],
+    [
+     "Over time",
+     "Your goals, preferences, routines and plans."
+    ]
+   ],
+   "close": "She doesn’t just know your question. She knows you.",
+   "button": {
+    "label": "Explore Homes",
+    "action": "chapter"
+   }
+  },
+  "chapter": [
+   {
+    "h": "A Home That Fits You.",
+    "p": [
+     "Gia can help you search for properties, compare options, research details, and keep track of the things that matter most to you.",
+     "With your permission, she can remember your preferences, your priorities, and the criteria you have already discussed, so you do not have to start from the beginning every time."
+    ],
+    "tags": [
+     "Property Discovery",
+     "Personal Preferences",
+     "Clearer Comparisons"
+    ]
+   },
+   {
+    "h": "Understand the Property.",
+    "p": [
+     "Gia can organize useful information about a home, including its condition, maintenance needs, improvements, local services, and nearby options.",
+     "Instead of giving you disconnected pieces of information, she helps bring the details together so you can understand the property in the context of your life."
+    ],
+    "quote": "I found a Glonari Home that fits the criteria we’ve been discussing.",
+    "strong": "A better decision starts with a clearer picture."
+   },
+   {
+    "h": "See the Home as Part of Your Life.",
+    "p": [
+     "A home is more than a property. It is part of the life you are building.",
+     "Gia can help you look at housing together with your resources, your lifestyle, and the plans you have for the future. The goal is not simply to find a place, but to understand what kind of home fits the life you want to create."
+    ]
+   }
+  ],
+  "points": [
+   {
+    "lon": -86,
+    "h": "A Home That Fits You.",
+    "tags": [
+     "Property Discovery",
+     "Personal Preferences",
+     "Clearer Comparisons"
+    ]
+   },
+   {
+    "lon": 0,
+    "h": "Understand the Property.",
+    "p": "A better decision starts with a clearer picture."
+   }
+  ],
+  "bg": 12299679
+ },
+ {
+  "id": "money",
+  "name": "Money",
+  "label": "Chapter 02 · Understand Your Finances",
+  "file": "worlds/money.sog",
+  "pano": "pano/money.webp",
+  "title": {
+   "eyebrow": "Chapter 02 · Understand Your Finances",
+   "h": "Understand what your resources can provide before deciding what comes next.",
+   "lead": "Gia helps bring your financial picture together, so you can see not only what you have, but what it may support in your life."
+  },
+  "bubbles": [
+   {
+    "to": "move",
+    "side": 1
+   },
+   {
+    "to": "home",
+    "side": -1,
+    "text": {
+     "h": "Explore What Changes.",
+     "p": "What if your housing costs change?"
+    }
+   }
+  ],
+  "gia": {
+   "h": "Understand Your Capacity.",
+   "p": [
+    "Gia can help you look at your finances in the context of the way you actually live."
+   ],
+   "quote": "What can all of this provide for my life?",
+   "capacity": {
+    "text": "At your current lifestyle and resources, your estimated Living Capacity is 14.7 years.",
+    "bars": [
+     [
+      "Everyday Life",
+      0.82
+     ],
+     [
+      "Housing",
+      0.64
+     ],
+     [
+      "Experiences",
+      0.48
+     ],
+     [
+      "Reserve Strength",
+      0.72
+     ]
+    ],
+    "note": "Example. Not financial advice."
+   },
+   "button": {
+    "label": "Explore Your Options",
+    "action": "chapter"
+   }
+  },
+  "chapter": [
+   {
+    "h": "See the Bigger Picture.",
+    "p": [
+     "Gia can help organize your available resources in one place and make them easier to understand.",
+     "Instead of focusing only on balances or isolated numbers, she helps translate them into practical questions about your everyday life, housing, experiences, and future plans."
+    ],
+    "quote": "What can all of this provide for my life?"
+   },
+   {
+    "h": "Understand Your Capacity.",
+    "p": [
+     "Gia can help you look at your finances in the context of the way you actually live.",
+     "With your permission, she can take into account your current lifestyle, recurring costs, housing expenses, and other resources to help you understand how long they may support the life you have defined."
+    ],
+    "tags": [
+     "Everyday Life",
+     "Housing",
+     "Experiences",
+     "Reserve Strength"
+    ],
+    "quote": "At your current lifestyle and resources, your estimated Living Capacity is 14.7 years."
+   },
+   {
+    "h": "Explore What Changes.",
+    "p": [
+     "Gia can help you explore different possibilities before you make a decision.",
+     "You can ask what happens if your housing costs change, if your recurring expenses are reduced, or if additional resources become available. Gia can help model those changes conversationally and show how they may affect the bigger picture.",
+     "She can also help identify savings, better offers, smarter purchases, and ways to reduce recurring expenses."
+    ]
+   }
+  ],
+  "points": [
+   {
+    "lon": 0,
+    "h": "See the Bigger Picture.",
+    "p": "Gia can help organize your available resources in one place and make them easier to understand."
+   }
+  ],
+  "bg": 9528894
+ },
+ {
+  "id": "move",
+  "name": "Move",
+  "label": "Chapter 03 · Plan a Move",
+  "file": "worlds/move.sog",
+  "pano": "pano/move.webp",
+  "title": {
+   "eyebrow": "Chapter 03 · Plan a Move",
+   "h": "Turn the next step into a clear plan.",
+   "lead": "Gia helps you organize the decisions, information, and actions involved in moving from one home to the next."
+  },
+  "bubbles": [
+   {
+    "to": "business",
+    "text": {
+     "h": "Move From Property to Home.",
+     "p": "The goal is to make the transition easier to understand, with the next step always clearer than the last."
+    }
+   }
+  ],
+  "steps": {
+   "lon": -25,
+   "items": [
+    "Understand",
+    "Plan",
+    "Ask Permission When Needed",
+    "Take Action",
+    "Monitor",
+    "Report Back"
+   ]
+  },
+  "gia": {
+   "h": "She’s on your side.",
+   "p": [
+    "Gia works under your direction. You decide what she remembers, what she can use and what she can share."
+   ],
+   "request": {
+    "title": "A company requests",
+    "lead": "To arrange your home viewing, the agency asks for:",
+    "rows": [
+     [
+      "Your name and contact details",
+      "Shared"
+     ],
+     [
+      "Your purchase history",
+      "Not needed"
+     ],
+     [
+      "Your location history",
+      "Not shared"
+     ]
+    ]
+   },
+   "quote": "They don’t need that information to complete this. I haven’t shared it.",
+   "after": [
+    "Your Gia. Your information. Your decision.",
+    "Glonari is designed to create value with its members, not sell their private profiles."
+   ],
+   "button": {
+    "label": "Explore Moving",
+    "action": "chapter"
+   }
+  },
+  "chapter": [
+   {
+    "h": "Start With a Plan.",
+    "p": [
+     "Gia can help you move from a general idea to a more organized sequence of steps.",
+     "She can support planning, scheduling, research, communication, property discovery, and other multi-step tasks. With your permission, she can also remember what you have already decided and what still needs attention.",
+     "The process is simple:"
+    ],
+    "strong": "Understand → Plan → Ask Permission When Needed → Take Action → Monitor → Report Back"
+   },
+   {
+    "h": "Keep the Details Together.",
+    "p": [
+     "Moving involves many connected decisions.",
+     "Gia can help keep information in one place, connect the property search with your preferences, and help you stay focused on what you are trying to accomplish."
+    ],
+    "tags": [
+     "Planning",
+     "Scheduling",
+     "Property Research",
+     "Decision Tracking"
+    ],
+    "after": [
+     "Rather than starting over in every conversation, Gia can use the context you have allowed her to remember and continue from where you left off."
+    ]
+   },
+   {
+    "h": "Move From Property to Home.",
+    "p": [
+     "Gia can help you evaluate property information, local services, maintenance considerations, and other details that affect your decision.",
+     "She can also help identify a home that matches the criteria you have already discussed.",
+     "The goal is to make the transition easier to understand, with the next step always clearer than the last."
+    ]
+   }
+  ],
+  "points": [
+   {
+    "lon": -97,
+    "h": "Keep the Details Together.",
+    "tags": [
+     "Planning",
+     "Scheduling",
+     "Property Research",
+     "Decision Tracking"
+    ]
+   }
+  ],
+  "bg": 1927875
+ },
+ {
+  "id": "business",
+  "name": "Business",
+  "label": "Chapter 04 · Build What Comes Next",
+  "file": "worlds/business.sog",
+  "pano": "pano/business.webp",
+  "title": {
+   "eyebrow": "Chapter 04 · Build What Comes Next",
+   "h": "Your next possibility can begin with one conversation.",
+   "lead": "Gia helps you look beyond one decision and explore the opportunities that may shape what comes next in your life."
+  },
+  "bubbles": [
+   {
+    "to": "next",
+    "text": {
+     "h": "One conversation. More possibilities.",
+     "p": ""
+    }
+   }
+  ],
+  "gia": {
+   "h": "Discover Relevant Opportunities.",
+   "p": [
+    "Gia can help identify possibilities that match your interests, needs, and goals.",
+    "This may include better offers, useful introductions, work opportunities, business opportunities, property opportunities, ways to save money, and other options available through the Glonari platform.",
+    "The aim is not to show you everything. It is to help you notice what may actually be relevant to you."
+   ],
+   "button": {
+    "label": "Explore Possibilities",
+    "action": "chapter"
+   }
+  },
+  "chapter": [
+   {
+    "h": "More Than One Direction.",
+    "p": [
+     "Life does not move in one category at a time.",
+     "Gia can help across travel, work, business opportunities, relationships, personal planning, research, and other multi-step goals. You can continue working with the same assistant even when the task changes."
+    ],
+    "tags": [
+     "Travel",
+     "Work",
+     "Business",
+     "Relationships",
+     "New Experiences"
+    ]
+   },
+   {
+    "h": "Discover Relevant Opportunities.",
+    "p": [
+     "Gia can help identify possibilities that match your interests, needs, and goals.",
+     "This may include better offers, useful introductions, work opportunities, business opportunities, property opportunities, ways to save money, and other options available through the Glonari platform.",
+     "The aim is not to show you everything. It is to help you notice what may actually be relevant to you."
+    ]
+   },
+   {
+    "h": "One Conversation Can Open Another Door.",
+    "p": [
+     "A useful introduction can lead to a new home, a business opportunity, education, travel, a new connection, or another experience you had not considered before.",
+     "Gia helps you explore those possibilities while keeping your own priorities at the center."
+    ],
+    "quote": "You asked me to watch airfare to Tokyo. The price is now within your target.",
+    "strong": "One conversation. More possibilities."
+   }
+  ],
+  "points": [
+   {
+    "lon": -54,
+    "h": "More Than One Direction.",
+    "p": "Life does not move in one category at a time.",
+    "tags": [
+     "Travel",
+     "Work",
+     "Business",
+     "Relationships",
+     "New Experiences"
+    ]
+   },
+   {
+    "lon": 0,
+    "h": "",
+    "p": "You can continue working with the same assistant even when the task changes."
+   }
+  ],
+  "bg": 6175791
+ },
+ {
+  "id": "next",
+  "name": "What’s next",
+  "label": "What comes next",
+  "file": "worlds/next.sog",
+  "pano": "pano/next.webp",
+  "title": {
+   "eyebrow": "Chapter 04 · Build What Comes Next",
+   "h": "One Conversation Can Open Another Door.",
+   "lead": "A useful introduction can lead to a new home, a business opportunity, education, travel, a new connection, or another experience you had not considered before."
+  },
+  "bubbles": [
+   {
+    "to": "gallery",
+    "text": {
+     "h": "Start with Gia.",
+     "p": "You don’t have to plan everything today. Start with one question."
+    }
+   }
+  ],
+  "gia": {
+   "h": "One conversation. More possibilities.",
+   "p": [],
+   "quote": "You asked me to watch airfare to Tokyo. The price is now within your target.",
+   "after": [],
+   "button": {
+    "label": "Explore Possibilities",
+    "action": "chapter"
+   }
+  },
+  "chapter": [
+   {
+    "h": "More Than One Direction.",
+    "p": [
+     "Life does not move in one category at a time.",
+     "Gia can help across travel, work, business opportunities, relationships, personal planning, research, and other multi-step goals. You can continue working with the same assistant even when the task changes."
+    ],
+    "tags": [
+     "Travel",
+     "Work",
+     "Business",
+     "Relationships",
+     "New Experiences"
+    ]
+   },
+   {
+    "h": "Discover Relevant Opportunities.",
+    "p": [
+     "Gia can help identify possibilities that match your interests, needs, and goals.",
+     "This may include better offers, useful introductions, work opportunities, business opportunities, property opportunities, ways to save money, and other options available through the Glonari platform.",
+     "The aim is not to show you everything. It is to help you notice what may actually be relevant to you."
+    ]
+   },
+   {
+    "h": "One Conversation Can Open Another Door.",
+    "p": [
+     "A useful introduction can lead to a new home, a business opportunity, education, travel, a new connection, or another experience you had not considered before.",
+     "Gia helps you explore those possibilities while keeping your own priorities at the center."
+    ],
+    "quote": "You asked me to watch airfare to Tokyo. The price is now within your target.",
+    "strong": "One conversation. More possibilities."
+   }
+  ],
+  "finale": {
+   "h": "Start with Gia.",
+   "p": [
+    "You don’t have to plan everything today. Start with one question."
+   ],
+   "button": {
+    "label": "Meet Gia",
+    "href": "#waitlist"
+   },
+   "small": "Talk. Explore. Plan what’s next."
+  },
+  "points": [
+   {
+    "lon": -90,
+    "h": "",
+    "p": "Gia helps you explore those possibilities while keeping your own priorities at the center."
+   }
+  ],
+  "bg": 73565
+ }
+]
