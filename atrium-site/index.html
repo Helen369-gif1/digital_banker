@@ -33,7 +33,7 @@
   :root[data-theme="dark"] { --card-bg: rgba(38, 24, 11, 0.9); --card-ink: #f6e6c6; --card-muted: #cdb38a; }
   *, *::before, *::after { box-sizing: inherit; }
   html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
-  body { height: 100%; margin: 0; overflow: hidden; background: var(--walnut); color: var(--ivory); font-family: var(--serif); }
+  body { height: 100%; margin: 0; overflow: hidden; background: #07090F; color: var(--ivory); font-family: var(--serif); }
 
   #stage { position: fixed; inset: 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
   #stage.dragging { cursor: grabbing; }
@@ -102,7 +102,7 @@
   #back:focus-visible, #rooms-nav button:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
 
   #status { pointer-events: none; position: fixed; inset: auto 0 45% 0; margin: 0 auto; max-width: 30rem; padding: 0 24px; text-align: center; font-size: 20px; line-height: 1.5; color: var(--stone); transition: opacity .6s ease; }
-  #status:empty::before { content: 'Opening the atrium…'; font-style: italic; opacity: .7; }
+  #status:empty::before { content: ''; }
   body.ready #status:empty { opacity: 0; }
 
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01s !important; transition-delay: 0s !important; } }

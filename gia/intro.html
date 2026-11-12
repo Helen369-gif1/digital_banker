@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Banker — Welcome</title>
+<meta name="description" content="Not a banking app. Not a wallet. A space where money serves your life.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="poster.jpg">
+<style>
+/* ============================================================
+   DIGITAL BANKER — INTRO (заставка перед Атриумом)
+   Видео играет один раз и замирает на последнем кадре.
+   Поверх: заголовок, текст и кнопка «Enter the Atrium».
+   Цвета и шрифты — те же, что на странице index.html (с прокруткой).
+   ============================================================ */
+:root{
+  --ink:       #FFFFFF;
+  --ink-soft:  rgba(255,255,255,.90);
+  --accent:    #D8B26A;   /* тёплое золото из света в холле */
+  --bg:        #07090F;
+  --font-display: "Playfair Display", "Times New Roman", Georgia, serif;
+  --font-text:    "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ background:var(--bg); }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-text);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+.intro{
+  position:relative; width:100%;
+  height:100vh; height:100svh;
+  overflow:hidden; background:var(--bg);
+}
+
+#video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:54% center;
+  display:block;
+  background:var(--bg) url("poster.jpg") 54% center / cover no-repeat;
+}
+
+/* затемнение сверху и снизу, чтобы текст читался на светлом холле */
+.scrim{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(7,9,15,.62) 0%, rgba(7,9,15,.30) 28%, rgba(7,9,15,0) 50%),
+    linear-gradient(0deg,   rgba(7,9,15,.55) 0%, rgba(7,9,15,.18) 22%, rgba(7,9,15,0) 44%);
+}
+
+/* заголовок + текст — сверху по центру */
+.copy{
+  position:absolute; left:50%; top:clamp(32px, 7.7vh, 96px);
+  transform:translateX(-50%);
+  width:min(92vw, 860px);
+  text-align:center;
+  text-shadow:0 2px 28px rgba(7,9,15,.55);
+  opacity:0; transition:opacity 1.1s cubic-bezier(.22,.61,.36,1) .25s;
+}
+.headline{
+  margin:0;
+  font-family:var(--font-display); font-weight:500;
+  font-size:clamp(34px, 4.6vw, 68px); line-height:1.2;
+  letter-spacing:0;
+}
+.sub{
+  margin:clamp(12px, 2vh, 22px) 0 0;
+  font-family:var(--font-text); font-weight:500;
+  font-size:clamp(16px, 1.6vw, 27px); line-height:1.5;
+  color:var(--ink-soft);
+}
+
+/* кнопка — снизу по центру */
+.cta{
+  position:absolute; left:50%;
+  bottom:calc(clamp(32px, 8vh, 88px) + env(safe-area-inset-bottom, 0px));
+  transform:translateX(-50%);
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:54px; padding:0 40px;
+  font-family:var(--font-text); font-weight:500; font-size:16px;
+  letter-spacing:.14em; text-transform:uppercase; white-space:nowrap;
+  color:var(--ink); text-decoration:none;
+  background:rgba(7,9,15,.45); border:1px solid var(--accent); border-radius:999px;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  opacity:0; transition:opacity 1.1s cubic-bezier(.22,.61,.36,1) .55s, background .25s ease, color .25s ease;
+}
+.cta:hover{ background:var(--accent); color:var(--bg); }
+.cta:focus-visible{ outline:2px solid var(--ink); outline-offset:4px; }
+
+.is-ready .copy, .is-ready .cta{ opacity:1; }
+
+/* затемнение перед переходом в Атриум (тот же тёмный цвет, что у фона Атриума при загрузке) */
+#exit-veil{
+  position:fixed; inset:0; z-index:10000; opacity:0; pointer-events:none;
+  background:var(--bg); transition:opacity 200ms ease-in;
+}
+#exit-veil.active{ opacity:1; }
+
+@media (prefers-reduced-motion: reduce){
+  .copy, .cta, #exit-veil{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<main class="intro">
+  <video id="video" src="digital-banker-mobile-1080p-scrub.mp4" poster="poster.jpg"
+         muted playsinline webkit-playsinline preload="auto"
+         disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="copy">
+    <h1 class="headline">Welcome to Digital Banker</h1>
+    <p class="sub">Not a banking app. Not a wallet. <br>A space where money serves your life - not the other way around.</p>
+  </div>
+
+  <a class="cta" id="enter" href="../atrium-site/index.html">Enter the Atrium</a>
+</main>
+
+<div id="exit-veil" aria-hidden="true"></div>
+
+<script>
+(function () {
+  'use strict';
+  var ATRIUM_URL = '../atrium-site/index.html';   // куда ведёт кнопка
+  var PLAYBACK_SPEED = 1.25;   // скорость видео: 1 — как снято, 1.25 — на четверть быстрее (10 с → 8 с)
+  var video  = document.getElementById('video');
+  var enter  = document.getElementById('enter');
+  var veil   = document.getElementById('exit-veil');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Видео: играет один раз и замирает на последнем кадре (loop не стоит).
+     Если автозапуск запрещён браузером — остаётся первый кадр (poster), кнопка работает. */
+  function lastFrame() {
+    if (video.duration && isFinite(video.duration)) video.currentTime = Math.max(0, video.duration - 0.05);
+  }
+  if (reduce) {
+    // «Уменьшить движение»: без проигрывания, сразу последний кадр
+    if (video.readyState >= 1) lastFrame(); else video.addEventListener('loadedmetadata', lastFrame, { once: true });
+  } else {
+    video.defaultPlaybackRate = PLAYBACK_SPEED;
+    video.playbackRate = PLAYBACK_SPEED;
+    var p = video.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
+  /* Текст и кнопка появляются, когда готов первый кадр и шрифты */
+  function reveal() { document.body.classList.add('is-ready'); }
+  var fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+  fontsReady.then(function () {
+    if (video.readyState >= 2) reveal();
+    else video.addEventListener('loadeddata', reveal, { once: true });
+  });
+  setTimeout(reveal, 2500);   // никогда не оставляем текст скрытым
+
+  /* Переход в Атриум: короткое затемнение и переход.
+     Без JS кнопка остаётся обычной ссылкой и тоже работает. */
+  enter.addEventListener('click', function (e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;   // открыть в новой вкладке — как обычно
+    e.preventDefault();
+    veil.classList.add('active');
+    setTimeout(function () { window.location.href = ATRIUM_URL; }, reduce ? 0 : 200);
+  });
+
+  /* Вернулись «Назад» из Атриума: страница восстанавливается как была — с тёмной вспышкой. Снимаем её. */
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) veil.classList.remove('active');
+  });
+
+  /* Заранее скачиваем всё, что нужно Атриуму, пока играет видео (10 секунд),
+     чтобы после нажатия кнопки он открылся сразу, без экрана ожидания.
+     Файлы попадают в кэш браузера. Выбор размера картинки — как в atrium.js. */
+  var smallScreen = Math.min(screen.width, screen.height) < 700;
+  var A = '../atrium-site/';
+  [
+    A + 'vendor/three.min.js',
+    A + (smallScreen ? 'assets/atrium-3254.webp' : 'assets/atrium-6507.webp'),
+    A + 'assets/fonts/cinzel-latin-600-normal.woff2',
+    A + 'assets/fonts/cormorant-garamond-latin-400-normal.woff2',
+    A + 'assets/fonts/cormorant-garamond-latin-400-italic.woff2',
+    A + 'assets/fonts/cormorant-garamond-latin-500-normal.woff2',
+    A + 'assets/window-view.jpg',
+    A + 'assets/gia-poster.jpg'
+  ].forEach(function (url) { fetch(url).catch(function () {}); });
+})();
+</script>
+</body>
+</html>
