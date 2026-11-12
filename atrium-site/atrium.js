@@ -540,6 +540,23 @@ const ATRIUM = {
   }
   backBtn.addEventListener('click', leaveRoom);
 
+  /* Возврат «Назад» из сайта комнаты: браузер (bfcache) возвращает Атриум в том виде, в каком его оставили —
+     с затемнением и камерой у двери. Приводим всё в обычное состояние. При обычной загрузке ничего не делает. */
+  addEventListener('pageshow', (e) => {
+    if (!e.persisted || !document.body.classList.contains('entering')) return;
+    veil.classList.remove('on');
+    document.body.classList.remove('entering');
+    setBusy(false);
+    anim = null; animDone = null;   // прерванное приближение к двери больше не нужно
+    if (savedView) {   // камера — туда, где была до входа (без анимации)
+      Object.assign(view, clampView({ ...savedView }));
+      Object.assign(target, view); dirty = true;
+    }
+    setActive(null);
+    playWindow();
+    playHost();
+  });
+
   /* ---------- мышь, палец, колесо ---------- */
   const pointers = new Map();
   let drag = null, pinch = null;
