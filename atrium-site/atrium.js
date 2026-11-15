@@ -7,8 +7,8 @@ const ATRIUM = {
   overline: 'Glonari',          // подпись над заголовком ('' — скрыть)
   title: 'Digital Banker',      // главная строка заголовка ('' — скрыть)
   subtitle: 'Atrium',           // золотая строка под заголовком ('' — скрыть)
-  hint: 'Drag to look around. Choose a doorway to enter.',
-  hintTouch: 'Swipe to look around. Tap a doorway to enter.',
+  hint: 'Choose a doorway',
+  hintTouch: 'Tap a doorway',
 
   image: {
     full:  'assets/atrium-6507.webp',   // для компьютеров
@@ -39,7 +39,7 @@ const ATRIUM = {
   host: {
     video:  'assets/gia.mp4',
     poster: 'assets/gia-poster.jpg',
-    x: 3353, bottom: 2045, height: 870,
+    x: 3353, bottom: 1955, height: 900,
   },
 
   // door:   cx — центр проёма, hw — половина ширины, top — верх арки, bottom — порог
@@ -486,6 +486,17 @@ const ATRIUM = {
     animateTo(to, reduceMotion ? 1 : 700);
   }
 
+  /* ---------- клик по пустому месту: плавно в центр, ведущая играет заново ---------- */
+  function goHome() {
+    if (inRoom || busyFlag) return;
+    const home = clampView({ yaw: 0, cy: (TAN_TOP + TAN_BOT) / 2, span: MAX_SPAN });
+    const away = Math.abs(view.yaw - home.yaw) > 0.03 || Math.abs(view.span - home.span) > MAX_SPAN * 0.02;
+    setActive(null); pinBar(null);   // надпись снова «Choose a doorway»
+    if (!away) return;
+    animateTo(home, reduceMotion ? 1 : 900);
+    playHost();
+  }
+
   /* ---------- вход в комнату и возврат ---------- */
   let inRoom = null, savedView = null, busyFlag = false, busyTimer = 0;
   const setBusy = (v) => {
@@ -597,7 +608,7 @@ const ATRIUM = {
     drag.moved += Math.abs(dx) + Math.abs(dy);
     drag.lx = e.clientX; drag.ly = e.clientY;
     if (drag.moved > 6) {
-      stage.classList.add('dragging');
+      stage.classList.add('dragging'); pinBar(null);
       const k = radPerPx();
       target.yaw -= dx * k; vel = -dx * k;
       target.cy += dy * (view.span / vh);
@@ -610,7 +621,10 @@ const ATRIUM = {
     if (pointers.size < 2) pinch = null;
     stage.classList.remove('dragging');
     if (drag && pointers.size === 0) {
-      if (drag.moved <= 6 && drag.room && e.type === 'pointerup') enterRoom(drag.room);
+      if (drag.moved <= 6 && e.type === 'pointerup') {
+        if (drag.room) enterRoom(drag.room);
+        else goHome();   // клик по пустому месту — вернуться в центр зала
+      }
       drag = null;
     }
   }
@@ -620,7 +634,7 @@ const ATRIUM = {
   stage.addEventListener('wheel', (e) => {
     e.preventDefault();
     if (inRoom || busyFlag) return;
-    anim = null;
+    anim = null; pinBar(null);
     target.span *= Math.exp(e.deltaY * 0.0012);
     clampView(target); dirty = true;
   }, { passive: false });
@@ -633,15 +647,38 @@ const ATRIUM = {
     const eps = active ? 0.01 : 0.12;
     const list = dir > 0 ? ordered : [...ordered].reverse();
     const next = list.find((r) => (angleOf(r.door.cx) - cur) * dir > eps) || list[list.length - 1];
-    setActive(next.id); lookAtDoor(next);
+    setActive(next.id); pinBar(next); lookAtDoor(next);
   }
+  /* ---------- меню арок: одна арка на комнату, линия с точками, названия ----------
+     Активна арка той комнаты, что ближе всего к центру экрана. Клик по арке
+     поворачивает камеру к двери и подсвечивает её, но не входит. */
+  const ARCH_ICON = '<svg viewBox="0 0 32 40" aria-hidden="true"><path d="M4 36V16a12 12 0 0 1 24 0v20M10.5 36V16a5.5 5.5 0 0 1 11 0v20M1.5 38.5h29"/></svg>';
+  const barRow = $('bar-row');
+  const barItems = ordered.map((r) => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.tabIndex = -1;
+    btn.innerHTML = `${ARCH_ICON}<i></i>`;
+    btn.addEventListener('click', () => { if (inRoom || busyFlag) return; setActive(r.id); pinBar(r); lookAtDoor(r); });
+    barRow.appendChild(btn);
+    return { r, btn };
+  });
+  let barOn = null, barPin = null;
+  const pinBar = (r) => { barPin = barItems.find((it) => it.r === r) || null; dirty = true; };
+  function updateBar() {
+    let best = barPin, bd = Infinity;
+    if (!best) barItems.forEach((it) => { const d = Math.abs(angleOf(it.r.door.cx) - view.yaw); if (d < bd) { bd = d; best = it; } });
+    if (best === barOn) return;
+    if (barOn) barOn.btn.classList.remove('on');
+    best.btn.classList.add('on'); barOn = best;
+  }
+
   $('prev').addEventListener('click', () => stepRoom(-1));
   $('next').addEventListener('click', () => stepRoom(1));
 
   /* ---------- клавиатура ---------- */
   nav.addEventListener('focusin', (e) => {
     const id = e.target.dataset.room; if (!id || inRoom || busyFlag) return;
-    setActive(id); lookAtDoor(byId[id]);
+    setActive(id); pinBar(null); lookAtDoor(byId[id]);
   });
   nav.addEventListener('focusout', () => { if (!inRoom && !busyFlag) setActive(null); });
   nav.addEventListener('click', (e) => { const id = e.target.dataset && e.target.dataset.room; if (id) enterRoom(id); });
@@ -656,7 +693,7 @@ const ATRIUM = {
     else if (e.key === '+' || e.key === '=') target.span *= 0.88;
     else if (e.key === '-') target.span /= 0.88;
     else return;
-    e.preventDefault(); anim = null; clampView(target); dirty = true;
+    e.preventDefault(); anim = null; pinBar(null); clampView(target); dirty = true;
   });
 
   /* ---------- цикл ---------- */
@@ -678,6 +715,7 @@ const ATRIUM = {
     applyCamera();
     renderer.render(scene, camera);
     updateOverlay();
+    updateBar();
   }
 
   /* ---------- загрузка ---------- */

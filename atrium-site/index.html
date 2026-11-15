@@ -64,11 +64,35 @@
   #subtitle { font-family: var(--inscription); font-weight: 600; font-size: clamp(16px, 1.8vw, 26px); letter-spacing: .35em; padding-left: .35em;
     text-transform: uppercase; margin-top: .25em; color: var(--gilt); text-shadow: 0 1px 2px rgba(20, 50, 90, .6), 0 0 18px rgba(10, 40, 90, .5); }
 
-  #caption { position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(14px, 3.5vh, 30px)); margin: 0; text-align: center; pointer-events: none;
-    font-size: clamp(16px, 1.5vw, 20px); color: var(--ivory); text-shadow: 0 1px 3px rgba(30, 15, 3, .9), 0 0 18px rgba(30, 15, 3, .7);
-    opacity: 0; transition: opacity 1s ease 1s; }
-  body.ready #caption { opacity: 1; }
-  body.in-room #caption, body.entering #caption { opacity: 0; transition-delay: 0s; }
+  /* Меню арок: компактная плашка по центру внизу — ряд арок, золотая линия с точками, под ним подсказка.
+     Активная арка (ближайшая к центру экрана) крупнее и светится. */
+  #bar { --ico: 21px; position: fixed; left: 50%; transform: translateX(-50%); z-index: 3;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); width: min(calc(100vw - 24px), 380px);
+    padding: 8px 18px 8px; border: 1px solid rgba(241, 207, 140, .75); border-radius: 14px;
+    background: rgba(26, 14, 4, .68); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 6px 24px rgba(20, 10, 2, .45);
+    pointer-events: none; color: #ffd98a; text-align: center; opacity: 0; transition: opacity 1s ease 1s; }
+  body.ready #bar { opacity: 1; }
+  body.ready .bar-row button { pointer-events: auto; }
+  body.in-room #bar, body.entering #bar { opacity: 0; transition-delay: 0s; }
+  body.in-room #bar button, body.entering #bar button { pointer-events: none; }
+  .bar-row { position: relative; display: flex; align-items: flex-start; width: min(100%, 264px); margin: 0 auto; }
+  /* линия идёт через центры точек: высота арки (--ico × 1.25) + зазор 7px + половина точки */
+  .bar-row::after { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--ico) * 1.25 + 10px); height: 1px; box-shadow: 0 0 2px rgba(30, 15, 3, .8);
+    background: linear-gradient(90deg, transparent, rgba(241, 207, 140, .85) 6%, rgba(241, 207, 140, .85) 94%, transparent); }
+  .bar-row button { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; pointer-events: none; }
+  .bar-row svg { width: var(--ico); height: calc(var(--ico) * 1.25); fill: none; stroke: currentColor; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round;
+    opacity: .78; transform-origin: 50% 100%; transition: transform .35s ease, opacity .35s ease, filter .35s ease;
+    filter: drop-shadow(0 1px 2px rgba(10, 5, 0, .8)); }
+  .bar-row i { position: relative; z-index: 1; width: 7px; height: 7px; border-radius: 50%; background: #f1cf8c; border: 1px solid var(--gilt-deep);
+    box-shadow: 0 0 0 2px rgba(43, 26, 12, .35); transition: transform .35s ease, box-shadow .35s ease; }
+  .bar-row button.on svg { opacity: 1; color: #fff0c4; transform: scale(1.4); filter: drop-shadow(0 1px 2px rgba(10, 5, 0, .8)) drop-shadow(0 0 7px rgba(255, 206, 120, .95)); }
+  .bar-row button.on i { transform: scale(1.7); box-shadow: 0 0 0 1px rgba(255, 231, 186, .9), 0 0 10px 3px rgba(255, 206, 120, .85); }
+  .bar-row button:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+  /* подсказка: одна строка, крупно и ярко; при наведении сюда же встаёт «Enter …» */
+  #caption { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 7px 0 0; white-space: nowrap;
+    font: 600 12.5px/1 var(--inscription); letter-spacing: .12em; text-transform: uppercase; color: #fff6e0;
+    text-shadow: 0 0 10px rgba(255, 206, 120, .55), 0 1px 3px rgba(10, 5, 0, .9); }
+  #caption::before, #caption::after { content: ''; flex: 1; min-width: 8px; height: 1px; background: rgba(255, 217, 138, .85); }
 
   .step { position: fixed; top: 50%; z-index: 3; width: 46px; height: 46px; margin-top: -23px; display: none; place-items: center; padding: 0;
     border-radius: 50%; border: 1px solid rgba(255, 231, 186, .75); background: rgba(43, 26, 12, .45); color: var(--ivory); cursor: pointer;
@@ -122,7 +146,10 @@
     <p id="subtitle"></p>
   </header>
 
-  <p id="caption" aria-live="polite"></p>
+  <div id="bar">
+    <div class="bar-row" id="bar-row" aria-hidden="true"></div>
+    <p id="caption" aria-live="polite"></p>
+  </div>
   <nav id="rooms-nav" aria-label="Rooms"></nav>
   <button class="step" id="prev" type="button" aria-label="Previous doorway"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M11.5 3 5.5 9l6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
   <button class="step" id="next" type="button" aria-label="Next doorway"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="m6.5 3 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
