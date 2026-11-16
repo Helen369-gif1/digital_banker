@@ -1,0 +1,118 @@
+/* Reset, base typography, container, buttons, reveal. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-padding-top: calc(var(--mm-header-h) + 8px);
+  background: var(--gr-void);
+}
+
+body {
+  background: var(--gr-void);
+  color: var(--gr-text-primary);
+  font-family: var(--gr-font-ui);
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+ul {
+  list-style: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gr-bronze);
+  outline-offset: 3px;
+}
+
+.gr-container {
+  width: min(100%, var(--gr-container-max));
+  margin-inline: auto;
+  padding-inline: var(--gr-page-pad);
+}
+
+.eyebrow {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gr-bronze);
+}
+
+/* ---------- Buttons ----------
+   Primary: the only place bronze is a solid fill. One primary per screen. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 28px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: var(--gr-font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.btn--primary {
+  background: var(--gr-bronze);
+  color: var(--gr-void);
+}
+
+.btn--primary:hover {
+  background: #dc8d3f;
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: currentColor;
+}
+
+/* ---------- Reveal (screens below the hero) ---------- */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s var(--mm-ease), transform 0.6s var(--mm-ease);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

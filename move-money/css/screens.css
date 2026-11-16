@@ -1,0 +1,1052 @@
+/* Per-screen layout. Screen 1 (light hero scene) and screen 2 (dark, All the ways). */
+
+/* ======================================================================
+   SCREEN 1 - HERO
+   Scroll-scrubbed video: a bright morning landscape, a desk, a laptop.
+   The camera pushes in until the laptop screen fills the frame, the example
+   interface lights up on it, then sinks into the dark page colour.
+   ====================================================================== */
+
+.hero {
+  position: relative;
+  height: 520vh;
+  height: 520svh;
+  background: var(--mm-sky);
+}
+
+.hero__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #bcd3f0 0%, #f2d9c8 58%, #8fa66a 100%);
+}
+
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Copy sits in the empty sky above the desk */
+
+.hero__copy {
+  position: absolute;
+  inset: calc(var(--mm-header-h) + clamp(28px, 6.5svh, 80px)) 0 auto;
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--gr-page-pad);
+  text-align: center;
+  color: var(--mm-ink);
+  will-change: opacity, transform;
+}
+
+.hero__copy-inner {
+  width: min(100%, 760px);
+}
+
+.hero__title {
+  font-family: var(--gr-font-display);
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--mm-ink);
+}
+
+.hero__lead {
+  max-width: 560px;
+  margin: 24px auto 0;
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.6;
+  color: var(--mm-ink-soft);
+}
+
+.hero__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.hero__actions .btn--secondary {
+  color: var(--mm-ink);
+}
+
+.hero__actions .btn--secondary:hover {
+  background: rgba(22, 19, 15, 0.08);
+}
+
+/* Example interface on the laptop screen */
+
+.hero__ui {
+  position: absolute;
+  inset: var(--mm-header-h) 0 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.hero__ui-inner {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+}
+
+.hero__ui-frame {
+  width: min(88vw, calc((100svh - var(--mm-header-h) - 96px) * 1.6));
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #dfe9f6;
+}
+
+.hero__ui-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.ui-note {
+  font-family: var(--gr-font-mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--gr-text-secondary);
+}
+
+/* Dark veil that carries the hero into the page colour */
+
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--gr-void);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .hero__lead {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+
+  .hero__actions {
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .hero__actions .btn {
+    min-height: 48px;
+    padding: 0 20px;
+    font-size: 15px;
+  }
+
+  .hero__ui-frame {
+    width: min(70vw, calc((100svh - var(--mm-header-h) - 120px) * 0.4614));
+    aspect-ratio: 860 / 1864;
+  }
+}
+
+/* Reduced motion: no pin, no scroll animation, one complete static composition */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    height: auto;
+  }
+
+  .hero__stage {
+    position: relative;
+    min-height: 100svh;
+  }
+
+  .hero__ui,
+  .hero__veil {
+    display: none;
+  }
+}
+
+/* ======================================================================
+   SCREEN 2 - ALL THE WAYS YOU MOVE MONEY
+   ====================================================================== */
+
+.ways {
+  background: var(--gr-void);
+  padding-block: var(--gr-section-pad);
+}
+
+.ways__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--gr-grid-gap);
+  align-items: center;
+}
+
+.ways__text {
+  min-width: 0;
+  max-width: 560px;
+}
+
+.ways__title {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--gr-space-6);
+}
+
+.ways__list {
+  border-bottom: 1px solid var(--gr-line-dark);
+}
+
+.way {
+  position: relative;
+  border-top: 1px solid var(--gr-line-dark);
+}
+
+.way::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 24px;
+  width: 2px;
+  height: 28px;
+  background: var(--gr-bronze);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.3s var(--mm-ease);
+}
+
+.way.is-open::before {
+  transform: scaleY(1);
+}
+
+.way__head {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.way__btn {
+  display: block;
+  width: 100%;
+  padding: 24px 0 24px 32px;
+  background: none;
+  border: 0;
+  font-family: var(--gr-font-ui);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: var(--gr-text-tertiary);
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.way__btn:hover,
+.way.is-open .way__btn {
+  color: var(--gr-text-primary);
+}
+
+.way__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 0.4s var(--mm-ease), visibility 0s linear 0.4s;
+}
+
+.way.is-open .way__body {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 0.4s var(--mm-ease), visibility 0s;
+}
+
+.way__body > div {
+  overflow: hidden;
+}
+
+.way__body p {
+  padding: 0 0 24px 32px;
+  max-width: 520px;
+  font-size: clamp(17px, 1.4vw, 19px);
+  line-height: 1.65;
+  color: var(--gr-text-secondary);
+}
+
+/* Product panel: the interface for the open item */
+
+.ways__panel {
+  min-width: 0;
+  justify-self: end;
+  width: min(100%, 600px);
+}
+
+.ways__frame {
+  position: relative;
+  aspect-ratio: 6 / 7;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--gr-line-dark);
+  background: var(--gr-surface);
+}
+
+.ways__frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ways__frame img.is-active {
+  opacity: 1;
+}
+
+.ways__panel .ui-note {
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .ways {
+    padding-block: clamp(72px, 14vw, 96px);
+  }
+
+  .ways__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  .ways__panel {
+    justify-self: stretch;
+    width: 100%;
+    max-width: 520px;
+  }
+}
+
+/* ======================================================================
+   SCREEN 3 - LESS WORK FOR THE THINGS YOU DO OFTEN
+   Asymmetric: text high on the left, layered product screens low on the right,
+   with a floating card on their lower edge.
+   ====================================================================== */
+
+.repeat {
+  background: var(--gr-void-deep);
+  padding-block: var(--gr-section-pad);
+}
+
+.repeat__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--gr-grid-gap);
+  align-items: start;
+}
+
+.repeat__text {
+  min-width: 0;
+  max-width: 520px;
+  padding-top: clamp(0px, 5vw, 80px);
+}
+
+.repeat__title {
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.repeat__lead {
+  margin-top: 32px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  color: var(--gr-text-secondary);
+}
+
+.repeat__stage {
+  min-width: 0;
+}
+
+.repeat__layers {
+  position: relative;
+  aspect-ratio: 1 / 1.04;
+}
+
+.repeat__layer {
+  position: absolute;
+  width: 58%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--gr-line-dark);
+}
+
+.repeat__layer--receipt {
+  top: 0;
+  right: 0;
+}
+
+.repeat__layer--amount {
+  top: 14%;
+  left: 0;
+}
+
+.repeat__float {
+  position: absolute;
+  left: 22%;
+  bottom: 0;
+  width: 56%;
+  padding: 8px 24px;
+  background: var(--gr-surface-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+.repeat__float li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--gr-text-primary);
+}
+
+.repeat__float li + li {
+  border-top: 1px solid var(--gr-line-dark);
+}
+
+.repeat__float li::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: var(--gr-bronze);
+}
+
+.repeat__stage .ui-note {
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .repeat {
+    padding-block: clamp(72px, 14vw, 96px);
+  }
+
+  .repeat__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  .repeat__text {
+    padding-top: 0;
+  }
+
+  .repeat__layers {
+    aspect-ratio: 1 / 1.25;
+  }
+
+  .repeat__float {
+    left: 10%;
+    width: 80%;
+  }
+}
+
+/* ======================================================================
+   SCREEN 4 - GIA HELPS WITH THE DETAILS
+   A stage with layered screens and a narrow side panel that shows Gia
+   working through the transfer, step by step.
+   ====================================================================== */
+
+.gia {
+  background: var(--gr-void);
+  padding-block: var(--gr-section-pad);
+}
+
+.gia__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gr-grid-gap);
+  align-items: end;
+}
+
+.gia__title {
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.gia__copy {
+  max-width: 560px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  color: var(--gr-text-secondary);
+}
+
+.gia__copy p + p {
+  margin-top: 16px;
+}
+
+.gia__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  margin-top: var(--gr-space-7);
+  background: var(--gr-void-deep);
+  border: 1px solid var(--gr-line-dark);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gia__canvas {
+  position: relative;
+  min-height: 600px;
+}
+
+/* Gia is the largest thing on the stage; the screens support her */
+
+.gia__portrait {
+  position: absolute;
+  bottom: 0;
+  left: 3%;
+  height: 100%;
+  width: auto;
+  max-width: 58%;
+  object-fit: contain;
+  object-position: bottom left;
+}
+
+.gia__back {
+  position: absolute;
+  top: 6%;
+  right: 5%;
+  width: 36%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--gr-line-dark);
+  filter: blur(1.5px) saturate(0.8);
+}
+
+.gia__card {
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  width: 48%;
+  padding: 24px;
+  background: #f4f8fe;
+  color: #0a2f66;
+  border: 1px solid rgba(130, 170, 230, 0.55);
+  border-radius: 8px;
+}
+
+.gia__card-label {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #3a5f98;
+}
+
+.gia__rows {
+  margin-top: 12px;
+}
+
+.gia__rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid #d5e1f2;
+}
+
+.gia__rows dt {
+  font-size: 15px;
+  color: #3f5f8f;
+}
+
+.gia__rows dd {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.gia__rows .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.gia__rows > div:nth-child(2) dd {
+  font-size: 22px;
+}
+
+.gia__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--gr-surface);
+  border-left: 1px solid var(--gr-line-dark);
+}
+
+.gia__who {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gr-text-secondary);
+}
+
+.gia__bubble {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--gr-line-dark);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.gia__thinking {
+  font-family: var(--gr-font-mono);
+  font-size: 13px;
+  color: var(--gr-text-tertiary);
+}
+
+.gia__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gia__steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--gr-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.gia__steps li i {
+  position: relative;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 1.5px solid var(--gr-text-muted);
+  border-radius: 50%;
+}
+
+.gia__steps li.is-in:not(.is-done) i {
+  border-color: var(--gr-line-dark);
+  border-top-color: var(--gr-bronze);
+  animation: gia-spin 0.8s linear infinite;
+}
+
+.gia__steps li.is-done {
+  color: var(--gr-text-primary);
+}
+
+.gia__steps li.is-done i {
+  background: var(--gr-bronze);
+  border-color: var(--gr-bronze);
+}
+
+.gia__steps li.is-done i::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--gr-void);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.gia__note {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--gr-line-dark);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--gr-text-secondary);
+}
+
+.gia__caption {
+  margin-top: 16px;
+}
+
+/* Sequence: elements marked data-seq are revealed one by one by js/gia-steps.js */
+
+.js [data-seq] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s var(--mm-ease), transform 0.5s var(--mm-ease), color 0.3s ease;
+}
+
+.js [data-seq].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.js .gia__back[data-seq].is-in {
+  opacity: 0.5;
+}
+
+@keyframes gia-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+  .gia {
+    padding-block: clamp(72px, 14vw, 96px);
+  }
+
+  .gia__head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .gia__stage {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 64px;
+  }
+
+  .gia__canvas {
+    min-height: 640px;
+  }
+
+  .gia__portrait {
+    top: 2%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    width: 76%;
+    height: auto;
+    max-width: none;
+  }
+
+  .gia__back {
+    display: none;
+  }
+
+  .gia__card {
+    right: 6%;
+    width: 88%;
+    bottom: 4%;
+    padding: 20px;
+  }
+
+  .gia__panel {
+    border-left: 0;
+    border-top: 1px solid var(--gr-line-dark);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-seq] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .js .gia__back[data-seq] {
+    opacity: 0.5;
+  }
+
+  .gia__steps li.is-in:not(.is-done) i {
+    animation: none;
+  }
+
+  .way::before,
+  .way__body,
+  .way.is-open .way__body,
+  .ways__frame img,
+  .way__btn {
+    transition: none;
+  }
+}
+
+/* ======================================================================
+   SCREEN 5 - PREPARED BY GIA. APPROVED BY YOU.
+   The approval step is shown as it would look: a prepared transfer and two
+   clear choices. Only the person's click decides.
+   ====================================================================== */
+
+.approve {
+  background: var(--gr-void-deep);
+  padding-block: var(--gr-section-pad);
+}
+
+.approve__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--gr-grid-gap);
+  align-items: center;
+}
+
+.approve__text {
+  min-width: 0;
+  max-width: 520px;
+}
+
+.approve__title {
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.approve__lead {
+  margin-top: 32px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  color: var(--gr-text-secondary);
+}
+
+.approve__stage {
+  position: relative;
+  min-width: 0;
+  min-height: 640px;
+}
+
+.approve__back {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 56%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--gr-line-dark);
+  opacity: 0.5;
+  filter: blur(1.5px) saturate(0.8);
+}
+
+.approve__card {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(100%, 460px);
+  padding: 24px;
+  background: #f4f8fe;
+  color: #0a2f66;
+  border: 1px solid rgba(130, 170, 230, 0.55);
+  border-radius: 8px;
+}
+
+.approve__label {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #3a5f98;
+}
+
+.approve__rows {
+  margin-top: 12px;
+}
+
+.approve__rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid #d5e1f2;
+}
+
+.approve__rows dt {
+  font-size: 15px;
+  color: #3f5f8f;
+}
+
+.approve__rows dd {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.approve__rows .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.approve__amount {
+  font-size: 22px !important;
+}
+
+.approve__status {
+  min-height: 24px;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0a2f66;
+}
+
+.approve__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.app-btn {
+  min-height: 48px;
+  background: transparent;
+  color: #0a2f66;
+  border: 1px solid #0a2f66;
+  border-radius: 8px;
+  font-family: var(--gr-font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.app-btn:hover {
+  background: rgba(10, 47, 102, 0.08);
+}
+
+.app-btn--solid,
+.app-btn--solid:hover {
+  background: #2f4160;
+  border-color: #2f4160;
+  color: #fff;
+}
+
+.approve__triad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gr-grid-gap);
+  margin-top: var(--gr-space-8);
+}
+
+.approve__triad li {
+  padding-top: 24px;
+  border-top: 1px solid var(--gr-line-dark);
+  font-size: clamp(24px, 2.6vw, 36px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.approve__triad li::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin-bottom: 16px;
+  background: var(--gr-bronze);
+}
+
+.approve__caption {
+  margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+  .approve {
+    padding-block: clamp(72px, 14vw, 96px);
+  }
+
+  .approve__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  .approve__stage {
+    min-height: 700px;
+  }
+
+  .approve__back {
+    width: 66%;
+  }
+
+  .approve__card {
+    width: 100%;
+  }
+
+  .approve__triad {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    margin-top: 64px;
+  }
+}
+
+/* ======================================================================
+   SCREEN 6 - FINAL CTA
+   ====================================================================== */
+
+.cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-block: var(--gr-section-pad);
+  overflow: hidden;
+  background: var(--gr-void) url("../media/cta-vault-poster.jpg") center / cover no-repeat;
+}
+
+.cta__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cta__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 8, 0.58);
+}
+
+.cta__inner {
+  position: relative;
+  max-width: 800px;
+  text-align: center;
+}
+
+.cta__title {
+  text-wrap: balance;
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.cta__lead {
+  max-width: 640px;
+  margin: 24px auto 48px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+@media (max-width: 768px) {
+  .cta {
+    padding-block: 96px;
+  }
+
+  .cta__inner .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-btn {
+    transition: none;
+  }
+}

@@ -1,0 +1,62 @@
+/* Design tokens - taken from the Global Reserve design system, section 3.
+   Custom properties only. */
+
+:root {
+  /* Dark surfaces */
+  --gr-void: #050508;
+  --gr-void-deep: #08090d;
+  --gr-surface: #0c0d12;
+  --gr-surface-elevated: #12141a;
+
+  /* Accent */
+  --gr-bronze: #cd7f32;
+  --gr-bronze-glow: rgba(205, 127, 50, 0.4);
+  --gr-bronze-subtle: rgba(205, 127, 50, 0.15);
+
+  /* Text and rules */
+  --gr-text-primary: #ffffff;
+  --gr-text-secondary: rgba(255, 255, 255, 0.7);
+  --gr-text-tertiary: rgba(255, 255, 255, 0.45);
+  --gr-text-muted: rgba(255, 255, 255, 0.25);
+  --gr-line-dark: rgba(255, 255, 255, 0.08);
+
+  /* Light hero only (screen 1 is the one light screen on this page) */
+  --mm-ink: #16130f;
+  --mm-ink-soft: rgba(22, 19, 15, 0.78);
+  --mm-sky: #cfdff2;
+
+  /* Type */
+  --gr-font-ui: "IBM Plex Sans", system-ui, sans-serif;
+  --gr-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --gr-font-display: "Playfair Display", Georgia, serif;
+
+  /* Container */
+  --gr-container-max: 1200px;
+  --gr-page-pad: clamp(24px, 3.5vw, 48px);
+
+  /* Spacing scale */
+  --gr-space-1: 8px;
+  --gr-space-2: 16px;
+  --gr-space-3: 24px;
+  --gr-space-4: 32px;
+  --gr-space-5: 48px;
+  --gr-space-6: 64px;
+  --gr-space-7: 96px;
+  --gr-space-8: 128px;
+  --gr-space-9: 160px;
+
+  /* Section rhythm */
+  --gr-section-pad: clamp(96px, 11vw, 160px);
+  --gr-section-pad-compact: clamp(72px, 8vw, 96px);
+  --gr-grid-gap: clamp(48px, 6vw, 96px);
+
+  /* Shell */
+  --mm-header-h: 72px;
+
+  /* Motion */
+  --mm-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (max-width: 1100px) {
+  :root { --mm-header-h: 64px; }
+}

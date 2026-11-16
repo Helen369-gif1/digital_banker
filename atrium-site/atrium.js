@@ -72,7 +72,7 @@ const ATRIUM = {
       plaque: [[4929,584],[5367,489],[5367,583],[4929,663]], href: null },
     { id: 'moveMoney', name: 'Move Money', inscription: ['Move', 'Money'],
       door: { cx: 5966, hw: 250, top: 590, bottom: 1735 },
-      plaque: [[5685,433],[6193,312],[6193,428],[5685,531]], href: null },
+      plaque: [[5685,433],[6193,312],[6193,428],[5685,531]], href: '../move-money/index.html' },
   ],
   roomPlaceholder: 'This room is being prepared. Its content will appear here soon.',
 };

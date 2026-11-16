@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Move Money</title>
+  <meta name="description" content="Send, receive, and manage payments in one place.">
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="../shared/favicon/favicon.ico">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/screens.css">
+</head>
+<body>
+
+  <!-- TODO: copy needed (header navigation labels and actions) -->
+  <header class="site-header">
+    <div class="gr-container site-header__inner">
+      <a class="site-header__brand" href="#screen-1" aria-label="MOVE MONEY">MOVE MONEY</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- SCREEN 1 - HERO -->
+    <section class="hero" id="screen-1" data-screen="hero">
+      <div class="hero__stage">
+        <video class="hero__video" id="hero-video" muted playsinline preload="auto"
+               poster="media/hero-scene-poster.jpg" data-src="media/hero-scene.mp4" aria-hidden="true"></video>
+
+        <div class="hero__copy" id="hero-copy">
+          <div class="hero__copy-inner">
+            <h1 class="hero__title">Move money. Stay in control.</h1>
+            <p class="hero__lead">Send, receive, and manage payments in one place. Whether you're paying someone, adding funds, or moving money between accounts, Move Money makes the next step clear — with Gia ready to help.</p>
+            <div class="hero__actions">
+              <a class="btn btn--primary" href="#screen-2">Explore Move Money</a>
+              <!-- TODO: destination needed for Ask Gia -->
+              <a class="btn btn--secondary" href="#" data-placeholder>Ask Gia</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__ui" id="hero-ui" aria-hidden="true">
+          <div class="hero__ui-inner">
+            <div class="hero__ui-frame">
+              <picture>
+                <source media="(max-width: 768px)" srcset="media/ui/hero-phone-account-ready.webp">
+                <img src="media/ui/hero-laptop-receipt.webp" alt="" width="1440" height="1449">
+              </picture>
+            </div>
+            <p class="ui-note">Example interface — not your account.</p>
+          </div>
+        </div>
+
+        <div class="hero__veil" id="hero-veil"></div>
+
+        <!-- TODO: copy needed (regulatory note near the first screen) -->
+      </div>
+    </section>
+
+    <!-- SCREEN 2 - ALL THE WAYS YOU MOVE MONEY -->
+    <section class="ways" id="screen-2" data-screen="ways">
+      <div class="gr-container ways__grid">
+
+        <div class="ways__text">
+          <h2 class="ways__title reveal">All the ways you move money.</h2>
+
+          <ul class="ways__list reveal" id="ways-list" style="--reveal-delay:.1s">
+            <li class="way is-open">
+              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-1" aria-expanded="true" aria-controls="way-body-1" data-way="0">Send &amp; Pay</button></h3>
+              <div class="way__body" id="way-body-1" role="region" aria-labelledby="way-btn-1"><div><p>Send money to people or businesses, pay another Glonari member, or scan a QR code to pay.</p></div></div>
+            </li>
+            <li class="way">
+              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-2" aria-expanded="false" aria-controls="way-body-2" data-way="1">Receive &amp; Request</button></h3>
+              <div class="way__body" id="way-body-2" role="region" aria-labelledby="way-btn-2"><div><p>Share your payment details or QR code, request money, and follow each request until it's paid.</p></div></div>
+            </li>
+            <li class="way">
+              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-3" aria-expanded="false" aria-controls="way-body-3" data-way="2">Add, Withdraw &amp; Convert</button></h3>
+              <div class="way__body" id="way-body-3" role="region" aria-labelledby="way-btn-3"><div><p>Add money from a linked account, withdraw to an external account, or convert eligible Glonari assets. See the details before you proceed.</p></div></div>
+            </li>
+          </ul>
+        </div>
+
+        <figure class="ways__panel reveal" style="--reveal-delay:.2s">
+          <div class="ways__frame" id="ways-frame">
+            <img class="is-active" src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen: an amount to send and a choice to send now or schedule for later" width="815" height="966" loading="lazy">
+            <img src="media/ui/panel-receive-request.webp" alt="Example account screen with a QR code and wallet address to receive money" width="615" height="672" loading="lazy">
+            <img src="media/ui/panel-add-withdraw-convert.webp" alt="Example Bank account details form for adding an external account" width="800" height="1000" loading="lazy">
+          </div>
+          <figcaption class="ui-note">Example interface — not your account.</figcaption>
+        </figure>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 3 - MAKE REPEAT PAYMENTS EASIER -->
+    <section class="repeat" id="screen-3" data-screen="repeat">
+      <div class="gr-container repeat__grid">
+
+        <div class="repeat__text">
+          <h2 class="repeat__title reveal">Less work for the things you do often.</h2>
+          <p class="repeat__lead reveal" style="--reveal-delay:.1s">Return to recent recipients, schedule a payment, set up recurring transfers, or split a shared expense with others. Find past transactions, check their status, and open a receipt whenever you need it.</p>
+        </div>
+
+        <div class="repeat__stage">
+          <div class="repeat__layers">
+            <img class="repeat__layer repeat__layer--receipt reveal" src="media/ui/panel-receipt.webp" alt="Example receipt screen with the reference, amount, fee, status and options to download, email, print or share the receipt" width="800" height="1180" loading="lazy" style="--reveal-delay:.1s">
+            <img class="repeat__layer repeat__layer--amount reveal" src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen with an option to schedule a payment for later" width="815" height="966" loading="lazy" style="--reveal-delay:.25s">
+            <ul class="repeat__float reveal" style="--reveal-delay:.4s">
+              <li>Recent recipients</li>
+              <li>Schedule a payment</li>
+              <li>Recurring transfers</li>
+              <li>Split a shared expense</li>
+            </ul>
+          </div>
+          <p class="ui-note">Example interface — not your account.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 4 - GIA HELPS WITH THE DETAILS -->
+    <section class="gia" id="screen-4" data-screen="gia">
+      <div class="gr-container">
+
+        <div class="gia__head">
+          <h2 class="gia__title reveal">Just tell Gia what you need to do.</h2>
+          <div class="gia__copy reveal" style="--reveal-delay:.1s">
+            <p>Gia can find the recipient, check available funds, prepare the transfer, and explain fees, timing, or restrictions before you decide. If a payment could affect funds reserved for another goal, she'll let you know.</p>
+            <p>You can also complete actions yourself. Gia is there when you want help, not in your way.</p>
+          </div>
+        </div>
+
+        <div class="gia__stage reveal" id="gia-stage">
+
+          <div class="gia__canvas">
+            <img class="gia__portrait" data-seq src="media/gia-cutout.webp" alt="Gia, the Glonari assistant" width="1086" height="1448" loading="lazy">
+            <img class="gia__back" data-seq src="media/ui/panel-send-pay.webp" alt="" width="815" height="966" loading="lazy">
+
+            <div class="gia__card" data-seq>
+              <p class="gia__card-label">Transfer prepared by Gia</p>
+              <dl class="gia__rows">
+                <div><dt>To</dt><dd>David</dd></div>
+                <div><dt>You send</dt><dd class="num">$150 USD</dd></div>
+                <div><dt>They receive</dt><dd class="num">[RECEIVER AMOUNT]</dd></div>
+                <div><dt>Fee</dt><dd class="num">[FEE]</dd></div>
+                <div><dt>Rate</dt><dd class="num">[RATE]</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <aside class="gia__panel" aria-label="Gia's steps">
+            <div class="gia__who">
+              <span>Gia</span>
+            </div>
+            <p class="gia__bubble" data-seq>&ldquo;Gia, send David $150.&rdquo;</p>
+            <p class="gia__thinking" data-seq>Thinking…</p>
+            <ol class="gia__steps">
+              <li data-seq><i aria-hidden="true"></i>Find the recipient</li>
+              <li data-seq><i aria-hidden="true"></i>Check available funds</li>
+              <li data-seq><i aria-hidden="true"></i>Prepare the transfer</li>
+              <li data-seq><i aria-hidden="true"></i>Explain fees, timing, or restrictions</li>
+            </ol>
+            <p class="gia__note" data-seq>If a payment could affect funds reserved for another goal, she'll let you know.</p>
+          </aside>
+
+        </div>
+        <p class="ui-note gia__caption">Example interface — not your account.</p>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 5 - YOU APPROVE -->
+    <section class="approve" id="screen-5" data-screen="approve">
+      <div class="gr-container">
+
+        <div class="approve__grid">
+          <div class="approve__text">
+            <h2 class="approve__title reveal">Prepared by Gia. Approved by you.</h2>
+            <p class="approve__lead reveal" style="--reveal-delay:.1s">Before money moves, review the recipient, amount, funding source, fees, and timing. You choose whether to approve or decline. Gia never completes a protected financial action without your explicit approval.</p>
+          </div>
+
+          <div class="approve__stage reveal" style="--reveal-delay:.15s">
+            <img class="approve__back" src="media/ui/panel-review-confirm.webp" alt="" width="800" height="1360" loading="lazy">
+
+            <div class="approve__card" id="approve-card">
+              <p class="approve__label">Prepared by Gia</p>
+              <dl class="approve__rows">
+                <div><dt>Recipient</dt><dd>David</dd></div>
+                <div><dt>You send</dt><dd class="num approve__amount">$150 USD</dd></div>
+                <div><dt>They receive</dt><dd class="num">[RECEIVER AMOUNT]</dd></div>
+                <div><dt>Rate</dt><dd class="num">[RATE]</dd></div>
+                <div><dt>Funding source</dt><dd>[FUNDING SOURCE]</dd></div>
+                <div><dt>Fee</dt><dd class="num">[FEE]</dd></div>
+                <div><dt>Timing</dt><dd>[TIMING]</dd></div>
+              </dl>
+              <p class="approve__status" id="approve-status" aria-live="polite"></p>
+              <div class="approve__actions">
+                <button class="app-btn app-btn--solid" type="button" data-choice="approve" aria-pressed="false">Approve</button>
+                <button class="app-btn" type="button" data-choice="decline" aria-pressed="false">Decline</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="approve__triad reveal">
+          <li>Clear steps.</li>
+          <li>Visible activity.</li>
+          <li>Your decision.</li>
+        </ul>
+
+        <p class="ui-note approve__caption">Example interface — not your account.</p>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 6 - FINAL CTA -->
+    <section class="cta" id="screen-6" data-screen="cta">
+      <video class="cta__video" id="cta-video" muted loop playsinline preload="none"
+             poster="media/cta-vault-poster.jpg" data-src="media/cta-vault.mp4" aria-hidden="true"></video>
+      <div class="cta__scrim" aria-hidden="true"></div>
+
+      <div class="gr-container cta__inner">
+        <h2 class="cta__title reveal">Your money, moving your way.</h2>
+        <p class="cta__lead reveal" style="--reveal-delay:.1s">From quick payments to planned transfers, Move Money brings your everyday money actions together — with Gia helping at every step and you making the final call.</p>
+        <!-- TODO: destination needed for Open Move Money -->
+        <a class="btn btn--primary reveal" style="--reveal-delay:.2s" href="#" data-placeholder>Open Move Money</a>
+      </div>
+
+      <!-- TODO: copy needed (regulatory note near the end of the page) -->
+    </section>
+
+  </main>
+
+  <script src="js/shell.js" defer></script>
+  <script src="js/hero-scene.js" defer></script>
+  <script src="js/reveal.js" defer></script>
+  <script src="js/ways.js" defer></script>
+  <script src="js/gia-steps.js" defer></script>
+  <script src="js/approve.js" defer></script>
+  <script src="js/cta-video.js" defer></script>
+  <script src="../shared/atrium-back.js" defer></script>
+</body>
+</html>
