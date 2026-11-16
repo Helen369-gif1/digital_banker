@@ -30,6 +30,12 @@ Escape and outside click). Footer: the same logo, four social placeholders, the 
 Terms and Privacy, and the copyright line. Terms, Privacy and the social links are `data-placeholder` links with no
 destination yet.
 
+## Language
+
+The page is English only. `<html lang="en" translate="no">` and `<meta name="google" content="notranslate">`
+stop the browser from offering or applying automatic translation (a visitor with a Russian browser would otherwise
+see the menu and buttons translated).
+
 ## Registration
 
 Every call-to-action button (Explore Move Money, Ask Gia, Open Move Money) links to `#register`, the footer form

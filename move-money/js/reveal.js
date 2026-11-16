@@ -16,7 +16,7 @@
       entry.target.classList.add('is-in');
       io.unobserve(entry.target);
     });
-  }, { threshold: 0.25 });
+  }, { threshold: 0.12 });
 
   items.forEach((el) => io.observe(el));
 })();

@@ -21,7 +21,7 @@
   const VIDEO_END = 0.72;            // video reaches its last frame
   const COPY_OUT = [0.03, 0.2];      // copy fades out
   const UI_IN = [0.55, 0.64];        // interface lights up on the laptop screen
-  const SINK = [0.74, 0.92];         // interface sinks, veil takes over
+  const SINK = [0.74, 0.97];         // interface sinks, veil takes over (almost no empty black hold at the end)
 
   const SMOOTHING_BASE = 0.001;      // ~90% of any gap closes in ~0.3s
 

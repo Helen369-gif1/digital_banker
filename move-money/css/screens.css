@@ -178,7 +178,7 @@
 
 .ways {
   background: var(--gr-void);
-  padding-block: var(--gr-section-pad);
+  padding-block: var(--gr-section-pad-compact);
 }
 
 .ways__grid {
@@ -340,7 +340,7 @@
 
 .repeat {
   background: var(--gr-void-deep);
-  padding-block: var(--gr-section-pad);
+  padding-block: var(--gr-section-pad-compact);
 }
 
 .repeat__grid {
@@ -467,14 +467,14 @@
 
 .gia {
   background: var(--gr-void);
-  padding-block: var(--gr-section-pad);
+  padding-block: var(--gr-section-pad-compact);
 }
 
 .gia__head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--gr-grid-gap);
-  align-items: end;
+  align-items: start;
 }
 
 .gia__title {
@@ -787,7 +787,7 @@
 
 .approve {
   background: var(--gr-void-deep);
-  padding-block: var(--gr-section-pad);
+  padding-block: var(--gr-section-pad-compact);
 }
 
 .approve__grid {
