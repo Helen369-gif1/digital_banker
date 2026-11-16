@@ -14,7 +14,7 @@ Copy: `Move_Money_Landing_EN.txt`, used verbatim. All project files stay in Engl
 | `screen-2` | All the ways you move money | Dark. Accordion with three items; the panel on the right follows the open item. |
 
 | `screen-3` | Less work for the things you do often | Dark. Asymmetric: text high left, two layered product screens right, floating card of the four repeat actions on their lower edge. |
-| `screen-4` | Gia helps with the details | Dark. Stage with layered screens and a side panel; `js/gia-steps.js` plays Gia's steps once when the stage is 40% visible. The transfer card is HTML: only David and $150 come from the copy, the rest are `[RECEIVER AMOUNT]`, `[FEE]`, `[RATE]` placeholders. |
+| `screen-4` | Gia helps with the details | Dark. Stage with layered screens and a side panel; `js/gia-steps.js` plays Gia's steps once when the stage is 40% visible. The transfer card is HTML and uses the demonstration values listed below. |
 
 | `screen-5` | Prepared by Gia. Approved by you. | Dark. Example approval card (HTML) with Approve and Decline; the click only changes the example status line (`js/approve.js`). Placeholders: `[RECEIVER AMOUNT]`, `[RATE]`, `[FUNDING SOURCE]`, `[FEE]`, `[TIMING]`. The line "Clear steps. Visible activity. Your decision." is split into three columns below. |
 | `screen-6` | Your money, moving your way. | Final CTA over `media/cta-hall.mp4`: the camera pulls back from banknotes to the bank hall and holds on the last frame (plays once per visit at 50% visibility, rewinds after the visitor leaves, `js/cta-video.js`). Made from the generated shot reversed (`ffmpeg -vf reverse`); its last frame matches `media/cta-hall-end.webp`, which is the still used under 768px and with reduced motion; `media/cta-hall-start.jpg` is the poster before it plays. The Open Move Money button has no destination yet. |
@@ -45,7 +45,7 @@ Wire the real endpoint where the `TODO` is in `js/shell.js`.
 
 ## Demonstration values (screens 4 and 5, must stay identical)
 
-Recipient David; You send $150 USD; They receive $150 USD; Rate 1 USD = 1 USD; Funding source Global Dollars
+Recipient Curt (the recipient name in the Gia quote on screen 4 is the same); You send $150 USD; They receive $150 USD; Rate 1 USD = 1 USD; Funding source Global Dollars
 (screen 5 only); Fee $0.00; Timing Estimated arrival: Within minutes (screen 5 only). An internal transfer with no
 currency conversion. Demonstration only: the $0.00 fee and the arrival time are not confirmed Glonari terms.
 
