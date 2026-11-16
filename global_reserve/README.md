@@ -52,6 +52,14 @@ ffmpeg -i source.mp4 -g 1 -an performance-scrub.mp4
 - `-g 1` — every frame is a keyframe (enables instant seeks to any frame)
 - `-an` — strips audio (not needed for a scrub video)
 
+**Current hero asset (`media/hero-vault.mp4`).** To keep the first load fast it is encoded with a short GOP instead of all-intra: every 6th frame is a keyframe, no B-frames, CRF 26 (about 2.1MB instead of about 5MB; same 1280x720, 24fps, 144 frames, 6s). Measured seeks stay fast (median about 22ms versus about 16ms for the all-intra file), so scrubbing is unchanged in practice.
+
+```bash
+ffmpeg -i source.mp4 -an -c:v libx264 -preset slow -crf 26 -g 6 -keyint_min 6 -bf 0 -sc_threshold 0 -pix_fmt yuv420p -movflags +faststart media/hero-vault.mp4
+```
+
+`media/hero-vault-poster.jpg` is frame 0 of that video; it shows instantly while the video downloads. `index.html` preloads the video (`<link rel="preload" as="fetch" crossorigin>`) so the download starts before the scripts run.
+
 ## Running Locally
 
 Serve the directory with any static file server (the blob fetch requires HTTP, not `file://`):

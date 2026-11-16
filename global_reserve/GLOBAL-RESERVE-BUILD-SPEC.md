@@ -60,6 +60,7 @@ Rules for the existing code:
 /css/screens.css          Per-screen layout
 /css/reserve-hologram.css Screen 5.5 projection layout and responsive states
 /js/scrub.js              Screen 1 scroll-to-video-time binding (moved from script.js, logic unchanged). Locked to Screen 1 — nothing else reads from it
+/js/lazy-video.js         Deferred loading: videos with data-src (Screen 4.5 and Screen 10) get their src only when within ~1.5 screens of the viewport; hidden videos never download. No other behaviour change
 /js/video-reveal.js       Screen 4.5 clip-path reveal, overlay, headline, and background-video visibility (see Section 5.4a)
 /js/reveal.js             IntersectionObserver reveal for screens 2-10
 /js/ticker.js             Screen 8 marquee
@@ -221,7 +222,7 @@ The counter strip shows motion only. No currency, no digits that read as a real 
 
 A new, independent full-height section inserted between Screen 4 and Screen 5 — not a modification of either. One cinematic beat, no mechanics: an aerial night shot of a home slowly reveals to full-bleed as the visitor scrolls, one line of copy fades in over it, then it recedes into Screen 5. No eyebrow, no body copy, no buttons, no numbers.
 
-**Source footage.** `media/reveal-vault.mp4` is an aerial night shot of a home (coastal homes, pools, warm lit windows) — 1280×720, 30fps, 4.5s (135 frames), approximately 1.83MB. It was supplied directly by the designer as the final asset for this slot; very little camera movement, so it reads well as a calm, continuous loop rather than a busy pan.
+**Source footage.** `media/reveal-vault.mp4` is an aerial night shot of a home (coastal homes, pools, warm lit windows) — 1280×720, 30fps, 4.5s (135 frames), approximately 0.76MB (re-encoded at CRF 25 for faster loading; same frames and duration). It was supplied directly by the designer as the final asset for this slot; very little camera movement, so it reads well as a calm, continuous loop rather than a busy pan.
 
 **Implementation — a real looping video, not a scroll-scrub.** Unlike Screen 1's hero, this video's `currentTime` is never touched by scroll: it plays as an ordinary `<video autoplay muted loop playsinline>`, running continuously on its own timeline the moment it's in view. Scroll drives only the presentation around it — the clip-path mask, the overlay, and the headline — through the section's own lightweight scroll-progress tracker in `/js/video-reveal.js`. This section does **not** call `bindScrollToVideo` (Section 2), which stays a Screen 1–only concern; the two screens' video needs are different (one is scrubbed frame-by-frame, one just plays), so they don't share that function. An `IntersectionObserver` on the section pauses the video once it's fully out of view and resumes it on return, so it never plays unnecessarily off-screen.
 
@@ -497,17 +498,17 @@ Every media slot is a `<div class="media-slot" data-slot="...">` with a fixed `a
 
 | Slot | Screen | File | Format | Length | Behaviour |
 |---|---|---|---|---|---|
-| `--media-hero` | 1 | `media/hero-vault.mp4` | 1280x720 | 6s | Scroll-scrubbed. Already present as `video111.mp4`; re-encode with `ffmpeg -i video111.mp4 -g 1 -an media/hero-vault.mp4` |
-| `--media-reveal` | 4.5 | `media/reveal-vault.mp4` | 1280x720, 30fps | 4.5s (135 frames), ~1.83MB, autoplaying loop | Plays continuously (`autoplay muted loop`), independent of scroll — scroll drives only the section's mask, overlay, and headline (Section 5.4a) |
+| `--media-hero` | 1 | `media/hero-vault.mp4` | 1280x720, 24fps | 6s (144 frames), ~2.1MB | Scroll-scrubbed. Encoded with a keyframe every 6th frame and no B-frames (`ffmpeg -i video111.mp4 -an -c:v libx264 -preset slow -crf 26 -g 6 -keyint_min 6 -bf 0 -sc_threshold 0 -pix_fmt yuv420p -movflags +faststart media/hero-vault.mp4`) to cut the first load from ~5MB; seek speed was measured and stays fast. Poster frame: `media/hero-vault-poster.jpg`; `index.html` preloads the video |
+| `--media-reveal` | 4.5 | `media/reveal-vault.mp4` | 1280x720, 30fps | 4.5s (135 frames), ~0.76MB, autoplaying loop | Plays continuously (`autoplay muted loop`), independent of scroll — scroll drives only the section's mask, overlay, and headline (Section 5.4a) |
 | `--media-question` | 2 | `media/time-scale.mp4` | 1080x1080 | 4-6s | Plays once when the section reaches 40% of the viewport, then holds the last frame. May be generated instead — Section 7.1 |
 | `--media-red` | 3 | `media/red-object.webp` | 800x800, transparent | still | Static. Optional 8-10s loop if a video version is supplied |
 | `--media-counter` | 4 | `media/rewards-ticker.mp4` | 1920x200 | 8s | Loop. May be generated instead — Section 7.2 |
 | `--media-reserve-demo` | 5.5 | `media/reserve-hologram-bg.webp` | 1920x1080 | still | Clean vault background only; hologram interface is built in HTML/CSS/SVG and controlled by scroll |
 | `--media-home` | 6 | `media/home.png` | 1254x1254 source, cropped to 4:5 | still | Static photograph, displayed in a 4:5 cropped media frame |
-| `--media-gia` | 7 | `media/gia.mp4` | 1288x1610, 4:5 | ~5.04s | No `autoplay`, no loop. Muted, `playsinline`, poster `media/gia-poster.jpg`. Plays once per visit when ~30% visible (`IntersectionObserver`), holds last frame, resets only after fully leaving Screen 7. No mute/unmute button, no controls, no captions track |
-| `--media-cta` | 10 | `media/cta-vault.mp4` | 1280x720, H.264, 30fps | ~6.01s, ~2.42MB | Autoplaying, muted, looping background at natural playback speed. Not scroll-scrubbed. Poster `media/cta-vault-poster.jpg` shown under `prefers-reduced-motion: reduce` and below 768px |
+| `--media-gia` | 7 | `media/gia.mp4` | 1288x1610, 4:5 | ~5.04s, ~1.3MB | No `autoplay`, no loop. Muted, `playsinline`, poster `media/gia-poster.jpg`. Plays once per visit when ~30% visible (`IntersectionObserver`), holds last frame, resets only after fully leaving Screen 7. No mute/unmute button, no controls, no captions track |
+| `--media-cta` | 10 | `media/cta-vault.mp4` | 1280x720, H.264, 30fps | ~6.01s, ~1.48MB | Autoplaying, muted, looping background at natural playback speed. Not scroll-scrubbed. Poster `media/cta-vault-poster.jpg` shown under `prefers-reduced-motion: reduce` and below 768px |
 
-All videos: no audio track except Gia, `preload="metadata"`, `playsinline`, and `muted` before `autoplay`. Total page weight target under 12MB on desktop; on viewports under 768px, load poster images instead of the decorative videos on Screens 2, 4, and 10.
+All videos: no audio track at all (Gia included), `preload="metadata"`, `playsinline`, and `muted` before `autoplay`. Total page weight target under 12MB on desktop; on viewports under 768px, load poster images instead of the decorative videos on Screens 2, 4, and 10.
 
 Screen 4.5's video autoplays and loops independently of scroll, like the Screen 10 CTA video. It stays a real video at every viewport width and is sized to fit inside the existing 12MB budget alongside the other video slots above.
 

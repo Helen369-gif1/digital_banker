@@ -40,6 +40,11 @@ const ATRIUM = {
     video:  'assets/gia.mp4',
     poster: 'assets/gia-poster.jpg',
     x: 3353, bottom: 1955, height: 900,
+    // Ведущая — кнопка: клик по ней ведёт на сайт Гии.
+    // outline — её силуэт в пикселях кадра видео (680 × 628), снят по маске в спокойной позе (без жеста руками).
+    //           Если поменяете видео — контур нужно снять заново.
+    name: 'Meet Gia', href: '../gia-site/index.html',
+    outline: [[349,13],[334,13],[317,18],[301,28],[289,42],[267,90],[269,118],[261,122],[251,134],[251,147],[237,152],[229,166],[227,236],[181,248],[153,264],[131,292],[125,314],[127,403],[133,451],[141,481],[147,493],[171,511],[171,529],[177,535],[200,544],[261,553],[245,592],[247,609],[258,616],[277,616],[296,611],[300,607],[311,560],[339,562],[353,554],[391,554],[444,548],[451,567],[470,576],[497,574],[527,563],[528,550],[512,532],[514,505],[528,499],[540,487],[548,471],[558,425],[562,351],[572,333],[572,318],[566,302],[538,276],[485,257],[468,242],[438,156],[432,150],[418,146],[422,120],[412,108],[412,80],[398,44],[376,22]],
   },
 
   // door:   cx — центр проёма, hw — половина ширины, top — верх арки, bottom — порог
@@ -205,7 +210,20 @@ const ATRIUM = {
   }
 
   /* ---------- цилиндр из 4 плиток (помещается в текстуры любых телефонов) ---------- */
-  function buildTile(canvas, a0, a1) {
+  const tileMeshes = [];   // плитки зала; при замене лёгкой картинки на полную меняем только текстуры
+  function buildTile(canvas, a0, a1, i) {
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    // Окна прозрачные: текстура хранится с умноженной альфой, чтобы по краям окон не было тёмной каймы
+    tex.premultiplyAlpha = true;
+    if (tileMeshes[i]) {
+      const mat = tileMeshes[i].material, old = mat.map;
+      mat.map = tex; mat.needsUpdate = true;
+      if (old) old.dispose();
+      return;
+    }
     const seg = 40, pos = [], uv = [], idx = [];
     const yT = TAN_TOP, yB = TAN_BOT;
     for (let i = 0; i <= seg; i++) {
@@ -217,16 +235,12 @@ const ATRIUM = {
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
     geo.setIndex(idx);
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.encoding = THREE.sRGBEncoding;
-    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    // Окна прозрачные: текстура хранится с умноженной альфой, чтобы по краям окон не было тёмной каймы
-    tex.premultiplyAlpha = true;
-    scene.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
       map: tex, side: THREE.DoubleSide, transparent: true,
       blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-    })));
+    }));
+    tileMeshes[i] = mesh;
+    scene.add(mesh);
   }
 
   /* ---------- вид за окнами: видео на цилиндре чуть дальше панорамы ---------- */
@@ -388,7 +402,7 @@ const ATRIUM = {
         if (Math.max(...xs) > x0 && Math.min(...xs) < x1) drawInscription(ctx, r);
       });
       ctx.restore();
-      buildTile(c, angleOf(x0), angleOf(x1));
+      buildTile(c, angleOf(x0), angleOf(x1), i);
     }
   }
 
@@ -419,18 +433,31 @@ const ATRIUM = {
   const glowPath = mk('path', { class: 'glow' });
   svg.append(dimPath, glowPath);
 
-  const rooms = ATRIUM.rooms.map((r) => {
+  /* Ведущая как кнопка: силуэт из кадра видео переводим в пиксели картинки (так же, как положена панель в buildHost) */
+  function buildGuide() {
+    if (!HOST || !HOST.outline || !HOST.href) return null;
+    const k = HOST.height / 628;
+    const px = HOST.outline.map(([fx, fy]) => [HOST.x + (fx - 340) * k, HOST.bottom - (628 - fy) * k]);
+    const xs = px.map((p) => p[0]), ys = px.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    return { id: 'gia', name: HOST.name || 'Meet Gia', guide: true, href: HOST.href,
+      door: { cx: (x0 + x1) / 2, hw: (x1 - x0) / 2, top: Math.min(...ys), bottom: Math.max(...ys) },
+      world: px.map(([x, y]) => toWorld(x, y)) };
+  }
+  const guide = buildGuide();
+  const rooms = (guide ? [...ATRIUM.rooms, guide] : ATRIUM.rooms).slice().sort((a, b) => a.door.cx - b.door.cx).map((r) => {
     const hit = mk('path', { class: 'door', 'data-room': r.id });
     svg.appendChild(hit);
     const btn = document.createElement('button');
     btn.type = 'button'; btn.textContent = `Enter ${r.name}`; btn.dataset.room = r.id;
     nav.appendChild(btn);
-    return { ...r, hit, btn, world: doorOutline(r.door), plaqueWorld: plaqueOutline(r.plaque), d: '', pd: '' };
+    return { ...r, hit, btn, world: r.world || doorOutline(r.door), plaqueWorld: r.plaque ? plaqueOutline(r.plaque) : [], d: '', pd: '' };
   });
   const byId = Object.fromEntries(rooms.map((r) => [r.id, r]));
 
   const tmp = new THREE.Vector3();
   function project(list) {
+    if (!list.length) return '';
     let out = '';
     for (let i = 0; i < list.length; i++) {
       tmp.copy(list[i]).applyMatrix4(camera.matrixWorldInverse);
@@ -654,7 +681,7 @@ const ATRIUM = {
      поворачивает камеру к двери и подсвечивает её, но не входит. */
   const ARCH_ICON = '<svg viewBox="0 0 32 40" aria-hidden="true"><path d="M4 36V16a12 12 0 0 1 24 0v20M10.5 36V16a5.5 5.5 0 0 1 11 0v20M1.5 38.5h29"/></svg>';
   const barRow = $('bar-row');
-  const barItems = ordered.map((r) => {
+  const barItems = ordered.filter((r) => !r.guide).map((r) => {   // в меню только арки комнат, ведущая — отдельная кнопка
     const btn = document.createElement('button');
     btn.type = 'button'; btn.tabIndex = -1;
     btn.innerHTML = `${ARCH_ICON}<i></i>`;
@@ -718,29 +745,42 @@ const ATRIUM = {
     updateBar();
   }
 
-  /* ---------- загрузка ---------- */
+  /* ---------- загрузка ----------
+     Быстрый старт: сначала лёгкая картинка (она раскладывается по пикселям в разы быстрее) —
+     зал появляется сразу; полная картинка догружается в фоне и тихо подменяет её.
+     Видео окон и ведущей начинают грузиться сразу, не дожидаясь картинки. */
   const small = Math.min(screen.width, screen.height) < 700 ||
     renderer.capabilities.maxTextureSize < 4096;
-  const img = new Image();
-  img.decoding = 'async';
-  img.src = small ? IMG.small : IMG.full;
+  const loadImage = (src) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.src = src;
+    return im.decode ? im.decode().then(() => im) : new Promise((r, f) => { im.onload = () => r(im); im.onerror = f; });
+  };
   const fontsReady = Promise.race([
     document.fonts ? document.fonts.load('600 64px Cinzel') : Promise.resolve(),
     new Promise((r) => setTimeout(r, 2500)),
   ]);
-  Promise.all([img.decode ? img.decode() : new Promise((r) => (img.onload = r)), fontsReady])
-    .then(() => {
-      buildWindowView();
-      buildHost();
-      buildPanorama(img);
+  buildWindowView();
+  buildHost();
+  Promise.all([loadImage(IMG.small), fontsReady])
+    .then(([lite]) => {
+      buildPanorama(lite);
       resize();
       if (!reduceMotion) {
         view.yaw = -0.5; clampView(view); Object.assign(target, view);
-        animateTo(clampView({ yaw: 0, cy: view.cy, span: view.span }), 2400);
+        animateTo(clampView({ yaw: 0, cy: view.cy, span: view.span }), 1600);
       }
       requestAnimationFrame(tick);
       document.body.classList.add('ready');
-      setTimeout(playHost, reduceMotion ? 300 : 2000);   // ведущая начинает, когда зал «проявился»
+      setTimeout(playHost, reduceMotion ? 300 : 1000);   // ведущая начинает, когда зал «проявился»
+      if (!small) {
+        loadImage(IMG.full).then((full) => {
+          // подмену делаем, когда камера не движется, чтобы не дёргать вступительный разворот
+          const swap = () => { if (anim) { setTimeout(swap, 250); return; } buildPanorama(full); dirty = true; };
+          swap();
+        }).catch(() => {});   // не загрузилась — остаётся лёгкая картинка
+      }
     })
     .catch(() => { $('status').textContent = 'The atrium image did not load. Check that the assets folder sits next to index.html, then reload.'; });
 })();
