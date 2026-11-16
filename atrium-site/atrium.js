@@ -218,6 +218,7 @@ const ATRIUM = {
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     // Окна прозрачные: текстура хранится с умноженной альфой, чтобы по краям окон не было тёмной каймы
     tex.premultiplyAlpha = true;
+    renderer.initTexture(tex);   // загружаем в видеокарту сразу, а не посреди кадра — иначе кадр «подвисает»
     if (tileMeshes[i]) {
       const mat = tileMeshes[i].material, old = mat.map;
       mat.map = tex; mat.needsUpdate = true;
@@ -388,23 +389,23 @@ const ATRIUM = {
   }
   function pauseWindow() { if (windowVideo) windowVideo.pause(); }
   document.addEventListener('visibilitychange', () => (document.hidden ? pauseWindow() : playWindow()));
-  function buildPanorama(img) {
-    const s = img.naturalWidth / W, N = 4, tw = Math.round(img.naturalWidth / N);
-    for (let i = 0; i < N; i++) {
-      const x0 = (i * W) / N, x1 = ((i + 1) * W) / N;
-      const c = document.createElement('canvas');
-      c.width = i === N - 1 ? img.naturalWidth - tw * i : tw; c.height = img.naturalHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(img, -tw * i, 0);
-      ctx.save(); ctx.scale(s, s); ctx.translate(-x0, 0);
-      ATRIUM.rooms.forEach((r) => {
-        const xs = r.plaque.map(([x]) => x);
-        if (Math.max(...xs) > x0 && Math.min(...xs) < x1) drawInscription(ctx, r);
-      });
-      ctx.restore();
-      buildTile(c, angleOf(x0), angleOf(x1), i);
-    }
+  const TILES = 4;
+  function buildPanoramaTile(img, i) {
+    const s = img.naturalWidth / W, tw = Math.round(img.naturalWidth / TILES);
+    const x0 = (i * W) / TILES, x1 = ((i + 1) * W) / TILES;
+    const c = document.createElement('canvas');
+    c.width = i === TILES - 1 ? img.naturalWidth - tw * i : tw; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, -tw * i, 0);
+    ctx.save(); ctx.scale(s, s); ctx.translate(-x0, 0);
+    ATRIUM.rooms.forEach((r) => {
+      const xs = r.plaque.map(([x]) => x);
+      if (Math.max(...xs) > x0 && Math.min(...xs) < x1) drawInscription(ctx, r);
+    });
+    ctx.restore();
+    buildTile(c, angleOf(x0), angleOf(x1), i);
   }
+  function buildPanorama(img) { for (let i = 0; i < TILES; i++) buildPanoramaTile(img, i); }
 
   /* ---------- контуры проёмов для наведения и клика ---------- */
   function doorOutline(d) {
@@ -767,6 +768,9 @@ const ATRIUM = {
     .then(([lite]) => {
       buildPanorama(lite);
       resize();
+      // Первый кадр рисуем заранее, пока зал ещё прозрачный: он самый «тяжёлый» (компиляция, загрузка в видеокарту).
+      // Иначе разворот камеры стартует и тут же «проскакивает» первые доли секунды.
+      applyCamera(); renderer.render(scene, camera);
       if (!reduceMotion) {
         view.yaw = -0.5; clampView(view); Object.assign(target, view);
         animateTo(clampView({ yaw: 0, cy: view.cy, span: view.span }), 1600);
@@ -777,8 +781,14 @@ const ATRIUM = {
       if (!small) {
         loadImage(IMG.full).then((full) => {
           // подмену делаем, когда камера не движется, чтобы не дёргать вступительный разворот
-          const swap = () => { if (anim) { setTimeout(swap, 250); return; } buildPanorama(full); dirty = true; };
-          swap();
+          // по одной плитке за кадр, чтобы ни один кадр (и видео в нём) не «подвисал»
+          let tile = 0;
+          const swap = () => {
+            if (anim || drag) { setTimeout(swap, 250); return; }
+            buildPanoramaTile(full, tile++); dirty = true;
+            if (tile < TILES) requestAnimationFrame(() => setTimeout(swap, 60));
+          };
+          setTimeout(swap, 300);
         }).catch(() => {});   // не загрузилась — остаётся лёгкая картинка
       }
     })

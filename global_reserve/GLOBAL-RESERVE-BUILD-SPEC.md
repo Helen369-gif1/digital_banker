@@ -60,7 +60,7 @@ Rules for the existing code:
 /css/screens.css          Per-screen layout
 /css/reserve-hologram.css Screen 5.5 projection layout and responsive states
 /js/scrub.js              Screen 1 scroll-to-video-time binding (moved from script.js, logic unchanged). Locked to Screen 1 — nothing else reads from it
-/js/lazy-video.js         Deferred loading: videos with data-src (Screen 4.5 and Screen 10) get their src only when within ~1.5 screens of the viewport; hidden videos never download. No other behaviour change
+/js/lazy-video.js         Deferred loading: videos with data-src (Screen 4.5 and Screen 10) get their src only when within ~1.5 screens of the viewport; hidden videos never download. A video loaded off-screen is paused until its screen is in view, so it never decodes in the background while the hero scrubs. No other behaviour change
 /js/video-reveal.js       Screen 4.5 clip-path reveal, overlay, headline, and background-video visibility (see Section 5.4a)
 /js/reveal.js             IntersectionObserver reveal for screens 2-10
 /js/ticker.js             Screen 8 marquee
