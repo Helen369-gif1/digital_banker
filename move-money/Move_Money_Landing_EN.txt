@@ -1,0 +1,65 @@
+MOVE MONEY
+Landing page copy — English
+
+SCREEN 1 — HERO
+
+Move money. Stay in control.
+
+Send, receive, and manage payments in one place. Whether you're paying someone, adding funds, or moving money between accounts, Move Money makes the next step clear — with Gia ready to help.
+
+Primary button: Explore Move Money
+Secondary button: Ask Gia
+
+
+SCREEN 2 — EVERYDAY MONEY MOVEMENT
+
+All the ways you move money.
+
+Send & Pay
+Send money to people or businesses, pay another Glonari member, or scan a QR code to pay.
+
+Receive & Request
+Share your payment details or QR code, request money, and follow each request until it's paid.
+
+Add, Withdraw & Convert
+Add money from a linked account, withdraw to an external account, or convert eligible Glonari assets. See the details before you proceed.
+
+
+SCREEN 3 — MAKE REPEAT PAYMENTS EASIER
+
+Less work for the things you do often.
+
+Return to recent recipients, schedule a payment, set up recurring transfers, or split a shared expense with others. Find past transactions, check their status, and open a receipt whenever you need it.
+
+
+SCREEN 4 — GIA HELPS WITH THE DETAILS
+
+Just tell Gia what you need to do.
+
+“Gia, send Curt $150.”
+
+Gia can find the recipient, check available funds, prepare the transfer, and explain fees, timing, or restrictions before you decide. If a payment could affect funds reserved for another goal, she'll let you know.
+
+You can also complete actions yourself. Gia is there when you want help, not in your way.
+
+
+SCREEN 5 — YOU APPROVE
+
+Prepared by Gia. Approved by you.
+
+Before money moves, review the recipient, amount, funding source, fees, and timing. You choose whether to approve or decline. Gia never completes a protected financial action without your explicit approval.
+
+Clear steps. Visible activity. Your decision.
+
+
+SCREEN 6 — FINAL CTA
+
+Your money, moving your way.
+
+From quick payments to planned transfers, Move Money brings your everyday money actions together — with Gia helping at every step and you making the final call.
+
+Button: Open Move Money
+
+
+EDITORIAL NOTE — NOT WEBSITE COPY
+This is a compact marketing page, not an app screen specification. Product source documents describe some features as planned/draft. Verify which payment methods, scheduled payments, QR payments, conversions, and Gia capabilities are live before publishing the copy as current functionality.
