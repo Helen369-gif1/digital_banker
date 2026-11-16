@@ -996,7 +996,14 @@
   min-height: 100svh;
   padding-block: var(--gr-section-pad);
   overflow: hidden;
-  background: var(--gr-void) url("../media/cta-vault-poster.jpg") center / cover no-repeat;
+  background: var(--gr-void) url("../media/cta-hall-start.jpg") center / cover no-repeat;
+}
+
+/* Small screens and reduced motion: no video, the final frame of the shot as a still */
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .cta {
+    background-image: url("../media/cta-hall-end.webp");
+  }
 }
 
 .cta__video {

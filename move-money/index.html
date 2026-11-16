@@ -17,10 +17,40 @@
 </head>
 <body>
 
-  <!-- TODO: copy needed (header navigation labels and actions) -->
+  <!-- Menu labels are short forms of the screen titles in the copy file. -->
   <header class="site-header">
     <div class="gr-container site-header__inner">
-      <a class="site-header__brand" href="#screen-1" aria-label="MOVE MONEY">MOVE MONEY</a>
+      <a class="site-header__brand" href="#screen-1"><img src="media/logo/logo.webp" alt="Move Money" width="499" height="176"></a>
+
+      <nav class="site-header__nav" aria-label="Primary navigation">
+        <ul class="site-header__list">
+          <li><a href="#screen-2">All the ways</a></li>
+          <li><a href="#screen-3">Repeat payments</a></li>
+          <li><a href="#screen-4">Gia</a></li>
+          <li><a href="#screen-5">You approve</a></li>
+        </ul>
+      </nav>
+
+      <div class="site-header__actions">
+        <a class="btn btn--primary btn--sm" href="#register" data-register>Open Move Money</a>
+      </div>
+
+      <button class="site-header__toggle" id="menu-toggle" type="button" aria-label="Open menu"
+              aria-expanded="false" aria-controls="mobile-menu"><span></span></button>
+    </div>
+
+    <div class="mobile-menu" id="mobile-menu" hidden>
+      <div class="gr-container">
+        <nav aria-label="Mobile navigation">
+          <ul class="mobile-menu__list">
+            <li><a href="#screen-2">All the ways</a></li>
+            <li><a href="#screen-3">Repeat payments</a></li>
+            <li><a href="#screen-4">Gia</a></li>
+            <li><a href="#screen-5">You approve</a></li>
+          </ul>
+        </nav>
+        <a class="btn btn--primary" href="#register" data-register>Open Move Money</a>
+      </div>
     </div>
   </header>
 
@@ -37,9 +67,9 @@
             <h1 class="hero__title">Move money. Stay in control.</h1>
             <p class="hero__lead">Send, receive, and manage payments in one place. Whether you're paying someone, adding funds, or moving money between accounts, Move Money makes the next step clear — with Gia ready to help.</p>
             <div class="hero__actions">
-              <a class="btn btn--primary" href="#screen-2">Explore Move Money</a>
-              <!-- TODO: destination needed for Ask Gia -->
-              <a class="btn btn--secondary" href="#" data-placeholder>Ask Gia</a>
+              <a class="btn btn--primary" href="#register" data-register>Explore Move Money</a>
+              <!-- TODO: Ask Gia opens the registration form until its own destination exists -->
+              <a class="btn btn--secondary" href="#register" data-register>Ask Gia</a>
             </div>
           </div>
         </div>
@@ -146,9 +176,9 @@
               <dl class="gia__rows">
                 <div><dt>To</dt><dd>David</dd></div>
                 <div><dt>You send</dt><dd class="num">$150 USD</dd></div>
-                <div><dt>They receive</dt><dd class="num">[RECEIVER AMOUNT]</dd></div>
-                <div><dt>Fee</dt><dd class="num">[FEE]</dd></div>
-                <div><dt>Rate</dt><dd class="num">[RATE]</dd></div>
+                <div><dt>They receive</dt><dd class="num">$150 USD</dd></div>
+                <div><dt>Fee</dt><dd class="num">$0.00</dd></div>
+                <div><dt>Rate</dt><dd class="num">1 USD = 1 USD</dd></div>
               </dl>
             </div>
           </div>
@@ -192,11 +222,11 @@
               <dl class="approve__rows">
                 <div><dt>Recipient</dt><dd>David</dd></div>
                 <div><dt>You send</dt><dd class="num approve__amount">$150 USD</dd></div>
-                <div><dt>They receive</dt><dd class="num">[RECEIVER AMOUNT]</dd></div>
-                <div><dt>Rate</dt><dd class="num">[RATE]</dd></div>
-                <div><dt>Funding source</dt><dd>[FUNDING SOURCE]</dd></div>
-                <div><dt>Fee</dt><dd class="num">[FEE]</dd></div>
-                <div><dt>Timing</dt><dd>[TIMING]</dd></div>
+                <div><dt>They receive</dt><dd class="num">$150 USD</dd></div>
+                <div><dt>Rate</dt><dd class="num">1 USD = 1 USD</dd></div>
+                <div><dt>Funding source</dt><dd>Global Dollars</dd></div>
+                <div><dt>Fee</dt><dd class="num">$0.00</dd></div>
+                <div><dt>Timing</dt><dd>Estimated arrival: Within minutes</dd></div>
               </dl>
               <p class="approve__status" id="approve-status" aria-live="polite"></p>
               <div class="approve__actions">
@@ -220,21 +250,69 @@
 
     <!-- SCREEN 6 - FINAL CTA -->
     <section class="cta" id="screen-6" data-screen="cta">
-      <video class="cta__video" id="cta-video" muted loop playsinline preload="none"
-             poster="media/cta-vault-poster.jpg" data-src="media/cta-vault.mp4" aria-hidden="true"></video>
+      <video class="cta__video" id="cta-video" muted playsinline preload="none"
+             poster="media/cta-hall-start.jpg" data-src="media/cta-hall.mp4" aria-hidden="true"></video>
       <div class="cta__scrim" aria-hidden="true"></div>
 
       <div class="gr-container cta__inner">
         <h2 class="cta__title reveal">Your money, moving your way.</h2>
         <p class="cta__lead reveal" style="--reveal-delay:.1s">From quick payments to planned transfers, Move Money brings your everyday money actions together — with Gia helping at every step and you making the final call.</p>
-        <!-- TODO: destination needed for Open Move Money -->
-        <a class="btn btn--primary reveal" style="--reveal-delay:.2s" href="#" data-placeholder>Open Move Money</a>
+        <a class="btn btn--primary reveal" style="--reveal-delay:.2s" href="#register" data-register>Open Move Money</a>
       </div>
 
       <!-- TODO: copy needed (regulatory note near the end of the page) -->
     </section>
 
   </main>
+
+  <!-- REGISTRATION: every call-to-action button on the page leads here. Email only for now. -->
+  <footer class="site-footer" id="register">
+    <div class="gr-container">
+
+      <div class="site-footer__top">
+        <div class="site-footer__id">
+          <a class="site-footer__brand" href="#screen-1"><img src="media/logo/logo.webp" alt="Move Money" width="499" height="176" loading="lazy"></a>
+
+          <!-- TODO: destinations needed for the social links -->
+          <ul class="social">
+            <li><a href="#" data-placeholder aria-label="Instagram"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.8" fill="currentColor"/></svg></a></li>
+            <li><a href="#" data-placeholder aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.5V16M8 7.8v.2M11.5 16v-5.5M11.5 13c0-1.7 1-2.5 2.3-2.5 1.4 0 2.2.9 2.2 2.6V16"/></svg></a></li>
+            <li><a href="#" data-placeholder aria-label="X"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5l14 15M19 4.5l-14 15"/></svg></a></li>
+            <li><a href="#" data-placeholder aria-label="YouTube"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="5.8" width="18.4" height="12.4" rx="3.5"/><path d="M10.2 9.4v5.2l4.4-2.6z" fill="currentColor"/></svg></a></li>
+          </ul>
+        </div>
+
+        <!-- TODO: copy needed (heading and short line above the email field) -->
+        <form class="register" id="register-form" novalidate>
+          <label class="eyebrow" for="register-email">Email</label>
+          <div class="register__row">
+            <input class="register__input" id="register-email" name="email" type="email" required
+                   autocomplete="email" inputmode="email" placeholder="Enter your email">
+            <button class="btn btn--primary" type="submit">Open Move Money</button>
+          </div>
+          <p class="register__msg" id="register-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="site-footer__bar">
+        <nav aria-label="Footer navigation">
+          <ul class="site-footer__nav">
+            <li><a href="#screen-2">All the ways</a></li>
+            <li><a href="#screen-3">Repeat payments</a></li>
+            <li><a href="#screen-4">Gia</a></li>
+            <li><a href="#screen-5">You approve</a></li>
+            <!-- TODO: destinations needed for Terms and Privacy -->
+            <li><a href="#" data-placeholder>Terms</a></li>
+            <li><a href="#" data-placeholder>Privacy</a></li>
+          </ul>
+        </nav>
+
+        <!-- TODO: copy needed (regulatory note, to sit above the copyright line) -->
+        <p class="site-footer__legal">© 2026 Move Money</p>
+      </div>
+
+    </div>
+  </footer>
 
   <script src="js/shell.js" defer></script>
   <script src="js/hero-scene.js" defer></script>
