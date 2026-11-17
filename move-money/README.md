@@ -10,8 +10,8 @@ Copy: `Move_Money_Landing_EN.txt`, used verbatim. All project files stay in Engl
 
 | Id | Screen | Notes |
 |---|---|---|
-| `screen-1` | Hero | Light screen. 520svh runway, sticky stage. Scroll drives the video, copy fade-out, the interface on the laptop screen and the dark veil. Phases are constants at the top of `js/hero-scene.js`. |
-| `screen-2` | All the ways you move money | Dark. Accordion with three items; the panel on the right follows the open item. |
+| `screen-1` | Hero | Light screen. 520svh runway, sticky stage. Scroll drives the video, copy fade-out, the interface on the laptop screen and the dark veil. Phases are constants at the top of `js/hero-scene.js`. On the laptop interface four callouts (1px bronze line from a label to a real receipt row: Reference ID, Transaction fee, Amount, Status) draw one after another during the hold, then the interface sinks. Hidden when the frame is under 820px wide. |
+| `screen-2` | All the ways you move money | Dark. Three full compositions (`.way-block--1..3`), one per way, no pin and no accordion: 01 text left / tall interface right; 02 interface low left / text bottom right; 03 title and text across the top, the form rises from below and is cut by a hard edge. Intro has the title and an index linking to the three. |
 
 | `screen-3` | Less work for the things you do often | Dark. Asymmetric: text high left, two layered product screens right, floating card of the four repeat actions on their lower edge. |
 | `screen-4` | Gia helps with the details | Dark. Stage with layered screens and a side panel; `js/gia-steps.js` plays Gia's steps once when the stage is 40% visible. The transfer card is HTML and uses the demonstration values listed below. |
@@ -52,7 +52,10 @@ currency conversion. Demonstration only: the $0.00 fee and the arrival time are 
 ## Files
 
 - `css/tokens.css` design tokens, `css/base.css` reset, buttons, reveal, `css/shell.css` header, `css/screens.css` screens.
-- `js/hero-scene.js`, `js/ways.js`, `js/gia-steps.js`, `js/reveal.js`, `js/shell.js`.
+- `js/hero-scene.js`, `js/gia-steps.js`, `js/reveal.js`, `js/shell.js`, `js/repeat-depth.js` (screen 3: the two screens drift at different speeds on scroll; off with reduced motion).
+- `js/card-morph.js` (screens 4 to 5, wide screens only): the approval card on screen 5 is the same object as the Gia card on screen 4. It starts at the Gia card's position and width, stays in view while scrolling, lands in the approval layout and opens the Funding source / Timing rows and the buttons. The Gia card stays in the layout, hidden, to give the start position (`.morph` class on `<html>`). Under 901px or with reduced motion each screen keeps its own static card. Row order of both cards: Recipient/To, You send, They receive, Rate, Fee, then (screen 5) Funding source, Timing.
+- Screenshot framing (bronze, 1px, flat): the hero interface gets a contour that draws clockwise (`.contour`, `--c` set by `js/hero-scene.js`); the three ways on screen 3 use corner brackets (`.shot`, `.shot--alt`, `.shot--open`); the two layers on screen 4 get an offset half-frame (`.repeat__layer::before`); the blurred back screens on screens 5 and 6 get small corner brackets. Arms/lines draw once; with reduced motion they show at once.
+- Screens 2, 3 and 5 use a 1440px container (rule at the top of the screen 2 block in `css/screens.css`) so the interfaces get more room.
 - `media/gia-cutout.webp` Gia on a transparent background (1086x1448), the large portrait on the stage of screen 4.
 - `media/hero-scene.mp4` all-intra, no audio, made with
   `ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 24 -g 1 -pix_fmt yuv420p -movflags +faststart out.mp4`.

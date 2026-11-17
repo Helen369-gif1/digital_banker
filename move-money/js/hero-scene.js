@@ -12,6 +12,7 @@
   const copy = document.getElementById('hero-copy');
   const ui = document.getElementById('hero-ui');
   const veil = document.getElementById('hero-veil');
+  const callouts = Array.from(ui.querySelectorAll('.callout'));
   const src = video.dataset.src;
 
   // Reduced motion: static composition (poster, copy visible, no pin).
@@ -21,7 +22,11 @@
   const VIDEO_END = 0.72;            // video reaches its last frame
   const COPY_OUT = [0.03, 0.2];      // copy fades out
   const UI_IN = [0.55, 0.64];        // interface lights up on the laptop screen
-  const SINK = [0.74, 0.97];         // interface sinks, veil takes over (almost no empty black hold at the end)
+  const CONTOUR = [0.56, 0.66];      // the bronze contour draws around the screen as it lights up
+  const CALL_START = 0.64;           // first callout starts drawing, the rest follow
+  const CALL_STAGGER = 0.03;
+  const CALL_LEN = 0.05;
+  const SINK = [0.80, 0.97];         // interface sinks, veil takes over (almost no empty black hold at the end)
 
   const SMOOTHING_BASE = 0.001;      // ~90% of any gap closes in ~0.3s
 
@@ -70,6 +75,14 @@
     const scale = (0.94 + 0.06 * a) * (1 - 0.12 * s);
     ui.style.opacity = String(a * (1 - s));
     ui.style.transform = `translateY(${-s * 3}vh) scale(${scale})`;
+
+    ui.style.setProperty('--c', ease(range(p, CONTOUR)).toFixed(3));
+
+    // Callouts: label, then the 1px line to the row it names, one after another
+    callouts.forEach((el, i) => {
+      const from = CALL_START + i * CALL_STAGGER;
+      el.style.setProperty('--k', ease(range(p, [from, from + CALL_LEN])).toFixed(3));
+    });
 
     // Veil
     veil.style.opacity = String(s);
