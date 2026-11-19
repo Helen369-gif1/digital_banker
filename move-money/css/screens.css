@@ -98,7 +98,62 @@
   gap: 16px;
 }
 
+.hero__ui-stack {
+  position: relative;
+}
+
+/* Contour: four 1px bronze lines drawing clockwise around the screen, crossing at the corners.
+   js/hero-scene.js sets --c (0 to 1); each side takes a quarter. */
+.contour {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+}
+
+.contour i {
+  position: absolute;
+  background: var(--gr-bronze);
+}
+
+.contour i:nth-child(1) {
+  top: 0;
+  left: -10px;
+  right: -10px;
+  height: 1px;
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc(var(--c, 1) * 4), 1));
+}
+
+.contour i:nth-child(2) {
+  right: 0;
+  top: -10px;
+  bottom: -10px;
+  width: 1px;
+  transform-origin: top;
+  transform: scaleY(clamp(0, calc(var(--c, 1) * 4 - 1), 1));
+}
+
+.contour i:nth-child(3) {
+  bottom: 0;
+  left: -10px;
+  right: -10px;
+  height: 1px;
+  transform-origin: right;
+  transform: scaleX(clamp(0, calc(var(--c, 1) * 4 - 2), 1));
+}
+
+.contour i:nth-child(4) {
+  left: 0;
+  top: -10px;
+  bottom: -10px;
+  width: 1px;
+  transform-origin: bottom;
+  transform: scaleY(clamp(0, calc(var(--c, 1) * 4 - 3), 1));
+}
+
 .hero__ui-frame {
+  position: relative;
+  container-type: inline-size;
   width: min(88vw, calc((100svh - var(--mm-header-h) - 96px) * 1.6));
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -112,6 +167,105 @@
   height: 100%;
   object-fit: cover;
   object-position: top left;
+}
+
+/* Live demo of the same screen: a 1440x900 page scaled to the frame (scale set in js/hero-demo.js).
+   Sits above the picture, which stays underneath as the poster. Callouts and the contour stay on top. */
+.hero__demo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  background: transparent;
+  transform-origin: 0 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.hero__demo.is-live {
+  opacity: 1;
+}
+
+/* While the demo scrolls the receipt, the callouts (which point at rows of the unscrolled screen) step aside */
+.callouts {
+  transition: opacity 0.35s ease;
+}
+
+.hero__ui.demo-scrolled .callouts {
+  opacity: 0;
+}
+
+/* Callouts on the receipt: the empty bands left and right of the receipt hold the labels, the 1px bronze
+   lines run to the rows they name. js/hero-scene.js sets --k (0 to 1) on each, one after another. */
+.callouts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.callout {
+  position: absolute;
+  top: var(--y);
+  left: var(--from);
+  width: calc(var(--to) - var(--from));
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.callout--r {
+  /* the right-hand ones start at the dot and end at the label */
+  flex-direction: row;
+}
+
+.callout__chip {
+  flex: none;
+  padding: 6px 8px;
+  background: var(--gr-void-deep);
+  border: 1px solid var(--gr-line-dark);
+  border-radius: 8px;
+  font-family: var(--gr-font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gr-text-primary);
+  opacity: min(1, calc(var(--k, 1) * 3));
+}
+
+.callout__line {
+  flex: 1;
+  height: 1px;
+  background: var(--gr-bronze);
+  transform: scaleX(var(--k, 1));
+}
+
+.callout--l .callout__line {
+  transform-origin: left;
+}
+
+.callout--r .callout__line {
+  transform-origin: right;
+}
+
+.callout__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: var(--gr-bronze);
+  opacity: var(--k, 1);
+}
+
+/* Too small a frame for labels beside the receipt (narrow windows, the phone picture) */
+@container (max-width: 820px) {
+  .callouts {
+    display: none;
+  }
 }
 
 .ui-note {
@@ -152,6 +306,10 @@
     width: min(70vw, calc((100svh - var(--mm-header-h) - 120px) * 0.4614));
     aspect-ratio: 860 / 1864;
   }
+
+  .hero__demo {
+    display: none;
+  }
 }
 
 /* Reduced motion: no pin, no scroll animation, one complete static composition */
@@ -167,170 +325,299 @@
   }
 
   .hero__ui,
+  .hero__demo,
   .hero__veil {
     display: none;
   }
 }
 
 /* ======================================================================
-   SCREEN 2 - ALL THE WAYS YOU MOVE MONEY
+   SCREEN 3 ON THE PAGE (id screen-2) - ALL THE WAYS YOU MOVE MONEY
+   Three full compositions, one per way. No pin, no accordion: each way gets
+   its own large interface and its own arrangement of the text.
    ====================================================================== */
 
+/* Screens with product interfaces use a wider container so the interface has room */
+.ways .gr-container,
+.repeat > .gr-container,
+.approve > .gr-container {
+  --gr-container-max: 1440px;
+}
+
 .ways {
+  position: relative;   /* paints above the pinned hero stage */
   background: var(--gr-void);
-  padding-block: var(--gr-section-pad-compact);
+  padding-block: var(--gr-section-pad-compact) var(--gr-section-pad);
 }
 
-.ways__grid {
+/* The hero ends on a full black pinned stage. This screen slides up over its last stretch like a curtain,
+   so there is no empty black scroll between the last callout and the title. */
+@media (prefers-reduced-motion: no-preference) {
+  .ways {
+    margin-top: -32svh;
+  }
+}
+
+.ways__intro {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: var(--gr-grid-gap);
-  align-items: center;
-}
-
-.ways__text {
-  min-width: 0;
-  max-width: 560px;
+  align-items: end;
 }
 
 .ways__title {
-  font-size: clamp(32px, 4vw, 48px);
+  max-width: 14ch;
+  font-size: clamp(40px, 5.2vw, 72px);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  margin-bottom: var(--gr-space-6);
 }
 
-.ways__list {
+/* Index of the three ways: the titles from the copy, as links to each composition */
+.ways__index {
+  list-style: none;
+  justify-self: end;
+  width: min(100%, 380px);
   border-bottom: 1px solid var(--gr-line-dark);
 }
 
-.way {
-  position: relative;
+.ways__index li {
   border-top: 1px solid var(--gr-line-dark);
 }
 
-.way::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 24px;
-  width: 2px;
-  height: 28px;
-  background: var(--gr-bronze);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 0.3s var(--mm-ease);
-}
-
-.way.is-open::before {
-  transform: scaleY(1);
-}
-
-.way__head {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.way__btn {
-  display: block;
-  width: 100%;
-  padding: 24px 0 24px 32px;
-  background: none;
-  border: 0;
-  font-family: var(--gr-font-ui);
-  font-size: clamp(20px, 2vw, 28px);
+.ways__index a {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 16px 0;
+  color: var(--gr-text-secondary);
+  font-size: clamp(17px, 1.4vw, 20px);
   font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  text-align: left;
-  color: var(--gr-text-tertiary);
-  cursor: pointer;
+  line-height: 1.3;
+  text-decoration: none;
   transition: color 0.25s ease;
 }
 
-.way__btn:hover,
-.way.is-open .way__btn {
+.ways__index a:hover {
   color: var(--gr-text-primary);
 }
 
-.way__body {
+.ways__index span {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--gr-bronze);
+}
+
+/* One way = one composition */
+
+.way-block {
   display: grid;
-  grid-template-rows: 0fr;
-  visibility: hidden;
-  transition: grid-template-rows 0.4s var(--mm-ease), visibility 0s linear 0.4s;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+  margin-top: clamp(96px, 12vw, 176px);
+  scroll-margin-top: calc(var(--mm-header-h) + 24px);
 }
 
-.way.is-open .way__body {
-  grid-template-rows: 1fr;
-  visibility: visible;
-  transition: grid-template-rows 0.4s var(--mm-ease), visibility 0s;
+.way-block__text {
+  min-width: 0;
 }
 
-.way__body > div {
-  overflow: hidden;
+.way-block__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-.way__body p {
-  padding: 0 0 24px 32px;
-  max-width: 520px;
-  font-size: clamp(17px, 1.4vw, 19px);
-  line-height: 1.65;
+.way-block__no {
+  font-family: var(--gr-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gr-bronze);
+}
+
+/* The 1px bronze rule draws itself once, when the way comes into view */
+.way-block__rule {
+  display: block;
+  width: 72px;
+  height: 1px;
+  background: var(--gr-bronze);
+}
+
+.js .way-block__rule.reveal {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.js .way-block__rule.reveal.is-in {
+  transform: scaleX(1);
+}
+
+.way-block__title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.way-block__body {
+  max-width: 440px;
+  margin-top: 24px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
   color: var(--gr-text-secondary);
 }
 
-/* Product panel: the interface for the open item */
-
-.ways__panel {
+.way-block__shot {
   min-width: 0;
-  justify-self: end;
-  width: min(100%, 600px);
 }
 
-.ways__frame {
+/* Framed screenshot: the picture plus two bronze corner brackets, 14px outside it.
+   Default: top left and bottom right. --alt: top right and bottom left. --open: both top corners
+   (the form below is cut off, so the frame stays open). The arms grow out of the corners once. */
+.shot {
   position: relative;
-  aspect-ratio: 6 / 7;
-  overflow: hidden;
+  width: min(100%, calc(86svh * var(--ar, 1)), var(--cap, 800px));
+}
+
+.shot--ml {
+  margin-left: auto;
+}
+
+.shot img {
+  width: 100%;
+  height: auto;
   border-radius: 8px;
   border: 1px solid var(--gr-line-dark);
-  background: var(--gr-surface);
 }
 
-.ways__frame img {
+.shot::before,
+.shot::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.ways__frame img.is-active {
-  opacity: 1;
-}
-
-/* Live demo: a 880px-wide page scaled to the frame width (scale set in ways.js) */
-.ways__demo {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 880px;
-  height: 1027px;
-  border: 0;
-  transform-origin: 0 0;
+  width: 28px;
+  height: 28px;
+  border: 0 solid var(--gr-bronze);
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: width 0.6s var(--mm-ease) 0.35s, height 0.6s var(--mm-ease) 0.35s;
 }
 
-.ways__demo.is-active {
-  opacity: 1;
+.shot::before {
+  top: -14px;
+  left: -14px;
+  border-top-width: 1px;
+  border-left-width: 1px;
 }
 
-.ways__panel .ui-note {
+.shot::after {
+  right: -14px;
+  bottom: -14px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.shot--alt::before {
+  left: auto;
+  right: -14px;
+  border-left-width: 0;
+  border-right-width: 1px;
+}
+
+.shot--alt::after {
+  right: auto;
+  left: -14px;
+  border-right-width: 0;
+  border-left-width: 1px;
+}
+
+.shot--open::after {
+  top: -14px;
+  bottom: auto;
+  border-bottom-width: 0;
+  border-top-width: 1px;
+}
+
+.js .way-block__shot:not(.is-in) .shot::before,
+.js .way-block__shot:not(.is-in) .shot::after {
+  width: 0;
+  height: 0;
+}
+
+.way-block__shot .ui-note {
   margin-top: 16px;
+}
+
+/* 1 - Send & Pay: text high on the left, a tall interface on the right, lifted above the text line */
+.way-block--1 .way-block__text {
+  grid-column: 1 / 6;
+  grid-row: 1;
+  align-self: start;
+  padding-top: clamp(0px, 8svh, 96px);
+}
+
+.way-block--1 .way-block__shot {
+  grid-column: 6 / 13;
+  grid-row: 1;
+}
+
+/* 2 - Receive & Request: the interface sits low on the left, the text stands at the bottom right */
+.way-block--2 .way-block__shot {
+  grid-column: 1 / 8;
+  grid-row: 1;
+  padding-top: clamp(0px, 10svh, 120px);
+}
+
+.way-block--2 .way-block__text {
+  grid-column: 9 / 13;
+  grid-row: 1;
+  align-self: end;
+}
+
+/* 3 - Add, Withdraw & Convert: title and text side by side across the top, the form rises from below
+   and is cut off by a hard edge, as if the page continued */
+.way-block--3 .way-block__text {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  column-gap: clamp(16px, 2vw, 32px);
+  align-items: end;
+}
+
+.way-block--3 .way-block__head {
+  grid-column: 1 / -1;
+}
+
+.way-block--3 .way-block__body {
+  margin-top: 0;
+}
+
+.way-block--3 .way-block__shot {
+  grid-column: 3 / 12;
+  margin-top: clamp(40px, 5vw, 72px);
+}
+
+.shot--open {
+  margin-inline: auto;
+}
+
+.way-block__crop {
+  height: min(60svh, 560px);
+  overflow: hidden;
+  border: 1px solid var(--gr-bronze-glow);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.way-block__crop img {
+  border: 0;
+  border-radius: 0;
+}
+
+.way-block--3 .ui-note {
+  max-width: 800px;
+  margin-inline: auto;
 }
 
 @media (max-width: 900px) {
@@ -338,15 +625,50 @@
     padding-block: clamp(72px, 14vw, 96px);
   }
 
-  .ways__grid {
+  .ways__intro {
     grid-template-columns: minmax(0, 1fr);
-    gap: 64px;
+    gap: 40px;
   }
 
-  .ways__panel {
+  .ways__index {
     justify-self: stretch;
     width: 100%;
-    max-width: 520px;
+  }
+
+  .way-block {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+    margin-top: 96px;
+  }
+
+  .way-block--1 .way-block__text,
+  .way-block--1 .way-block__shot,
+  .way-block--2 .way-block__text,
+  .way-block--2 .way-block__shot,
+  .way-block--3 .way-block__text,
+  .way-block--3 .way-block__shot {
+    grid-column: 1;
+    grid-row: auto;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  /* text first on every way */
+  .way-block--2 .way-block__text {
+    order: -1;
+  }
+
+  .way-block--3 .way-block__text {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 24px;
+  }
+
+  .shot {
+    width: min(100%, var(--cap, 800px));
+  }
+
+  .way-block__crop {
+    height: min(52svh, 440px);
   }
 }
 
@@ -363,8 +685,8 @@
 
 .repeat__grid {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: var(--gr-grid-gap);
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(40px, 5vw, 80px);
   align-items: start;
 }
 
@@ -394,15 +716,39 @@
 
 .repeat__layers {
   position: relative;
-  aspect-ratio: 1 / 1.04;
+  aspect-ratio: 1 / 0.92;
 }
 
+/* Scroll depth: js/repeat-depth.js sets --py on each layer (the back one drifts less than the front).
+   Uses the separate `translate` property so it does not fight the reveal transform. */
 .repeat__layer {
   position: absolute;
-  width: 58%;
+  isolation: isolate;
+  width: 62%;
+  translate: 0 var(--py, 0px);
+}
+
+.repeat__layer img {
+  width: 100%;
   height: auto;
   border-radius: 8px;
   border: 1px solid var(--gr-line-dark);
+}
+
+/* Half-frame: a 1px bronze outline of the same size, shifted 16px behind the picture;
+   only the two sides that stick out are seen. */
+.repeat__layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--gr-bronze);
+  border-radius: 8px;
+  translate: 16px -16px;
+}
+
+.repeat__layer--amount::before {
+  translate: -16px 16px;
 }
 
 .repeat__layer--receipt {
@@ -471,6 +817,10 @@
     aspect-ratio: 1 / 1.25;
   }
 
+  .repeat__layer {
+    width: 70%;
+  }
+
   .repeat__float {
     left: 10%;
     width: 80%;
@@ -525,7 +875,7 @@
 
 .gia__canvas {
   position: relative;
-  min-height: 600px;
+  min-height: clamp(600px, 62vw, 760px);
 }
 
 /* Gia is the largest thing on the stage; the screens support her */
@@ -543,13 +893,60 @@
 
 .gia__back {
   position: absolute;
-  top: 6%;
-  right: 5%;
-  width: 36%;
+  top: 5%;
+  right: 4%;
+  width: 44%;
+}
+
+.gia__back img,
+.approve__back img {
+  width: 100%;
   height: auto;
   border-radius: 8px;
   border: 1px solid var(--gr-line-dark);
+  opacity: 0.5;
   filter: blur(1.5px) saturate(0.8);
+}
+
+/* Light corner brackets on the screens behind the cards: small, sharp, bronze */
+.gia__back::before,
+.gia__back::after,
+.approve__back::before,
+.approve__back::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 0 solid var(--gr-bronze);
+  pointer-events: none;
+}
+
+.gia__back::before {
+  top: -10px;
+  left: -10px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.gia__back::after {
+  right: -10px;
+  bottom: -10px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.approve__back::before {
+  top: -10px;
+  left: -10px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.approve__back::after {
+  top: -10px;
+  right: -10px;
+  border-top-width: 1px;
+  border-right-width: 1px;
 }
 
 .gia__card {
@@ -718,10 +1115,6 @@
   transform: none;
 }
 
-.js .gia__back[data-seq].is-in {
-  opacity: 0.5;
-}
-
 @keyframes gia-spin {
   to { transform: rotate(360deg); }
 }
@@ -780,21 +1173,10 @@
     transition: none;
   }
 
-  .js .gia__back[data-seq] {
-    opacity: 0.5;
-  }
-
   .gia__steps li.is-in:not(.is-done) i {
     animation: none;
   }
 
-  .way::before,
-  .way__body,
-  .way.is-open .way__body,
-  .ways__frame img,
-  .way__btn {
-    transition: none;
-  }
 }
 
 /* ======================================================================
@@ -810,8 +1192,8 @@
 
 .approve__grid {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  gap: var(--gr-grid-gap);
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(40px, 5vw, 80px);
   align-items: center;
 }
 
@@ -837,26 +1219,21 @@
 .approve__stage {
   position: relative;
   min-width: 0;
-  min-height: 640px;
+  min-height: clamp(640px, 54vw, 780px);
 }
 
 .approve__back {
   position: absolute;
   top: 0;
   right: 0;
-  width: 56%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid var(--gr-line-dark);
-  opacity: 0.5;
-  filter: blur(1.5px) saturate(0.8);
+  width: 62%;
 }
 
 .approve__card {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: min(100%, 460px);
+  width: min(100%, 500px);
   padding: 24px;
   background: #f4f8fe;
   color: #0a2f66;
@@ -873,8 +1250,53 @@
   color: #3a5f98;
 }
 
+/* Two labels share one line: only "Prepared by Gia" shows unless the card is travelling in from screen 4 */
+.approve__label-a {
+  display: none;
+}
+
 .approve__rows {
   margin-top: 12px;
+}
+
+.approve__extra .approve__rows {
+  margin-top: 0;
+}
+
+/* Wide screens (js/card-morph.js adds .morph to <html>): the card is one object that starts on screen 4
+   in the Gia card's place and size, travels with the scroll, and lands here, opening the extra rows
+   and the two choices. The Gia card on screen 4 stays in the layout (it gives the start position) but is hidden. */
+.morph .gia__card {
+  visibility: hidden;
+  transform: none !important;
+  transition: none !important;
+}
+
+.morph .approve__card {
+  z-index: 3;
+  top: 0;               /* set by the script so the top edge stays put while the card changes height */
+  bottom: auto;
+  transition: opacity 0.5s var(--mm-ease);
+  will-change: translate, width;
+}
+
+.morph .approve__card:not(.is-live) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.morph .approve__extra {
+  overflow: hidden;
+}
+
+.morph .approve__label {
+  display: grid;
+}
+
+.morph .approve__label-a,
+.morph .approve__label-b {
+  display: block;
+  grid-area: 1 / 1;
 }
 
 .approve__rows > div {
@@ -1073,5 +1495,18 @@
 @media (prefers-reduced-motion: reduce) {
   .app-btn {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shot::before,
+  .shot::after {
+    transition: none;
+  }
+
+  .js .way-block__shot:not(.is-in) .shot::before,
+  .js .way-block__shot:not(.is-in) .shot::after {
+    width: 28px;
+    height: 28px;
   }
 }

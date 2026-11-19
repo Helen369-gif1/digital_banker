@@ -77,11 +77,27 @@
 
         <div class="hero__ui" id="hero-ui" aria-hidden="true">
           <div class="hero__ui-inner">
+            <div class="hero__ui-stack">
             <div class="hero__ui-frame">
               <picture>
                 <source media="(max-width: 768px)" srcset="media/ui/hero-phone-account-ready.webp">
                 <img src="media/ui/hero-laptop-receipt.webp" alt="" width="1440" height="1449">
               </picture>
+              <!-- Live demo of the same screen: plays on top of the picture (kept as poster); see js/hero-demo.js -->
+              <iframe class="hero__demo" id="hero-demo" data-src="../demos/send-funds/embed.html" title="" width="1440" height="900" tabindex="-1" scrolling="no" aria-hidden="true" inert></iframe>
+
+              <!-- Callouts: 1px bronze lines from a label to a real row of the example receipt. Labels are the
+                   interface's own field names. Positions are percentages of the visible part of the image
+                   (the top 1440 x 900). Hidden on small frames. -->
+              <ul class="callouts">
+                <li class="callout callout--l" style="--y:45.4%; --from:16.3%; --to:33%"><span class="callout__chip">Reference ID</span><span class="callout__line"></span><span class="callout__dot"></span></li>
+                <li class="callout callout--l" style="--y:75%; --from:16.3%; --to:33%"><span class="callout__chip">Transaction fee</span><span class="callout__line"></span><span class="callout__dot"></span></li>
+                <li class="callout callout--r" style="--y:69%; --from:82.6%; --to:99%"><span class="callout__dot"></span><span class="callout__line"></span><span class="callout__chip">Amount</span></li>
+                <li class="callout callout--r" style="--y:92.4%; --from:82.6%; --to:99%"><span class="callout__dot"></span><span class="callout__line"></span><span class="callout__chip">Status</span></li>
+              </ul>
+            </div>
+            <!-- Contour: four 1px bronze lines that draw clockwise around the screen and cross at the corners -->
+            <span class="contour" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             </div>
             <p class="ui-note">Example interface — not your account.</p>
           </div>
@@ -93,37 +109,62 @@
       </div>
     </section>
 
-    <!-- SCREEN 2 - ALL THE WAYS YOU MOVE MONEY -->
+    <!-- SCREEN 2 - ALL THE WAYS YOU MOVE MONEY (third screen on the page: the hero's last moment counts as the second) -->
     <section class="ways" id="screen-2" data-screen="ways">
-      <div class="gr-container ways__grid">
+      <div class="gr-container">
 
-        <div class="ways__text">
+        <header class="ways__intro">
           <h2 class="ways__title reveal">All the ways you move money.</h2>
+          <ol class="ways__index reveal" style="--reveal-delay:.1s">
+            <li><a href="#way-1"><span>01</span>Send &amp; Pay</a></li>
+            <li><a href="#way-2"><span>02</span>Receive &amp; Request</a></li>
+            <li><a href="#way-3"><span>03</span>Add, Withdraw &amp; Convert</a></li>
+          </ol>
+        </header>
 
-          <ul class="ways__list reveal" id="ways-list" style="--reveal-delay:.1s">
-            <li class="way is-open">
-              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-1" aria-expanded="true" aria-controls="way-body-1" data-way="0">Send &amp; Pay</button></h3>
-              <div class="way__body" id="way-body-1" role="region" aria-labelledby="way-btn-1"><div><p>Send money to people or businesses, pay another Glonari member, or scan a QR code to pay.</p></div></div>
-            </li>
-            <li class="way">
-              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-2" aria-expanded="false" aria-controls="way-body-2" data-way="1">Receive &amp; Request</button></h3>
-              <div class="way__body" id="way-body-2" role="region" aria-labelledby="way-btn-2"><div><p>Share your payment details or QR code, request money, and follow each request until it's paid.</p></div></div>
-            </li>
-            <li class="way">
-              <h3 class="way__head"><button class="way__btn" type="button" id="way-btn-3" aria-expanded="false" aria-controls="way-body-3" data-way="2">Add, Withdraw &amp; Convert</button></h3>
-              <div class="way__body" id="way-body-3" role="region" aria-labelledby="way-btn-3"><div><p>Add money from a linked account, withdraw to an external account, or convert eligible Glonari assets. See the details before you proceed.</p></div></div>
-            </li>
-          </ul>
-        </div>
-
-        <figure class="ways__panel reveal" style="--reveal-delay:.2s">
-          <div class="ways__frame" id="ways-frame">
-            <iframe class="is-active ways__demo" id="ways-demo" src="../demos/send-funds/embed.html" title="Example receipt screen: transfer details and options to save or share the receipt" width="880" height="1027" loading="lazy" tabindex="-1" scrolling="no" inert></iframe>
-            <img src="media/ui/panel-receive-request.webp" alt="Example account screen with a QR code and wallet address to receive money" width="615" height="672" loading="lazy">
-            <img src="media/ui/panel-add-withdraw-convert.webp" alt="Example Bank account details form for adding an external account" width="800" height="1000" loading="lazy">
+        <article class="way-block way-block--1" id="way-1">
+          <div class="way-block__text">
+            <div class="way-block__head"><span class="way-block__no reveal">01</span><span class="way-block__rule reveal" style="--reveal-delay:.15s"></span></div>
+            <h3 class="way-block__title reveal">Send &amp; Pay</h3>
+            <p class="way-block__body reveal" style="--reveal-delay:.1s">Send money to people or businesses, pay another Glonari member, or scan a QR code to pay.</p>
           </div>
-          <figcaption class="ui-note">Example interface — not your account.</figcaption>
-        </figure>
+          <figure class="way-block__shot reveal" style="--reveal-delay:.15s">
+            <div class="shot shot--ml" style="--ar:.844; --cap:760px">
+              <img src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen: an amount to send and a choice to send now or schedule for later" width="815" height="966" loading="lazy">
+            </div>
+            <figcaption class="ui-note">Example interface — not your account.</figcaption>
+          </figure>
+        </article>
+
+        <article class="way-block way-block--2" id="way-2">
+          <figure class="way-block__shot reveal">
+            <div class="shot shot--alt" style="--ar:.915; --cap:660px">
+              <img src="media/ui/panel-receive-request.webp" alt="Example account screen with a QR code and wallet address to receive money" width="615" height="672" loading="lazy">
+            </div>
+            <figcaption class="ui-note">Example interface — not your account.</figcaption>
+          </figure>
+          <div class="way-block__text">
+            <div class="way-block__head"><span class="way-block__no reveal">02</span><span class="way-block__rule reveal" style="--reveal-delay:.15s"></span></div>
+            <h3 class="way-block__title reveal">Receive &amp; Request</h3>
+            <p class="way-block__body reveal" style="--reveal-delay:.1s">Share your payment details or QR code, request money, and follow each request until it's paid.</p>
+          </div>
+        </article>
+
+        <article class="way-block way-block--3" id="way-3">
+          <div class="way-block__text">
+            <div class="way-block__head"><span class="way-block__no reveal">03</span><span class="way-block__rule reveal" style="--reveal-delay:.15s"></span></div>
+            <h3 class="way-block__title reveal">Add, Withdraw &amp; Convert</h3>
+            <p class="way-block__body reveal" style="--reveal-delay:.1s">Add money from a linked account, withdraw to an external account, or convert eligible Glonari assets. See the details before you proceed.</p>
+          </div>
+          <figure class="way-block__shot reveal" style="--reveal-delay:.15s">
+            <div class="shot shot--open">
+              <div class="way-block__crop">
+                <img src="media/ui/panel-add-withdraw-convert.webp" alt="Example Bank account details form for adding an external account" width="800" height="1000" loading="lazy">
+              </div>
+            </div>
+            <figcaption class="ui-note">Example interface — not your account.</figcaption>
+          </figure>
+        </article>
 
       </div>
     </section>
@@ -139,8 +180,12 @@
 
         <div class="repeat__stage">
           <div class="repeat__layers">
-            <img class="repeat__layer repeat__layer--receipt reveal" src="media/ui/panel-receipt.webp" alt="Example receipt screen with the reference, amount, fee, status and options to download, email, print or share the receipt" width="800" height="1180" loading="lazy" style="--reveal-delay:.1s">
-            <img class="repeat__layer repeat__layer--amount reveal" src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen with an option to schedule a payment for later" width="815" height="966" loading="lazy" style="--reveal-delay:.25s">
+            <div class="repeat__layer repeat__layer--receipt reveal" style="--reveal-delay:.1s">
+              <img src="media/ui/panel-receipt.webp" alt="Example receipt screen with the reference, amount, fee, status and options to download, email, print or share the receipt" width="800" height="1180" loading="lazy">
+            </div>
+            <div class="repeat__layer repeat__layer--amount reveal" style="--reveal-delay:.25s">
+              <img src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen with an option to schedule a payment for later" width="815" height="966" loading="lazy">
+            </div>
             <ul class="repeat__float reveal" style="--reveal-delay:.4s">
               <li>Recent recipients</li>
               <li>Schedule a payment</li>
@@ -170,7 +215,7 @@
 
           <div class="gia__canvas">
             <img class="gia__portrait" data-seq src="media/gia-cutout.webp" alt="Gia, the Glonari assistant" width="1086" height="1448" loading="lazy">
-            <img class="gia__back" data-seq src="media/ui/panel-send-pay.webp" alt="" width="815" height="966" loading="lazy">
+            <div class="gia__back" data-seq><img src="media/ui/panel-send-pay.webp" alt="" width="815" height="966" loading="lazy"></div>
 
             <div class="gia__card" data-seq>
               <p class="gia__card-label">Transfer prepared by Gia</p>
@@ -178,8 +223,8 @@
                 <div><dt>To</dt><dd>Curt</dd></div>
                 <div><dt>You send</dt><dd class="num">$150 USD</dd></div>
                 <div><dt>They receive</dt><dd class="num">$150 USD</dd></div>
-                <div><dt>Fee</dt><dd class="num">$0.00</dd></div>
                 <div><dt>Rate</dt><dd class="num">1 USD = 1 USD</dd></div>
+                <div><dt>Fee</dt><dd class="num">$0.00</dd></div>
               </dl>
             </div>
           </div>
@@ -215,24 +260,30 @@
             <p class="approve__lead reveal" style="--reveal-delay:.1s">Before money moves, review the recipient, amount, funding source, fees, and timing. You choose whether to approve or decline. Gia never completes a protected financial action without your explicit approval.</p>
           </div>
 
-          <div class="approve__stage reveal" style="--reveal-delay:.15s">
-            <img class="approve__back" src="media/ui/panel-review-confirm.webp" alt="" width="800" height="1360" loading="lazy">
+          <div class="approve__stage">
+            <div class="approve__back reveal" style="--reveal-delay:.15s"><img src="media/ui/panel-review-confirm.webp" alt="" width="800" height="1360" loading="lazy"></div>
 
+            <!-- On wide screens js/card-morph.js carries this card in from screen 4, where it first appears as
+                 "Transfer prepared by Gia" with five rows. The extra block opens on arrival. -->
             <div class="approve__card" id="approve-card">
-              <p class="approve__label">Prepared by Gia</p>
+              <p class="approve__label"><span class="approve__label-a" aria-hidden="true">Transfer prepared by Gia</span><span class="approve__label-b">Prepared by Gia</span></p>
               <dl class="approve__rows">
                 <div><dt>Recipient</dt><dd>Curt</dd></div>
                 <div><dt>You send</dt><dd class="num approve__amount">$150 USD</dd></div>
                 <div><dt>They receive</dt><dd class="num">$150 USD</dd></div>
                 <div><dt>Rate</dt><dd class="num">1 USD = 1 USD</dd></div>
-                <div><dt>Funding source</dt><dd>Global Dollars</dd></div>
                 <div><dt>Fee</dt><dd class="num">$0.00</dd></div>
-                <div><dt>Timing</dt><dd>Estimated arrival: Within minutes</dd></div>
               </dl>
-              <p class="approve__status" id="approve-status" aria-live="polite"></p>
-              <div class="approve__actions">
-                <button class="app-btn app-btn--solid" type="button" data-choice="approve" aria-pressed="false">Approve</button>
-                <button class="app-btn" type="button" data-choice="decline" aria-pressed="false">Decline</button>
+              <div class="approve__extra" id="approve-extra">
+                <dl class="approve__rows">
+                  <div><dt>Funding source</dt><dd>Global Dollars</dd></div>
+                  <div><dt>Timing</dt><dd>Estimated arrival: Within minutes</dd></div>
+                </dl>
+                <p class="approve__status" id="approve-status" aria-live="polite"></p>
+                <div class="approve__actions">
+                  <button class="app-btn app-btn--solid" type="button" data-choice="approve" aria-pressed="false">Approve</button>
+                  <button class="app-btn" type="button" data-choice="decline" aria-pressed="false">Decline</button>
+                </div>
               </div>
             </div>
           </div>
@@ -316,11 +367,13 @@
   </footer>
 
   <script src="js/shell.js" defer></script>
+  <script src="js/hero-demo.js" defer></script>
   <script src="js/hero-scene.js" defer></script>
   <script src="js/reveal.js" defer></script>
-  <script src="js/ways.js" defer></script>
+  <script src="js/repeat-depth.js" defer></script>
   <script src="js/gia-steps.js" defer></script>
   <script src="js/approve.js" defer></script>
+  <script src="js/card-morph.js" defer></script>
   <script src="js/cta-video.js" defer></script>
   <script src="../shared/atrium-back.js" defer></script>
 </body>

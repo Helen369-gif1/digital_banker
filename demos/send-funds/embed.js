@@ -1,113 +1,136 @@
-/* Automatic product demo. Controlled from the parent page by postMessage:
-   'demo-play' starts it from the beginning, 'demo-stop' halts it.
-   Nothing here performs a real action: clicks are only visual. */
+/* Automatic product demo of the Send funds screen. Controlled by the parent page via postMessage:
+   'demo-play' starts it from the beginning, 'demo-stop' halts it and resets the screen.
+   Nothing here performs a real action: this page has no click handlers, "clicks" are only visual.
+   Posts to the parent: 'demo-ready', and 'demo-scrolled' (true/false) so the parent can hide
+   overlays that point at rows of the unscrolled screen. */
 (() => {
   'use strict';
 
   const root = document.documentElement;
   const cursor = document.getElementById('demo-cursor');
   const ring = document.getElementById('demo-ring');
-  const btnA = document.querySelector('[data-action="email"]');
-  const btnB = document.querySelector('[data-action="details"]');
+  const q = (s) => document.querySelector(s);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Timeline in ms
-  const T = {
-    fadeIn: [0, 700],
-    cursorIn: [800, 1200],
-    toA: [1200, 2700], clickA: 3000,
-    scroll: [3500, 5600],
-    toB: [4600, 6000], clickB: 6400,
-    cursorOut: [7000, 7400],
-    fadeOut: [7500, 8200],
-    end: 9400, // short pause, then loop
-  };
+  const navHover = [...document.querySelectorAll('.nav__item')].find((n) => /Payees/.test(n.textContent));
+  const download = q('[data-action="download"]');
+  const email = q('[data-action="email"]');
+  const details = q('[data-action="details"]');
+
+  const END = 8600;                 // one loop, ms
+  const SCROLL_DOWN = [1300, 3300]; // reveal the bottom of the screen
+  const SCROLL_UP = [5900, 7400];   // glide back to the top
+
+  // Waypoints: cursor arrives at `t`, stays `hold` ms (hover), clicks at t + hold/2 if `click`.
+  // `el` = element to hover; `pt` = fixed viewport point (fractions of the window).
+  const WP = [
+    { t: 0, hold: 0, pt: [0.86, 0.14] },
+    { t: 800, hold: 450, el: navHover },
+    { t: 1900, hold: 0, pt: [0.55, 0.62] },
+    { t: 3300, hold: 700, el: download, click: true },
+    { t: 4250, hold: 400, el: email },
+    { t: 5000, hold: 800, el: details, click: true },
+    { t: 7200, hold: 0, pt: [0.86, 0.14] },
+  ];
 
   const clamp = (v) => Math.max(0, Math.min(1, v));
   const prog = (t, [a, b]) => clamp((t - a) / (b - a));
   const ease = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
   const lerp = (a, b, x) => a + (b - a) * x;
 
-  let raf = 0, start = 0, running = false;
-  let geo = null;
+  let raf = 0, start = 0, running = false, maxScroll = 0, pts = [], scrolled = false;
 
-  function center(el, scrollY) {
-    const r = el.getBoundingClientRect();
-    return { x: r.left + r.width * .55, y: r.top + scrollY + r.height * .55 };
-  }
+  const scrollAt = (t) => {
+    if (t < SCROLL_DOWN[0]) return 0;
+    if (t < SCROLL_DOWN[1]) return maxScroll * ease(prog(t, SCROLL_DOWN));
+    if (t < SCROLL_UP[0]) return maxScroll;
+    return maxScroll * (1 - ease(prog(t, SCROLL_UP)));
+  };
 
   function measure() {
     root.scrollTop = 0;
-    const max = Math.max(0, root.scrollHeight - innerHeight);
-    const a = center(btnA, 0), b = center(btnB, 0);
-    geo = {
-      max,
-      origin: { x: innerWidth * .8, y: innerHeight * .2 },
-      a: { x: a.x, y: a.y },
-      b: { x: b.x, y: b.y - max }, // viewport position once scrolled
-    };
+    maxScroll = Math.max(0, root.scrollHeight - innerHeight);
+    pts = WP.map((w) => {
+      let x, y;
+      if (w.el) {
+        const r = w.el.getBoundingClientRect(); // measured at scroll 0, so add scroll back
+        x = r.left + r.width * .55;
+        y = r.top + r.height * .55 + 0 - scrollAt(w.t) + 0;
+      } else {
+        x = innerWidth * w.pt[0];
+        y = innerHeight * w.pt[1];
+      }
+      return { ...w, x, y };
+    });
   }
 
-  function press(el, on) { el.classList.toggle('is-pressed', on); }
+  function setHover(el, on) { if (el) el.classList.toggle('is-hover', on); }
+  function press(el, on) { if (el) el.classList.toggle('is-pressed', on); }
 
   function pulse(x, y) {
     ring.animate(
-      [{ transform: `translate(${x}px,${y}px) scale(.4)`, opacity: .9 },
-       { transform: `translate(${x}px,${y}px) scale(1.5)`, opacity: 0 }],
-      { duration: 520, easing: 'ease-out' }
+      [{ transform: `translate(${x}px,${y}px) scale(.35)`, opacity: .95 },
+       { transform: `translate(${x}px,${y}px) scale(1.7)`, opacity: 0 }],
+      { duration: 560, easing: 'ease-out' }
     );
   }
 
-  let doneA = false, doneB = false;
+  function resetState() {
+    [navHover, download, email, details].forEach((el) => { setHover(el, false); press(el, false); });
+    pts.forEach((w) => { w.clicked = false; });
+  }
 
   function frame(now) {
     if (!running) return;
     const t = now - start;
-    if (t >= T.end) { begin(); return; }
+    if (t >= END) { begin(); return; }
 
-    root.classList.toggle('demo-visible', t >= T.fadeIn[0] && t < T.fadeOut[0]);
-
-    // scroll
-    root.scrollTop = geo.max * ease(prog(t, T.scroll));
-
-    // cursor position (viewport coordinates)
-    let x, y;
-    if (t < T.toB[0]) {
-      const k = ease(prog(t, T.toA));
-      x = lerp(geo.origin.x, geo.a.x, k);
-      y = lerp(geo.origin.y, geo.a.y, k);
-      // while scrolling, the cursor stays put on screen
-    } else {
-      const k = ease(prog(t, T.toB));
-      x = lerp(geo.a.x, geo.b.x, k);
-      y = lerp(geo.a.y, geo.b.y, k);
+    root.scrollTop = scrollAt(t);
+    const isScrolled = root.scrollTop > 2;
+    if (isScrolled !== scrolled) {
+      scrolled = isScrolled;
+      parent.postMessage({ type: 'demo-scrolled', value: scrolled }, '*');
     }
 
-    const vis = prog(t, T.cursorIn) * (1 - prog(t, T.cursorOut));
+    // cursor position: hold at a waypoint, then travel to the next one
+    let x = pts[0].x, y = pts[0].y;
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const leave = a.t + a.hold;
+      if (!b || t < leave) { x = a.x; y = a.y; break; }
+      if (t < b.t) {
+        const k = ease(prog(t, [leave, b.t]));
+        x = lerp(a.x, b.x, k); y = lerp(a.y, b.y, k);
+        break;
+      }
+      x = b.x; y = b.y;
+    }
+
+    // hover and click feedback
     let s = 1;
-    const dA = t - T.clickA, dB = t - T.clickB;
-    if (dA > 0 && dA < 220) s = 1 - .14 * Math.sin(Math.PI * dA / 220);
-    if (dB > 0 && dB < 220) s = 1 - .14 * Math.sin(Math.PI * dB / 220);
-    cursor.style.opacity = vis;
-    cursor.style.transform = `translate(${x}px,${y}px) scale(${s})`;
+    pts.forEach((w) => {
+      if (!w.el) return;
+      const on = t >= w.t && t < w.t + w.hold;
+      setHover(w.el, on);
+      if (w.click) {
+        const c = w.t + w.hold * .5, d = t - c;
+        if (d >= 0 && !w.clicked) { w.clicked = true; press(w.el, true); pulse(x, y); setTimeout(() => press(w.el, false), 240); }
+        if (d > 0 && d < 240) s = 1 - .16 * Math.sin(Math.PI * d / 240);
+      }
+    });
 
-    if (!doneA && t >= T.clickA) {
-      doneA = true; press(btnA, true); pulse(x, y);
-      setTimeout(() => press(btnA, false), 260);
-    }
-    if (!doneB && t >= T.clickB) {
-      doneB = true; press(btnB, true); pulse(x, y);
-      setTimeout(() => press(btnB, false), 260);
-    }
+    const op = prog(t, [0, 350]) * (1 - prog(t, [7300, 7800]));
+    cursor.style.opacity = op;
+    cursor.style.transform = `translate(${x}px,${y}px) scale(${s})`;
     raf = requestAnimationFrame(frame);
   }
 
   function begin() {
     cancelAnimationFrame(raf);
-    doneA = doneB = false;
-    root.classList.remove('demo-visible');
-    cursor.style.opacity = 0;
+    resetState();
     measure();
+    resetState();
+    cursor.style.opacity = 0;
     start = performance.now();
     running = true;
     raf = requestAnimationFrame(frame);
@@ -116,26 +139,19 @@
   function stop() {
     running = false;
     cancelAnimationFrame(raf);
-    root.classList.remove('demo-visible');
+    resetState();
     cursor.style.opacity = 0;
-    press(btnA, false); press(btnB, false);
     root.scrollTop = 0;
+    if (scrolled) { scrolled = false; parent.postMessage({ type: 'demo-scrolled', value: false }, '*'); }
   }
 
   addEventListener('message', (e) => {
     if (e.source !== parent) return;
     const type = e.data && e.data.type;
-    if (type === 'demo-play' && !reduce.matches) {
-      // jump to a hidden frame without animating, so the first fade-in is clean
-      root.classList.add('demo-instant', 'demo-run');
-      void root.offsetWidth;
-      root.classList.remove('demo-instant');
-      begin();
-    } else if (type === 'demo-stop') {
-      stop();
-    }
+    if (type === 'demo-play' && !reduce.matches) begin();
+    else if (type === 'demo-stop') stop();
   });
 
-  // Reduced motion: static state, nothing runs.
-  reduce.addEventListener?.('change', () => { if (reduce.matches) stop(); });
+  const ready = () => parent.postMessage({ type: 'demo-ready' }, '*');
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(ready, ready);
 })();

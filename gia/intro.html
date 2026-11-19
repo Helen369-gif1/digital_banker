@@ -147,10 +147,31 @@ body{
     // «Уменьшить движение»: без проигрывания, сразу последний кадр
     if (video.readyState >= 1) lastFrame(); else video.addEventListener('loadedmetadata', lastFrame, { once: true });
   } else {
+    video.muted = true;   // автозапуск разрешён только без звука; ставим и через JS, не только атрибутом
     video.defaultPlaybackRate = PLAYBACK_SPEED;
     video.playbackRate = PLAYBACK_SPEED;
-    var p = video.play();
-    if (p && p.catch) p.catch(function () {});
+
+    /* Если браузер отклонил автозапуск (новый профиль/аккаунт, экономия энергии, медленная
+       первая загрузка), не сдаёмся: пробуем снова, когда видео готово, и при первом касании. */
+    var started = false;
+    function tryPlay() {
+      if (started || video.ended) return;
+      var p = video.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+    video.addEventListener('playing', function () { started = true; });
+    ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach(function (ev) {
+      video.addEventListener(ev, tryPlay);
+    });
+    ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'].forEach(function (ev) {
+      window.addEventListener(ev, tryPlay, { passive: true });
+    });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var tries = 0;
+    var retry = setInterval(function () {
+      if (started || ++tries > 20) clearInterval(retry); else tryPlay();
+    }, 500);
+    tryPlay();
   }
 
   /* Текст и кнопка появляются, когда готов первый кадр и шрифты */
