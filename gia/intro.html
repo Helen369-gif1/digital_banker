@@ -113,7 +113,7 @@ body{
 <body>
 
 <main class="intro">
-  <video id="video" src="digital-banker-mobile-1080p-scrub.mp4" poster="poster.jpg"
+  <video id="video" src="intro-hero.mp4" poster="poster.jpg"
          muted playsinline webkit-playsinline preload="auto"
          disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
   <div class="scrim" aria-hidden="true"></div>
@@ -202,7 +202,7 @@ body{
      Файлы попадают в кэш браузера. Выбор размера картинки — как в atrium.js. */
   var smallScreen = Math.min(screen.width, screen.height) < 700;
   var A = '../atrium-site/';
-  [
+  var urls = [
     A + 'vendor/three.min.js',
     A + (smallScreen ? 'assets/atrium-3254.webp' : 'assets/atrium-6507.webp'),
     A + 'assets/fonts/cinzel-latin-600-normal.woff2',
@@ -211,7 +211,19 @@ body{
     A + 'assets/fonts/cormorant-garamond-latin-500-normal.woff2',
     A + 'assets/window-view.jpg',
     A + 'assets/gia-poster.jpg'
-  ].forEach(function (url) { fetch(url).catch(function () {}); });
+  ];
+  var prefetched = false;
+  function prefetch() {
+    if (prefetched) return;
+    prefetched = true;
+    urls.forEach(function (url) { fetch(url).catch(function () {}); });
+  }
+  /* Качаем для Атриума только когда видео уже догрузилось (иначе файлы делят канал с видео
+     и оно грузится вдвое дольше). Страховка: через 12 с в любом случае. */
+  if (video.readyState >= 4) prefetch(); else video.addEventListener('canplaythrough', prefetch, { once: true });
+  video.addEventListener('ended', prefetch, { once: true });
+  setTimeout(prefetch, 12000);
+
 })();
 </script>
 </body>
