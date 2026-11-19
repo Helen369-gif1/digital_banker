@@ -1,0 +1,29 @@
+/* Embedded, non-interactive view of the Send funds receipt for the Move Money page. */
+html, body { overflow: hidden; height: 100%; }
+body { pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; }
+
+.app { min-width: 0; min-height: 100%; }
+.main { padding: 40px 40px 56px; gap: 0; align-items: center; }
+.content { width: 800px; }
+
+/* Presenting state: whole screen fades in and out */
+.app { transition: opacity .7s ease; }
+html.demo-instant .app { transition: none; }
+html.demo-run .app { opacity: 0; }
+html.demo-run.demo-visible .app { opacity: 1; }
+
+/* Press feedback on demo buttons */
+.action, .btn { transition: background .15s, transform .15s, box-shadow .15s; }
+.is-pressed { transform: scale(.97); background: #eef5ff; box-shadow: 0 0 0 3px rgba(6, 53, 124, .12); }
+.btn--primary.is-pressed { background: #263649; }
+
+/* Cursor */
+.demo-cursor, .demo-ring {
+  position: fixed; left: 0; top: 0; z-index: 10; pointer-events: none; opacity: 0;
+  will-change: transform, opacity;
+}
+.demo-cursor { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); transform-origin: 2px 2px; }
+.demo-ring {
+  width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+  border: 2px solid rgba(6, 53, 124, .55); background: rgba(6, 53, 124, .12);
+}
