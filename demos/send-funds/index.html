@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send funds – Receipt saved</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="menu">
+        <div class="brand"><div class="brand__logo"><img src="assets/logo.png" alt="Digital Banker"></div></div>
+        <nav class="nav">
+          <a class="nav__item is-active" href="#"><span class="nav__ico"><img src="assets/nav-send.svg" alt="" width="15" height="15"></span><span>Send funds</span></a>
+          <a class="nav__item" href="#"><span class="nav__ico"><img src="assets/nav-clock.svg" alt="" width="15" height="15"></span><span>History</span></a>
+          <a class="nav__item" href="#"><span class="nav__ico"><img src="assets/users-three.svg" alt="" width="24" height="24"></span><span>Payees</span></a>
+          <a class="nav__item" href="#"><span class="nav__ico"><img src="assets/id-card.svg" alt="" width="24" height="24"></span><span>Accounts</span></a>
+          <a class="nav__item" href="#"><span class="nav__ico"><img src="assets/nav-users.svg" alt="" width="17" height="14"></span><span>Split payment</span></a>
+          <a class="nav__item" href="#"><span class="nav__ico"><img src="assets/nav-attach.svg" alt="" width="8" height="13"></span><span>Request funds</span></a>
+          <a class="nav__item nav__item--settings" href="#"><span class="nav__ico"><img src="assets/nav-settings.svg" alt="" width="20" height="20"></span><span>Settings</span></a>
+        </nav>
+      </div>
+      <div class="profile">
+        <span class="profile__avatar"><img src="assets/avatar.png" alt=""></span>
+        <span class="profile__name">Alex Smith</span>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <h2 class="topbar__title">Send funds</h2>
+        <div class="topbar__tools">
+          <label class="search">
+            <img src="assets/search.svg" alt="" width="16" height="16">
+            <input type="text" placeholder="Search" aria-label="Search" id="search">
+            <kbd>/</kbd>
+          </label>
+          <div class="icons">
+            <button class="icon-btn" type="button" aria-label="Theme"><img src="assets/sun.svg" alt="" width="16" height="16"></button>
+            <button class="icon-btn" type="button" aria-label="History"><img src="assets/history.svg" alt="" width="16" height="16"></button>
+            <button class="icon-btn" type="button" aria-label="Notifications"><img src="assets/bell.svg" alt="" width="16" height="16"></button>
+            <span class="user"><img src="assets/user.svg" alt=""></span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <ol class="steps">
+          <li class="step"><img src="assets/step-check.svg" alt="" width="24" height="24"><span>Account</span></li>
+          <li class="step__line"><img src="assets/step-line.svg" alt=""></li>
+          <li class="step"><img src="assets/step-check.svg" alt="" width="24" height="24"><span>Payee</span></li>
+          <li class="step__line"><img src="assets/step-line.svg" alt=""></li>
+          <li class="step"><img src="assets/step-check.svg" alt="" width="24" height="24"><span>Destination</span></li>
+          <li class="step__line"><img src="assets/step-line.svg" alt=""></li>
+          <li class="step"><img src="assets/step-check.svg" alt="" width="24" height="24"><span>Amount</span></li>
+          <li class="step__line"><img src="assets/step-line.svg" alt=""></li>
+          <li class="step"><img src="assets/step-check-last.svg" alt="" width="24" height="23"><span>Review</span></li>
+          <li class="step__line"><img src="assets/step-line.svg" alt=""></li>
+          <li class="step"><img src="assets/step-check-last.svg" alt="" width="24" height="23"><span>Sent</span></li>
+        </ol>
+
+        <main class="card">
+          <header class="intro">
+            <h1 class="title">Receipt saved</h1>
+            <p class="text">Your transfer is complete. You can view, download, or send your receipt.</p>
+          </header>
+
+          <dl class="rows">
+            <div class="row"><dt>Reference ID</dt><dd id="ref">DBTX-2026-05-24-8F7G2K</dd></div>
+            <div class="row"><dt>Date &amp; time</dt><dd>May 24, 2026 at 10:42 AMET</dd></div>
+            <div class="row">
+              <dt>From</dt>
+              <dd>Personal USD Balance
+                <span class="mask"><img src="assets/ellipse-dark.svg" alt=""><img src="assets/ellipse-dark.svg" alt=""><img src="assets/ellipse-dark.svg" alt=""><img src="assets/ellipse-dark.svg" alt=""><b>4292</b></span>
+              </dd>
+            </div>
+            <div class="row">
+              <dt>To</dt>
+              <dd>John Evans
+                <span class="muted">Chase Bank</span>
+                <span class="mask mask--muted"><img src="assets/ellipse-gray.svg" alt=""><img src="assets/ellipse-gray.svg" alt=""><img src="assets/ellipse-gray.svg" alt=""><img src="assets/ellipse-gray.svg" alt=""><span>5294</span></span>
+              </dd>
+            </div>
+            <div class="row"><dt>Amount</dt><dd class="amount">$1,250.00 USD</dd></div>
+            <div class="row"><dt>Transaction fee</dt><dd>$2.50</dd></div>
+            <div class="row"><dt>Send date</dt><dd>May 24, 2027</dd></div>
+            <div class="row"><dt>Memo</dt><dd>July Consulting Invoice</dd></div>
+            <div class="row">
+              <dt>Status</dt>
+              <dd class="status">
+                <span class="status__main"><img src="assets/help-outline.svg" alt="" width="24" height="24">Completed</span>
+                <span class="status__time">May 24, 2027 at 10:45 AM ET</span>
+              </dd>
+            </div>
+          </dl>
+
+          <section class="manage">
+            <div class="manage__head">
+              <h2 class="subtitle">Manage your receipt</h2>
+              <p class="text">Choose how you'd like to save or share your receipt.</p>
+            </div>
+            <div class="actions">
+              <button class="action" type="button" data-action="download"><span class="ico"><img src="assets/icon-send.svg" alt=""></span>Download PDF</button>
+              <button class="action" type="button" data-action="email"><span class="ico"><img src="assets/icon-mail.svg" alt=""></span>Email receipt</button>
+              <button class="action" type="button" data-action="print"><span class="ico"><img src="assets/icon-printer.svg" alt=""></span>Print receipt</button>
+              <button class="action" type="button" data-action="share"><span class="ico"><img src="assets/icon-share.svg" alt=""></span>Share receipt</button>
+            </div>
+          </section>
+
+          <aside class="help">
+            <img src="assets/help-outline-small.svg" alt="" width="24" height="24">
+            <div class="help__body">
+              <p class="help__title">Need help?</p>
+              <p class="help__text">If you have any questions about this transfer, contact support and provide your Reference ID.</p>
+              <a class="help__link" href="#" data-action="support">Contact support</a>
+            </div>
+          </aside>
+
+          <footer class="footer">
+            <img class="divider" src="assets/divider.svg" alt="">
+            <div class="buttons">
+              <button class="btn btn--outline" type="button" data-action="details"><img src="assets/icon-file-text.svg" alt="">View transfer details</button>
+              <button class="btn btn--primary" type="button" data-action="done">Done</button>
+            </div>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>

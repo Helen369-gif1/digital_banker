@@ -1,0 +1,31 @@
+/* Embedded, non-interactive view of the Send funds screen for the Move Money hero.
+   The page is transparent so the static screenshot underneath shows through
+   until the demo is live (no white flash). */
+html { overflow: hidden; background: transparent; } /* scrolled by script only; body must not clip the content */
+body { background: transparent; pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; }
+.app { min-width: 0; }
+
+/* Hover and press feedback, driven by embed.js (real :hover never fires: the page takes no pointer input) */
+.action, .btn, .nav__item { transition: background .15s, transform .15s, box-shadow .15s; }
+.nav__item.is-hover { background: rgba(0, 0, 0, .07); }
+.action.is-hover, .btn--outline.is-hover { background: #eef5ff; box-shadow: 0 0 0 2px rgba(6, 53, 124, .18); }
+.btn--primary.is-hover { background: #263649; box-shadow: 0 0 0 2px rgba(6, 53, 124, .25); }
+.is-pressed { transform: scale(.96); background: #dcebff; box-shadow: 0 0 0 4px rgba(205, 127, 50, .35); }
+.btn--primary.is-pressed { background: #1c2838; }
+
+/* Cursor: light pointer with a soft golden glow, and a light ring on click */
+.demo-cursor, .demo-ring {
+  position: fixed; left: 0; top: 0; z-index: 10; pointer-events: none; opacity: 0;
+  will-change: transform, opacity;
+}
+.demo-cursor {
+  width: 32px; height: 44px;
+  transform-origin: 3px 3px;
+  filter: drop-shadow(0 0 5px rgba(232, 170, 80, .95)) drop-shadow(0 0 14px rgba(205, 127, 50, .65)) drop-shadow(0 1px 2px rgba(0, 0, 0, .45));
+}
+.demo-ring {
+  width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+  border: 2px solid rgba(255, 214, 150, .95);
+  background: radial-gradient(circle, rgba(255, 226, 170, .45), rgba(205, 127, 50, .15) 60%, transparent 72%);
+  box-shadow: 0 0 18px rgba(232, 170, 80, .8);
+}

@@ -86,6 +86,9 @@
 
     // Veil
     veil.style.opacity = String(s);
+
+    // Live demo plays while the interface is fully shown, stops as it starts to sink
+    if (window.heroDemoSet) window.heroDemoSet(a > 0.95 && s < 0.5);
   }
 
   function frame(ts) {

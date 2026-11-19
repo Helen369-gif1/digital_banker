@@ -83,6 +83,8 @@
                 <source media="(max-width: 768px)" srcset="media/ui/hero-phone-account-ready.webp">
                 <img src="media/ui/hero-laptop-receipt.webp" alt="" width="1440" height="1449">
               </picture>
+              <!-- Live demo of the same screen: plays on top of the picture (kept as poster); see js/hero-demo.js -->
+              <iframe class="hero__demo" id="hero-demo" data-src="../demos/send-funds/embed.html" title="" width="1440" height="900" tabindex="-1" scrolling="no" aria-hidden="true" inert></iframe>
 
               <!-- Callouts: 1px bronze lines from a label to a real row of the example receipt. Labels are the
                    interface's own field names. Positions are percentages of the visible part of the image
@@ -365,6 +367,7 @@
   </footer>
 
   <script src="js/shell.js" defer></script>
+  <script src="js/hero-demo.js" defer></script>
   <script src="js/hero-scene.js" defer></script>
   <script src="js/reveal.js" defer></script>
   <script src="js/repeat-depth.js" defer></script>

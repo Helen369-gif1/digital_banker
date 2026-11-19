@@ -169,6 +169,35 @@
   object-position: top left;
 }
 
+/* Live demo of the same screen: a 1440x900 page scaled to the frame (scale set in js/hero-demo.js).
+   Sits above the picture, which stays underneath as the poster. Callouts and the contour stay on top. */
+.hero__demo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  background: transparent;
+  transform-origin: 0 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.hero__demo.is-live {
+  opacity: 1;
+}
+
+/* While the demo scrolls the receipt, the callouts (which point at rows of the unscrolled screen) step aside */
+.callouts {
+  transition: opacity 0.35s ease;
+}
+
+.hero__ui.demo-scrolled .callouts {
+  opacity: 0;
+}
+
 /* Callouts on the receipt: the empty bands left and right of the receipt hold the labels, the 1px bronze
    lines run to the rows they name. js/hero-scene.js sets --k (0 to 1) on each, one after another. */
 .callouts {
@@ -277,6 +306,10 @@
     width: min(70vw, calc((100svh - var(--mm-header-h) - 120px) * 0.4614));
     aspect-ratio: 860 / 1864;
   }
+
+  .hero__demo {
+    display: none;
+  }
 }
 
 /* Reduced motion: no pin, no scroll animation, one complete static composition */
@@ -292,6 +325,7 @@
   }
 
   .hero__ui,
+  .hero__demo,
   .hero__veil {
     display: none;
   }
