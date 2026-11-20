@@ -714,17 +714,11 @@
   min-width: 0;
 }
 
-.repeat__layers {
-  position: relative;
-  aspect-ratio: 1 / 0.92;
-}
-
 /* Scroll depth: js/repeat-depth.js sets --py on each layer (the back one drifts less than the front).
    Uses the separate `translate` property so it does not fight the reveal transform. */
+/* Placement of the layers and chips: css/fragments.css (12-column grid) */
 .repeat__layer {
-  position: absolute;
   isolation: isolate;
-  width: 62%;
   translate: 0 var(--py, 0px);
 }
 
@@ -751,21 +745,8 @@
   translate: -16px 16px;
 }
 
-.repeat__layer--receipt {
-  top: 0;
-  right: 0;
-}
-
-.repeat__layer--amount {
-  top: 14%;
-  left: 0;
-}
-
+/* Box of the chip list; placement is in css/fragments.css */
 .repeat__float {
-  position: absolute;
-  left: 22%;
-  bottom: 0;
-  width: 56%;
   padding: 8px 24px;
   background: var(--gr-surface-elevated);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -787,14 +768,6 @@
   border-top: 1px solid var(--gr-line-dark);
 }
 
-.repeat__float li::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  background: var(--gr-bronze);
-}
-
 .repeat__stage .ui-note {
   margin-top: 24px;
 }
@@ -813,18 +786,6 @@
     padding-top: 0;
   }
 
-  .repeat__layers {
-    aspect-ratio: 1 / 1.25;
-  }
-
-  .repeat__layer {
-    width: 70%;
-  }
-
-  .repeat__float {
-    left: 10%;
-    width: 80%;
-  }
 }
 
 /* ======================================================================
