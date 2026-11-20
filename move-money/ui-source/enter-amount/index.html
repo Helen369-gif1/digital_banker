@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send funds - Enter amount</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Manrope:wght@600&family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Icon sprite. Icons that Figma exposes only as library components (no exportable asset) are drawn here. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="#263238" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 3 10.5l7 3 3 7z"/><path d="M10 13.5 21 3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="#263238" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="#263238" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2 .7 3.5 2.5 3.5 5.6"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24" fill="none" stroke="#263238" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m20 11-8.6 8.6a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.6 8.6a2 2 0 0 1-3-3L14 7"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="#263238" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="#4A4E53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></symbol>
+    <symbol id="i-pie" viewBox="0 0 24 24" fill="none" stroke="#4A4E53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 16 16" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></symbol>
+    <symbol id="i-avatar" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#99C0FB"/><circle cx="12" cy="9.5" r="3" stroke="#06357C" stroke-width="1.5"/><path d="M6 19c.8-2.6 3-4 6-4s5.2 1.4 6 4" stroke="#06357C" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="screen">
+  <div class="screen__bg" aria-hidden="true"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar__menu">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo"><img src="assets/logo-digital-banker.png" alt="Digital Banker Glonari"></div>
+      </div>
+      <nav class="sidebar__nav" aria-label="Main">
+        <a class="nav-item is-active" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg><span>Send funds</span></a>
+        <a class="nav-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span>History</span></a>
+        <a class="nav-item" href="#"><img class="icon" src="assets/icon-users-three.svg" alt=""><span>Payees</span></a>
+        <a class="nav-item" href="#"><img class="icon" src="assets/icon-identification-card.svg" alt=""><span>Accounts</span></a>
+        <a class="nav-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg><span>Split payment</span></a>
+        <a class="nav-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-attach"/></svg><span>Request funds</span></a>
+        <a class="nav-item nav-item--settings" href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg><span>Settings</span></a>
+      </nav>
+    </div>
+    <div class="sidebar__user">
+      <span class="sidebar__avatar"><img src="assets/avatar-alex.png" alt=""></span>
+      <span class="sidebar__name">Alex Smith</span>
+    </div>
+  </aside>
+
+  <div class="container">
+    <header class="topbar">
+      <h1 class="topbar__title">Send funds</h1>
+      <div class="topbar__tools">
+        <label class="search">
+          <img class="search__icon" src="assets/icon-search.svg" alt="">
+          <input class="search__input" type="search" placeholder="Search" aria-label="Search">
+          <span class="search__kbd">/</span>
+        </label>
+        <div class="topbar__icons">
+          <button class="icon-btn" type="button" id="theme-btn" aria-label="Theme"><img src="assets/icon-sun.svg" alt=""></button>
+          <button class="icon-btn" type="button" aria-label="History"><img src="assets/icon-history.svg" alt=""></button>
+          <button class="icon-btn" type="button" aria-label="Notifications"><img src="assets/icon-bell.svg" alt=""></button>
+          <button class="icon-btn icon-btn--avatar" type="button" aria-label="Profile"><svg width="24" height="24" aria-hidden="true"><use href="#i-avatar"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <ol class="stepper" aria-label="Progress">
+        <li class="step is-done"><img src="assets/icon-step-done.svg" alt=""><span>Account</span></li>
+        <li class="step-line"><img src="assets/line-step.svg" alt=""></li>
+        <li class="step is-done"><img src="assets/icon-step-done.svg" alt=""><span>Payee</span></li>
+        <li class="step-line"><img src="assets/line-step.svg" alt=""></li>
+        <li class="step is-done"><img src="assets/icon-step-done.svg" alt=""><span>Destination</span></li>
+        <li class="step-line"><img src="assets/line-step.svg" alt=""></li>
+        <li class="step is-current" aria-current="step"><b class="step__num">4</b><span>Amount</span></li>
+        <li class="step-line"><img src="assets/line-step.svg" alt=""></li>
+        <li class="step is-todo"><b class="step__num">5</b><span>Review</span></li>
+        <li class="step-line"><img src="assets/line-step.svg" alt=""></li>
+        <li class="step is-todo"><b class="step__num">6</b><span>Sent</span></li>
+      </ol>
+
+      <main class="card">
+        <form class="form" id="amount-form" novalidate>
+          <div class="form__head">
+            <h2>Enter amount</h2>
+            <p>Enter the amount you want to send.</p>
+          </div>
+
+          <div class="form__body">
+            <section class="panel panel--amount">
+              <div class="panel__inner">
+                <label class="panel__label" for="amount">You send</label>
+                <div class="amount-row">
+                  <div class="amount">
+                    <span class="amount__sign">$</span>
+                    <input class="amount__input" id="amount" type="text" inputmode="numeric" value="1,250" autocomplete="off">
+                    <img class="amount__caret" src="assets/line-caret.svg" alt="">
+                  </div>
+                  <div class="select-field">
+                    <div class="select">
+                      <select id="currency" aria-label="Currency">
+                        <option>USD</option>
+                      </select>
+                      <svg class="select__chevron" width="16" height="16" aria-hidden="true"><use href="#i-chevron"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel panel--when">
+              <div class="panel__inner">
+                <span class="panel__label" id="when-label">When</span>
+                <div class="when" role="group" aria-labelledby="when-label">
+                  <button class="btn-when is-active" type="button" aria-pressed="true">Immediately</button>
+                  <button class="btn-when" type="button" aria-pressed="false">Schedule for later</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="rows">
+              <div class="row">
+                <div class="row__label"><svg class="icon" aria-hidden="true"><use href="#i-card"/></svg><span>Available balance</span></div>
+                <div class="row__value row__value--blue" id="balance">$4,520</div>
+              </div>
+              <div class="row">
+                <div class="row__label"><img class="icon" src="assets/icon-clipboard.svg" alt="" width="24" height="24"><span>Transaction fee</span></div>
+                <div class="row__value" id="fee">$2.50</div>
+              </div>
+              <div class="row row--last">
+                <div class="row__label"><svg class="icon" aria-hidden="true"><use href="#i-pie"/></svg><span>Remaining balance after send</span></div>
+                <div class="row__value row__value--bronze" id="remaining">$3,267.50</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="memo">
+            <div class="memo__head">
+              <label for="memo">Memo (optional)</label>
+              <p>Add a memo or reference for the recipient.</p>
+            </div>
+            <div class="memo__field">
+              <div class="memo__box">
+                <textarea id="memo" maxlength="100" aria-describedby="memo-hint memo-count">July Consulting Invoice</textarea>
+                <span class="memo__count" id="memo-count">22/100</span>
+              </div>
+              <p class="memo__hint" id="memo-hint">This memo will be visible to the recipient.</p>
+            </div>
+          </div>
+
+          <div class="actions">
+            <img class="actions__line" src="assets/line-divider.svg" alt="">
+            <div class="actions__row">
+              <button class="btn btn--outline" type="button">Back</button>
+              <button class="btn btn--primary" type="submit">Continue</button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
