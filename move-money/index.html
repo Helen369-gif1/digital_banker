@@ -7,9 +7,10 @@ python -m http.server 8765<!doctype html>
   <title>Move Money</title>
   <meta name="description" content="Send, receive, and manage payments in one place.">
   <script>document.documentElement.classList.add('js');</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Roboto:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Fonts are self-hosted (css/fonts.css, media/fonts/). Only the body font and the font used inside the fragments are preloaded, so the preload does not compete with the hero video. -->
+  <link rel="preload" href="media/fonts/ibm-plex-sans-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="media/fonts/roboto-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
   <link rel="icon" href="../shared/favicon/favicon.ico">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
@@ -134,27 +135,27 @@ python -m http.server 8765<!doctype html>
               <img class="fx-fallback" src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen: an amount to send and a choice to send now or schedule for later" width="815" height="966" loading="lazy">
               <!-- Live fragment: js/fragments.js plays it once and ends on this frame. Source: ui-source/enter-amount -->
               <div class="fx fx--send" data-scene="send" role="img" aria-label="Example Enter amount screen: an amount to send and a choice to send now or schedule for later" hidden>
-                <ol class="fx__steps is-review" aria-hidden="true" data-b="1"><li></li><li></li><li></li><li></li><li></li><li></li></ol>
-                <p class="fx__steplabel" aria-hidden="true" data-b="1"><span>Amount</span><span>Review</span></p>
-                <div class="fx__head" data-b="1"><h4 class="fx__title">Enter amount</h4><p class="fx__sub">Enter the amount you want to send.</p></div>
-                <div class="fx__box" data-b="2">
+                <ol class="fx__steps is-review" aria-hidden="true"><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+                <p class="fx__steplabel" aria-hidden="true"><span>Amount</span><span>Review</span></p>
+                <div class="fx__head"><h4 class="fx__title">Enter amount</h4><p class="fx__sub">Enter the amount you want to send.</p></div>
+                <div class="fx__box">
                   <span class="fx__label">You send</span>
                   <div class="fx__amount-row">
                     <div class="fx__amount"><span class="fx__sign">$</span><span class="ty" data-full="150"><span class="ty__ghost" aria-hidden="true">150</span><span class="ty__live">150</span></span><i class="fx__caret"></i></div>
                     <span class="fx__select">USD <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                   </div>
                 </div>
-                <div class="fx__box" data-b="3">
+                <div class="fx__box">
                   <span class="fx__label">When</span>
                   <div class="fx__seg"><span class="is-active" data-seg="now">Immediately</span><span data-seg="later">Schedule for later</span></div>
-                  <div class="fx__date is-dim" data-date><span class="ph placeholder-date">[DATE]</span></div>
+                  <div class="fx__date is-dim" data-date><span>05.06.2026 20:12</span></div>
                 </div>
                 <dl class="fx__rows" data-b="4">
                   <div><dt>They receive</dt><dd>$150 USD</dd></div>
                   <div><dt>Rate</dt><dd>1 USD = 1 USD</dd></div>
                   <div><dt>Transaction fee</dt><dd>$0.00</dd></div>
                 </dl>
-                <div class="fx__actions" data-b="5"><span class="fx__btn fx__btn--primary is-done" data-btn><svg class="fx__check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l4 4 8-9"/></svg>Continue</span></div>
+                <div class="fx__actions"><span class="fx__btn fx__btn--primary is-done" data-btn><svg class="fx__check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l4 4 8-9"/></svg>Continue</span></div>
               </div>
             </div>
             <figcaption class="ui-note">Example interface — not your account.</figcaption>
@@ -165,25 +166,24 @@ python -m http.server 8765<!doctype html>
           <figure class="way-block__shot reveal">
             <div class="shot shot--alt" style="--ar:.915; --cap:660px">
               <img class="fx-fallback" src="media/ui/panel-receive-request.webp" alt="Example account screen with a QR code and wallet address to receive money" width="615" height="672" loading="lazy">
-              <!-- placeholder-request-list: no source frame yet for the request list; statuses are [STATUS] placeholders -->
-              <div class="fx fx--dark fx--recv placeholder-request-list" data-scene="recv" role="img" aria-label="Example account screen with a QR code to receive money and a request moving from requested to paid" hidden>
-                <div class="fx__head" data-b="1"><h4 class="fx__title">Scan to receive</h4></div>
-                <div class="fx__box fx__recv-top" data-b="2">
+              <!-- Example values approved by the owner: address from panel-receive-request.webp; statuses Requested, Pending, Paid are invented -->
+              <div class="fx fx--dark fx--recv" data-scene="recv" role="img" aria-label="Example account screen with a QR code to receive money and a request moving from requested to paid" hidden>
+                <div class="fx__head"><h4 class="fx__title">Scan to receive</h4></div>
+                <div class="fx__box fx__recv-top">
                   <div>
                     <span class="fx__label">Wallet Address</span>
-                    <div class="fx__addr"><span class="fx__bar" style="--w:120px"></span></div>
-                    <div class="fx__addr"><span class="fx__bar" style="--w:72px"></span></div>
+                    <div class="fx__addr">i878cPyUt...4HqroDv</div>
                   </div>
                   <div><div class="fx__qr placeholder-qr" data-qr></div><p class="fx__qrnote">Scan to receive</p></div>
                 </div>
-                <span class="fx__label" style="margin-top:20px" data-b="3">Request money</span>
-                <div class="fx__req" data-state="2" data-b="3" data-req>
+                <span class="fx__label" style="margin-top:20px">Request money</span>
+                <div class="fx__req" data-state="2" data-req>
                   <div class="fx__req-top"><span class="fx__avatar" aria-hidden="true">C</span><span class="fx__name">Curt</span><span class="fx__amt">$150 USD</span></div>
-                  <div class="fx__track" aria-hidden="true"><i class="fx__line"><b></b></i><span class="ph">[STATUS]</span><span class="ph">[STATUS]</span><span class="ph">[STATUS]</span></div>
-                  <p class="fx__stat"><span class="placeholder-status">[STATUS]</span><span class="placeholder-status">[STATUS]</span><span class="placeholder-status">[STATUS]</span></p>
+                  <div class="fx__track" aria-hidden="true"><i class="fx__line"><b></b></i><span>Requested</span><span>Pending</span><span>Paid</span></div>
+                  <p class="fx__stat"><span>Requested</span><span>Pending</span><span>Paid</span></p>
                 </div>
-                <div class="fx__req fx__req--ghost" aria-hidden="true" data-b="4"><span class="fx__avatar"></span><span class="fx__bar" style="--w:40%"></span><span class="fx__bar" style="--w:56px;margin-left:auto"></span></div>
-                <div class="fx__req fx__req--ghost" aria-hidden="true" data-b="4"><span class="fx__avatar"></span><span class="fx__bar" style="--w:30%"></span><span class="fx__bar" style="--w:56px;margin-left:auto"></span></div>
+                <div class="fx__req fx__req--ghost" aria-hidden="true"><span class="fx__avatar"></span><span class="fx__bar" style="--w:40%"></span><span class="fx__bar" style="--w:56px;margin-left:auto"></span></div>
+                <div class="fx__req fx__req--ghost" aria-hidden="true"><span class="fx__avatar"></span><span class="fx__bar" style="--w:30%"></span><span class="fx__bar" style="--w:56px;margin-left:auto"></span></div>
               </div>
             </div>
             <figcaption class="ui-note">Example interface — not your account.</figcaption>
@@ -205,10 +205,10 @@ python -m http.server 8765<!doctype html>
             <div class="shot shot--open">
               <div class="way-block__crop">
                 <img class="fx-fallback" src="media/ui/panel-add-withdraw-convert.webp" alt="Example Bank account details form for adding an external account" width="800" height="1000" loading="lazy">
-                <!-- placeholder-convert: the Add and Convert tabs have no source frame yet; Withdraw follows the Bank account details screenshot -->
+                <!-- placeholder-convert: the Add tab (Linked account bar) has no source frame yet; Convert uses owner-approved example names; Withdraw follows the Bank account details screenshot -->
                 <div class="fx fx--add placeholder-convert" data-scene="add" role="img" aria-label="Example Bank account details form for adding an external account, with the details block open" hidden>
-                  <div class="fx__tabs" data-active="1" data-b="1"><span>Add</span><span class="is-active">Withdraw</span><span>Convert</span><i></i></div>
-                  <div data-b="2">
+                  <div class="fx__tabs" data-active="1"><span>Add</span><span class="is-active">Withdraw</span><span>Convert</span><i></i></div>
+                  <div>
                     <div class="fx__stack">
                       <div class="fx__panel" data-panel="add">
                         <div class="fx__head"><h4 class="fx__title">Add money</h4><p class="fx__sub">Add money from a linked account.</p></div>
@@ -217,7 +217,7 @@ python -m http.server 8765<!doctype html>
                       </div>
                       <div class="fx__panel" data-panel="convert">
                         <div class="fx__head"><h4 class="fx__title">Convert</h4><p class="fx__sub">Convert eligible Glonari assets.</p></div>
-                        <div class="fx__field fx__field--2"><div><span class="fx__label">From</span><div class="fx__input"><span class="ph">[ASSET]</span></div></div><div><span class="fx__label">To</span><div class="fx__input"><span class="ph">[ASSET]</span></div></div></div>
+                        <div class="fx__field fx__field--2"><div><span class="fx__label">From</span><div class="fx__input"><span>Personal USD Balance</span></div></div><div><span class="fx__label">To</span><div class="fx__input"><span>USDC - Polygon</span></div></div></div>
                         <div class="fx__field"><span class="fx__label">Amount</span><div class="fx__input fx__input--amt"><span>$150 USD</span></div></div>
                       </div>
                       <div class="fx__panel is-active" data-panel="withdraw">
@@ -230,7 +230,7 @@ python -m http.server 8765<!doctype html>
                       </div>
                     </div>
                   </div>
-                  <aside class="fx__details is-open" data-b="3">
+                  <aside class="fx__details is-open">
                     <div class="fx__details-head"><span class="fx__label">Details</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                     <dl class="fx__rows">
                       <div><dt>You send</dt><dd>$150 USD</dd></div>
@@ -263,37 +263,39 @@ python -m http.server 8765<!doctype html>
           <div class="repeat__layers" data-scene="repeat">
             <div class="repeat__layer repeat__layer--receipt reveal" style="--reveal-delay:.1s">
               <img class="fx-fallback" src="media/ui/panel-receipt.webp" alt="Example receipt screen with the reference, amount, fee, status and options to download, email, print or share the receipt" width="800" height="1180" loading="lazy">
-              <!-- placeholder-transactions: the transactions list has no source frame yet; the receipt follows the Receipt saved screenshot -->
+              <!-- placeholder-transactions: the transactions list has no source frame yet (other rows are bars); the receipt values come from hero-laptop-receipt.webp, except Curt, $150 USD and $0.00 -->
+              <!-- Example values approved by the owner, not Glonari terms -->
+
               <div class="fx fx--dark fx--tx placeholder-transactions" role="img" aria-label="Example transactions list: a transaction opens a receipt with the reference, amount, fee, status and options to download, email, print or share it" hidden>
                 <div class="fx__stack">
                   <div class="fx__panel" data-tp="list">
-                    <span class="fx__label" data-b="1">Transactions</span>
+                    <span class="fx__label">Transactions</span>
                     <div style="margin-top:12px">
-                      <div class="fx__row is-hl" data-b="1" data-tx><span class="fx__avatar" aria-hidden="true">C</span><div class="fx__col"><span class="fx__who">Curt</span><span class="fx__state">Completed</span></div><span class="fx__amt">$150 USD</span></div>
-                      <div class="fx__row" aria-hidden="true" data-b="2"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:44%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
-                      <div class="fx__row" aria-hidden="true" data-b="3"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:36%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
-                      <div class="fx__row" aria-hidden="true" data-b="4"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:52%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
+                      <div class="fx__row is-hl" data-tx><span class="fx__avatar" aria-hidden="true">C</span><div class="fx__col"><span class="fx__who">Curt</span><span class="fx__state">Completed</span></div><span class="fx__amt">$150 USD</span></div>
+                      <div class="fx__row" aria-hidden="true"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:44%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
+                      <div class="fx__row" aria-hidden="true"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:36%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
+                      <div class="fx__row" aria-hidden="true"><span class="fx__avatar"></span><div class="fx__col"><span class="fx__bar" style="--w:52%"></span><span class="fx__bar" style="--w:30%"></span></div><span class="fx__bar" style="--w:56px"></span></div>
                     </div>
                   </div>
                   <div class="fx__panel is-active" data-tp="receipt">
-                    <div class="fx__head" data-b="6"><h4 class="fx__title">Receipt saved</h4><p class="fx__sub">Your transfer is complete. You can view, download, or send your receipt.</p></div>
-                    <dl class="fx__rows" data-b="7">
-                      <div><dt>Reference ID</dt><dd class="ph placeholder-reference">[REFERENCE ID]</dd></div>
-                      <div><dt>Date &amp; time</dt><dd class="ph placeholder-date">[DATE]</dd></div>
-                      <div><dt>From</dt><dd class="ph placeholder-account">[ACCOUNT]</dd></div>
+                    <div class="fx__head"><h4 class="fx__title">Receipt saved</h4><p class="fx__sub">Your transfer is complete. You can view, download, or send your receipt.</p></div>
+                    <dl class="fx__rows">
+                      <div><dt>Reference ID</dt><dd>DBTX-2026-05-24-8F7G2K</dd></div>
+                      <div><dt>Date &amp; time</dt><dd>May 24, 2026 at 10:42 AM ET</dd></div>
+                      <div><dt>From</dt><dd>Personal USD Balance ••••4292</dd></div>
                       <div><dt>To</dt><dd>Curt</dd></div>
                       <div><dt>Amount</dt><dd>$150 USD</dd></div>
                       <div><dt>Transaction fee</dt><dd>$0.00</dd></div>
                       <div><dt>Status</dt><dd><span class="fx__state">Completed</span></dd></div>
                     </dl>
-                    <div class="fx__btns" data-b="8"><span class="fx__btn">Download PDF</span><span class="fx__btn">Email receipt</span><span class="fx__btn">Print receipt</span><span class="fx__btn">Share receipt</span></div>
+                    <div class="fx__btns"><span class="fx__btn">Download PDF</span><span class="fx__btn">Email receipt</span><span class="fx__btn">Print receipt</span><span class="fx__btn">Share receipt</span></div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="repeat__layer repeat__layer--amount reveal" style="--reveal-delay:.25s">
               <img class="fx-fallback" src="media/ui/panel-send-pay.webp" alt="Example Enter amount screen with an option to schedule a payment for later" width="815" height="966" loading="lazy">
-              <!-- placeholder-repeat-actions: no source frames yet for recent recipients, recurring and split; schedule follows the Enter amount screen -->
+              <!-- placeholder-repeat-actions: no source frame yet for recent recipients (other rows are bars). Example values approved by the owner: Alex, Maya, dates 05.07 and 05.08, split amounts -->
               <div class="fx fx--list placeholder-repeat-actions" role="img" aria-label="Example screens for recent recipients, scheduling a payment, recurring transfers and splitting a shared expense" hidden>
                 <div class="fx__stack">
                   <div class="fx__panel" data-rp="0">
@@ -304,20 +306,20 @@ python -m http.server 8765<!doctype html>
                     <span class="fx__label">Schedule a payment</span>
                     <div class="fx__amount" style="margin-top:12px"><span class="fx__sign">$</span><span>150</span><span class="fx__sign" style="font-size:.5em">USD</span></div>
                     <div class="fx__seg"><span>Immediately</span><span class="is-active">Schedule for later</span></div>
-                    <div class="fx__date"><span class="ph placeholder-date">[DATE]</span></div>
+                    <div class="fx__date"><span>05.06.2026 20:12</span></div>
                   </div>
                   <div class="fx__panel" data-rp="2">
                     <span class="fx__label">Recurring transfers</span>
                     <div class="fx__amount" style="margin-top:12px"><span class="fx__sign">$</span><span>150</span><span class="fx__sign" style="font-size:.5em">USD</span></div>
-                    <ul class="fx__timeline"><li><span class="ph placeholder-date">[DATE]</span><span>$150 USD</span></li><li><span class="ph placeholder-date">[DATE]</span><span>$150 USD</span></li><li><span class="ph placeholder-date">[DATE]</span><span>$150 USD</span></li></ul>
+                    <ul class="fx__timeline"><li><span>05.06.2026</span><span>$150 USD</span></li><li><span>05.07.2026</span><span>$150 USD</span></li><li><span>05.08.2026</span><span>$150 USD</span></li></ul>
                   </div>
                   <div class="fx__panel is-active" data-rp="3">
                     <span class="fx__label">Split a shared expense</span>
-                    <div class="fx__split"><span>Total</span><span class="ph placeholder-amount">[AMOUNT]</span></div>
+                    <div class="fx__split"><span>Total</span><span class="fx__amt">$150.00 USD</span></div>
                     <div style="margin-top:8px">
-                      <div class="fx__row"><span class="fx__avatar" aria-hidden="true">C</span><span class="fx__who" style="flex:1">Curt</span><span class="ph placeholder-amount">[AMOUNT]</span></div>
-                      <div class="fx__row" aria-hidden="true"><span class="fx__avatar"></span><span class="fx__bar" style="--w:38%"></span><span class="ph placeholder-amount" style="margin-left:auto">[AMOUNT]</span></div>
-                      <div class="fx__row" aria-hidden="true"><span class="fx__avatar"></span><span class="fx__bar" style="--w:30%"></span><span class="ph placeholder-amount" style="margin-left:auto">[AMOUNT]</span></div>
+                      <div class="fx__row"><span class="fx__avatar" aria-hidden="true">C</span><span class="fx__who" style="flex:1">Curt</span><span class="fx__amt">$50.00 USD</span></div>
+                      <div class="fx__row"><span class="fx__avatar" aria-hidden="true">A</span><span class="fx__who" style="flex:1">Alex</span><span class="fx__amt">$50.00 USD</span></div>
+                      <div class="fx__row"><span class="fx__avatar" aria-hidden="true">M</span><span class="fx__who" style="flex:1">Maya</span><span class="fx__amt">$50.00 USD</span></div>
                     </div>
                   </div>
                 </div>
@@ -354,12 +356,12 @@ python -m http.server 8765<!doctype html>
             <img class="gia__portrait" data-seq src="media/gia-cutout.webp" alt="Gia, the Glonari assistant" width="1086" height="1448" loading="lazy">
             <div class="gia__back" data-seq>
               <img class="fx-fallback" src="media/ui/panel-send-pay.webp" alt="" width="815" height="966" loading="lazy">
-              <!-- placeholder-funds-check: no source frame yet for the funds check; replace with the real one -->
-              <div class="fx fx--dark fx--funds placeholder-funds-check" aria-hidden="true" hidden>
+              <!-- Funds check: amounts from the owner's Enter amount screenshot (example values approved by the owner) -->
+              <div class="fx fx--dark fx--funds" aria-hidden="true" hidden>
                 <span class="fx__label">Check available funds</span>
                 <dl class="fx__rows">
-                  <div><dt>Available funds</dt><dd><span class="fx__ok"><i></i><span class="ph placeholder-amount">[AMOUNT]</span></span></dd></div>
-                  <div><dt>Funds reserved for another goal</dt><dd><span class="fx__ok"><i></i><span class="ph placeholder-amount">[AMOUNT]</span></span></dd></div>
+                  <div><dt>Available funds</dt><dd><span class="fx__ok"><i></i><span>$4,520.00 USD</span></span></dd></div>
+                  <div><dt>Funds reserved for another goal</dt><dd><span class="fx__ok"><i></i><span>$3,267.50 USD</span></span></dd></div>
                 </dl>
               </div>
             </div>

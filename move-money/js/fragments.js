@@ -68,14 +68,12 @@
     build(tl, r) {
       const ty = $(r, '.ty'), amount = $(r, '.fx__amount'), seg = $$(r, '[data-seg]');
       const date = $(r, '[data-date]'), btn = $(r, '[data-btn]'), steps = $(r, '.fx__steps');
-      tl.at(200, () => show(r, 1)).at(900, () => show(r, 2));
-      tl.span(1500, 800, (p) => { typeTo(ty, p); amount.classList.toggle('is-typing', p < 1); });
-      tl.at(2700, () => show(r, 3));
-      tl.at(3500, () => { setActive(seg, 1); date.classList.remove('is-dim'); });
-      tl.at(4700, () => { setActive(seg, 0); date.classList.add('is-dim'); });
-      tl.at(5200, () => show(r, 4)).at(5900, () => show(r, 5));
-      tl.at(6700, () => btn.classList.add('is-press'));
-      tl.at(6900, () => { btn.classList.remove('is-press'); btn.classList.add('is-done'); steps.classList.add('is-review'); });
+      tl.span(300, 600, (p) => { typeTo(ty, p); amount.classList.toggle('is-typing', p < 1); });
+      tl.at(1500, () => { setActive(seg, 1); date.classList.remove('is-dim'); });
+      tl.at(2400, () => { setActive(seg, 0); date.classList.add('is-dim'); });
+      tl.at(2700, () => show(r, 4));
+      tl.at(3500, () => btn.classList.add('is-press'));
+      tl.at(3650, () => { btn.classList.remove('is-press'); btn.classList.add('is-done'); steps.classList.add('is-review'); });
     }
   };
 
@@ -83,12 +81,9 @@
     init(r) { $(r, '[data-req]').dataset.state = '0'; },
     build(tl, r) {
       const req = $(r, '[data-req]'), qr = $(r, '[data-qr]');
-      tl.at(200, () => show(r, 1)).at(700, () => show(r, 2));
-      tl.at(1200, () => qr.classList.add('is-drawn'));
-      tl.at(2700, () => show(r, 3));
-      tl.at(4200, () => { req.dataset.state = '1'; });
-      tl.at(5800, () => { req.dataset.state = '2'; });
-      tl.at(6400, () => show(r, 4));
+      tl.at(200, () => qr.classList.add('is-drawn'));
+      tl.at(2000, () => { req.dataset.state = '1'; });
+      tl.at(3100, () => { req.dataset.state = '2'; });
     }
   };
 
@@ -100,12 +95,11 @@
     },
     build(tl, r) {
       const fills = $$(r, '[data-fill]');
-      tl.at(200, () => show(r, 1)).at(700, () => show(r, 2)).at(900, () => show(r, 3));
-      tl.at(2600, () => setTab(r, 2));
-      tl.at(4200, () => setTab(r, 1));
-      fills.forEach((el, i) => tl.at(4500 + i * 450, () => el.classList.add('is-on')));
-      tl.at(5200, () => $(r, '[data-ach]').classList.add('is-active'));
-      tl.at(7000, () => $(r, '.fx__details').classList.add('is-open'));
+      tl.at(900, () => setTab(r, 2));
+      tl.at(1900, () => setTab(r, 1));
+      fills.forEach((el, i) => tl.at(2100 + i * 280, () => el.classList.add('is-on')));
+      tl.at(2600, () => $(r, '[data-ach]').classList.add('is-active'));
+      tl.at(3600, () => $(r, '.fx__details').classList.add('is-open'));
     }
   };
 
@@ -121,11 +115,9 @@
   scenes.repeat = {
     init(r) { chipTo(r, 0); txTo(r, 'list'); $(r, '[data-tx]').classList.remove('is-hl'); },
     build(tl, r) {
-      [200, 500, 800, 1100].forEach((ms, k) => tl.at(ms, () => show(r, k + 1)));
-      [700, 2800, 4900, 7000].forEach((ms, k) => tl.at(ms, () => chipTo(r, k)));
-      tl.at(9000, () => $(r, '[data-tx]').classList.add('is-hl'));
-      tl.at(9800, () => txTo(r, 'receipt'));
-      tl.at(10000, () => show(r, 6)).at(10300, () => show(r, 7)).at(10800, () => show(r, 8));
+      [300, 1700, 3100, 4500].forEach((ms, k) => tl.at(ms, () => chipTo(r, k)));
+      tl.at(5500, () => $(r, '[data-tx]').classList.add('is-hl'));
+      tl.at(6000, () => txTo(r, 'receipt'));
     }
   };
 
@@ -159,7 +151,7 @@
       for (let x = 0; x < N; x++) {
         let v = finder(x, y);
         if (v < 0) v = rnd() > 0.52 ? 1 : 0;
-        if (v) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" style="--d:${Math.round(((y * N + x) / (N * N)) * 1200)}ms"/>`;
+        if (v) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" style="--d:${Math.round(((y * N + x) / (N * N)) * 700)}ms"/>`;
       }
     }
     el.innerHTML = `<svg viewBox="0 0 ${N} ${N}" aria-hidden="true" shape-rendering="crispEdges">${rects}</svg>`;
@@ -204,7 +196,7 @@
     watchClass(bubble, () => {
       if (typed || !bubble.classList.contains('is-in')) return;
       typed = true;
-      tween(1000, (p) => typeTo(ty, p));
+      tween(700, (p) => typeTo(ty, p));
     });
 
     // Funds check (the back screen): its two ticks arrive after the screen does
@@ -215,7 +207,7 @@
       watchClass(back, () => {
         if (ran || !back.classList.contains('is-in')) return;
         ran = true;
-        ticks.forEach((t, k) => setTimeout(() => t.classList.remove('is-off'), 500 + k * 600));
+        ticks.forEach((t, k) => setTimeout(() => t.classList.remove('is-off'), 300 + k * 400));
       });
     }
 
@@ -270,19 +262,14 @@
     ticks.forEach((t) => t.classList.add('is-off'));
 
     const tl = new Timeline();
-    tl.at(400, () => items[0].classList.add('is-lit'));
-    mainRows.forEach((_, k) => tl.at(500 + k * 320, () => hl(mainRows, k)));
-    tl.at(2500, () => { hl(mainRows, -1); items[1].classList.add('is-lit'); });
-    extraRows.forEach((_, k) => tl.at(2700 + k * 350, () => hl(extraRows, k)));
-    ticks.forEach((t, k) => tl.at(3500 + k * 400, () => t.classList.remove('is-off')));
-    tl.at(5300, () => { hl(extraRows, -1); items[2].classList.add('is-lit'); actions.classList.add('is-ready'); });
+    tl.at(300, () => items[0].classList.add('is-lit'));
+    mainRows.forEach((_, k) => tl.at(400 + k * 220, () => hl(mainRows, k)));
+    tl.at(1700, () => { hl(mainRows, -1); items[1].classList.add('is-lit'); });
+    extraRows.forEach((_, k) => tl.at(1800 + k * 250, () => hl(extraRows, k)));
+    ticks.forEach((t, k) => tl.at(2400 + k * 300, () => t.classList.remove('is-off')));
+    tl.at(3300, () => { hl(extraRows, -1); items[2].classList.add('is-lit'); actions.classList.add('is-ready'); });
 
-    let started = false;
-    new IntersectionObserver((entries) => {
-      const e = entries[entries.length - 1];
-      tl.setVisible(e.isIntersecting);
-      if (!started && e.isIntersecting && (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= window.innerHeight * 0.6)) { started = true; tl.start(); }
-    }, { threshold: [0, 0.2, 0.4, 0.6] }).observe(stage);
+    watch(stage, tl);
   }
 
   /* ---------- Mounting ---------- */
@@ -295,19 +282,25 @@
     });
   }
 
+  /* Start when about 15% is visible, with 12% of the viewport as lead from below. If the panel leaves the
+     viewport before the scene is over, jump to its final frame instead of leaving it half-built. */
+  function watch(el, tl) {
+    let started = false;
+    new IntersectionObserver((entries) => {
+      const e = entries[entries.length - 1];
+      const enough = e.intersectionRatio >= 0.15 || e.intersectionRect.height >= window.innerHeight * 0.3;
+      if (!started && e.isIntersecting && enough) { started = true; tl.start(); }
+      if (!e.isIntersecting && !tl.done && (started || e.boundingClientRect.bottom <= 0)) tl.finish();
+    }, { rootMargin: '0px 0px 12% 0px', threshold: [0, 0.05, 0.1, 0.15, 0.25] }).observe(el);
+  }
+
   function play(scene, def) {
     scene.classList.add('is-armed');
     if (def.init) def.init(scene);
     const tl = new Timeline();
     def.build(tl, scene);
     scene._tl = tl;
-    let started = false;
-    new IntersectionObserver((entries) => {
-      const e = entries[entries.length - 1];
-      tl.setVisible(e.isIntersecting);
-      const enough = e.intersectionRatio >= 0.4 || e.intersectionRect.height >= window.innerHeight * 0.6;
-      if (!started && e.isIntersecting && enough) { started = true; tl.start(); }
-    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6] }).observe(scene);
+    watch(scene, tl);
   }
 
   function init() {

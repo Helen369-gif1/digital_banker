@@ -28,12 +28,12 @@
   const at = (ms, fn) => setTimeout(fn, ms);
 
   function play() {
-    const STEP = 1100;        // time between steps starting
-    const WORK = 700;         // time a step spends spinning
-    const first = 1500;       // first step starts
+    const STEP = 700;         // time between steps starting
+    const WORK = 450;         // time a step spends spinning
+    const first = 600;        // first step starts
 
     at(0, () => { show(portrait); show(bubble); });
-    at(700, () => show(thinking));
+    at(300, () => show(thinking));
 
     steps.forEach((li, i) => {
       const start = first + i * STEP;

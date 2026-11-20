@@ -16,7 +16,7 @@ Copy: `Move_Money_Landing_EN.txt`, used verbatim. All project files stay in Engl
 | `screen-3` | Less work for the things you do often | Dark. Asymmetric: text high left, two layered product screens right, floating card of the four repeat actions on their lower edge. The two screens are live fragments inside the same `.repeat__layer` wrappers, so `js/repeat-depth.js` (parallax, wide screens) is unchanged. The four items are buttons (chips): they light up in turn and change the left screen (recent recipients, schedule, recurring, split); then a transactions row opens a receipt on the right screen. A click on a chip stops the autoplay at its end state and shows that item. Layers sit in a 12-column grid; under 900px they stack with the chips on top. |
 | `screen-4` | Gia helps with the details | Dark. Stage with layered screens and a side panel; `js/gia-steps.js` plays Gia's steps once when the stage is 40% visible. The transfer card is HTML and uses the demonstration values listed below. `js/fragments.js` listens to the classes `js/gia-steps.js` sets (the steps' `is-done`, the bubble's `is-in`): the bubble text types in, the card rows arrive one by one as each step is done (On screen 5 the same rows build in the approval card while it travels in), and the back screen is a live funds-check fragment whose two ticks arrive after it appears. Cards are dark (flat surface, 1px line). The back screen is hidden under 900px, as before. |
 
-| `screen-5` | Prepared by Gia. Approved by you. | Dark. Example approval card (HTML) with Approve and Decline; the click only changes the example status line (`js/approve.js`). Placeholders: `[RECEIVER AMOUNT]`, `[RATE]`, `[FUNDING SOURCE]`, `[FEE]`, `[TIMING]`. The line "Clear steps. Visible activity. Your decision." is split into three columns below and lights up one by one in step with the card (rows highlighted, activity ticks, buttons ready). The back screen is a live fragment rebuilt from the Review and confirm screenshot. Approve adds a short completion state (the line grows beside "Approved by you.", a check on the button); Decline and Approve can still be switched. The autoplay stops before the decision, it never presses Approve by itself. |
+| `screen-5` | Prepared by Gia. Approved by you. | Dark. Example approval card (HTML) with Approve and Decline; the click only changes the example status line (`js/approve.js`). It uses the demonstration values listed below. The line "Clear steps. Visible activity. Your decision." is split into three columns below and lights up one by one in step with the card (rows highlighted, activity ticks, buttons ready). The back screen is a live fragment rebuilt from the Review and confirm screenshot. Approve adds a short completion state (the line grows beside "Approved by you.", a check on the button); Decline and Approve can still be switched. The autoplay stops before the decision, it never presses Approve by itself. |
 | `screen-6` | Your money, moving your way. | Final CTA over `media/cta-hall.mp4`: the camera pulls back from banknotes to the bank hall and holds on the last frame (plays once per visit at 50% visibility, rewinds after the visitor leaves, `js/cta-video.js`). Made from the generated shot reversed (`ffmpeg -vf reverse`); its last frame matches `media/cta-hall-end.webp`, which is the still used under 768px and with reduced motion; `media/cta-hall-start.jpg` is the poster before it plays. The Open Move Money button has no destination yet. |
 
 All six screens of the copy file are built.
@@ -31,18 +31,34 @@ New files: `css/fragments.css`, `js/fragments.js` (linked in `index.html` after 
 - Style: dark tokens only, 1px lines, 8px radius, no shadows, bronze for tiny accents and the one solid primary button per fragment (Continue; Approve on screen 5). Status is text plus a thin line.
 - The Enter amount fragment follows `ui-source/enter-amount/` (field names and structure; its demo amounts, balance and memo are not used).
 
-### Placeholders to replace with real frames (search for `placeholder-`)
+### Example values in the fragments (owner decision)
 
-| Class / comment | Where | What is a guess |
+The bracket placeholders in the fragments are replaced with example values. This is an intentional, owner-approved exception to "no invented figures", limited to the example fragments. They are example values, not Glonari terms, and the caption "Example interface — not your account." stays next to every fragment. The same value is used on every screen where the same object appears.
+
+Taken from the owner's screenshots:
+- Wallet address `i878cPyUt...4HqroDv` (`panel-receive-request.webp`).
+- Receipt: Reference ID `DBTX-2026-05-24-8F7G2K`, Date & time `May 24, 2026 at 10:42 AM ET` (the source images print "AMET", an obvious typo; fixed on purpose by the owner), From `Personal USD Balance ••••4292`.
+- Funds check: Available funds `$4,520.00 USD`, Funds reserved for another goal `$3,267.50 USD` (Enter amount screenshot).
+- Schedule date `05.06.2026 20:12` and the first recurring date `05.06.2026` (Enter amount screenshot).
+- Convert names `Personal USD Balance` and `USDC - Polygon` (Review and confirm screenshot, exactly as shown, hyphen included, so the account is named the same as in the receipt).
+
+Invented (approved by the owner):
+- The names Alex and Maya (split of a shared expense: Total `$150.00 USD`, `$50.00 USD` each, with Curt).
+- The dates `05.07.2026` and `05.08.2026` (recurring transfers).
+- The status words Requested, Pending, Paid.
+
+Unchanged: Curt, $150 USD, rate 1 USD = 1 USD, fee $0.00, Within minutes. No rate or fee is shown for Convert.
+
+### Placeholders still open (search for `placeholder-`)
+
+| Class / comment | Where | What is still a guess |
 |---|---|---|
-| `placeholder-request-list` | screen 2, way 02 | the request row and its three statuses "Requested", "Pending", "Paid"; the wallet address is two grey bars |
 | `placeholder-qr` | screen 2, way 02 | QR is a generated pattern, not a real code |
-| `placeholder-convert` | screen 2, way 03 | the Add and Convert tabs (fields `[ASSET]`, "Linked account" bar); Withdraw follows the Bank account details screenshot; the Details rows reuse the demo values |
-| `placeholder-date` | send, schedule, recurring, receipt | `[DATE]` |
-| `placeholder-repeat-actions` | screen 3, left screen | recent recipients, recurring (three `[DATE]` rows), split (`[AMOUNT]` rows); schedule reuses the Enter amount look |
-| `placeholder-transactions` | screen 3, right screen | the transactions list (one row "Curt", "Completed", $150 USD, others are bars); the receipt follows the Receipt saved screenshot with `[REFERENCE ID]`, `[DATE]`, `[ACCOUNT]` |
-| `placeholder-funds-check` | screen 4, back screen | rows "Available funds" and "Funds reserved for another goal" with `[AMOUNT]` |
-| `placeholder-amount` | screens 3 and 4 | `[AMOUNT]` |
+| `placeholder-convert` | screen 2, way 03 | the Add tab ("Linked account" is a grey bar); Withdraw follows the Bank account details screenshot, its fields are bars; the Details rows reuse the demo values |
+| `placeholder-repeat-actions` | screen 3, left screen | recent recipients (only Curt is a name, other rows are bars) |
+| `placeholder-transactions` | screen 3, right screen | the transactions list (one row "Curt", "Completed", $150 USD, others are bars) |
+
+Also still bars (no class): the two ghost request rows on screen 2, way 02.
 
 Not a placeholder but a guess: on screen 5 the approval card gets a four-line activity list that repeats Gia's steps from screen 4 (copy file wording) and the back screen reuses "Review and confirm" from the screenshot; the "after approval" state is only the status line and a check, no separate frame.
 
@@ -86,6 +102,8 @@ currency conversion. Demonstration only: the $0.00 fee and the arrival time are 
 - `media/hero-scene.mp4` all-intra, no audio, made with
   `ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 24 -g 1 -pix_fmt yuv420p -movflags +faststart out.mp4`.
   Every frame must stay a keyframe, or scrubbing becomes jerky.
+- Hero demo (`../demos/send-funds/embed.html`, shown in the hero iframe): its `bg`, `logo` and `avatar` PNGs have webp copies (`assets/*.webp`, PNGs kept); only `embed.html` and `embed.css` point at the webp, the standalone demo (`index.html`, `styles.css`) still uses the PNGs. Its Roboto comes from `media/fonts/roboto-variable.woff2` through an `@font-face` in `embed.css` (the Google Fonts request keeps only Inter 400, used by the search field).
+- Hero demo text fixed by the owner (text only, in `embed.html` and the standalone `index.html`): receipt "10:42 AMET" is now "10:42 AM ET" and Send date "May 24, 2027" is now "May 24, 2026", to match the receipt on the page. The Status line time "May 24, 2027 at 10:45 AM ET" is now "May 24, 2026 at 10:45 AM ET" (year only).
 - `media/ui/` example interface images from the app. They always show the caption "Example interface — not your account."
 
 ## Reduced motion
