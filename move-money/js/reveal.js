@@ -1,4 +1,4 @@
-/* Reveal for screens below the hero: fade and rise once, at 25% visibility. */
+/* Reveal for screens below the hero: fade and rise each time the item comes into view. */
 (() => {
   'use strict';
 
@@ -10,13 +10,13 @@
     return;
   }
 
+  // Plays when the item comes into view; resets once it has fully left, so it plays again on return.
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-in');
-      io.unobserve(entry.target);
+      if (entry.intersectionRatio >= 0.12) entry.target.classList.add('is-in');
+      else if (!entry.isIntersecting) entry.target.classList.remove('is-in');
     });
-  }, { threshold: 0.12 });
+  }, { threshold: [0, 0.12] });
 
   items.forEach((el) => io.observe(el));
 })();

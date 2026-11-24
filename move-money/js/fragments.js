@@ -1,6 +1,6 @@
 /* Live interface fragments for screens 2 to 5 (see css/fragments.css).
    Every fragment is written in HTML in its final state. Here each scene is armed (hidden beats), then
-   played once when 40% visible, on its own clock that pauses while off screen. It always ends on the
+   played when about 15% visible, and again every time it comes back into view. It always ends on the
    markup's final frame. With reduced motion, under 768px, or without JS, the final frame is shown at once.
    If anything fails, the old picture (.fx-fallback) stays. */
 (() => {
@@ -42,6 +42,7 @@
       if (this.items.every((i) => i.d)) { this.run = false; this.done = true; return; }
       if (this.vis) this.raf = requestAnimationFrame((n) => this.tick(n));
     }
+    cancel() { this.run = false; this.done = true; if (this.raf) cancelAnimationFrame(this.raf); this.raf = 0; }
     finish() {
       this.items.forEach((it) => { if (!it.d) { it.fn(1); it.d = true; } });
       this.run = false; this.done = true;
@@ -193,10 +194,18 @@
     const ty = $(bubble, '.ty');
     $(ty, '.ty__live').textContent = '';
     let typed = false;
+    let typeRun = 0;
     watchClass(bubble, () => {
-      if (typed || !bubble.classList.contains('is-in')) return;
+      if (!bubble.classList.contains('is-in')) {
+        typed = false; typeRun++;
+        $(ty, '.ty__live').textContent = '';
+        ty.classList.remove('is-typing');
+        return;
+      }
+      if (typed) return;
       typed = true;
-      tween(700, (p) => typeTo(ty, p));
+      const run = ++typeRun;
+      tween(700, (p) => { if (run === typeRun) typeTo(ty, p); });
     });
 
     // Funds check (the back screen): its two ticks arrive after the screen does
@@ -204,10 +213,18 @@
       const ticks = $$(back, '.fx__ok');
       ticks.forEach((t) => t.classList.add('is-off'));
       let ran = false;
+      let tickTimers = [];
       watchClass(back, () => {
-        if (ran || !back.classList.contains('is-in')) return;
+        if (!back.classList.contains('is-in')) {
+          ran = false;
+          tickTimers.forEach(clearTimeout);
+          tickTimers = [];
+          ticks.forEach((t) => t.classList.add('is-off'));
+          return;
+        }
+        if (ran) return;
         ran = true;
-        ticks.forEach((t, k) => setTimeout(() => t.classList.remove('is-off'), 300 + k * 400));
+        ticks.forEach((t, k) => tickTimers.push(setTimeout(() => t.classList.remove('is-off'), 300 + k * 400)));
       });
     }
 
@@ -216,7 +233,17 @@
     steps.forEach((li, i) => {
       let seen = false;
       watchClass(li, () => {
-        if (seen || !li.classList.contains('is-done')) return;
+        if (!li.classList.contains('is-done')) {
+          if (!seen) return;
+          seen = false;
+          if (i === 0) {
+            card.classList.remove('is-in');
+            giaRows.forEach((el) => el.classList.remove('is-on'));
+            apRows.forEach((el) => el.classList.remove('is-on'));
+          }
+          return;
+        }
+        if (seen) return;
         seen = true;
         if (i === 0) {
           const withApproval = appr && document.documentElement.classList.contains('morph');
@@ -261,15 +288,22 @@
     triad.classList.add('is-sync');
     ticks.forEach((t) => t.classList.add('is-off'));
 
-    const tl = new Timeline();
-    tl.at(300, () => items[0].classList.add('is-lit'));
-    mainRows.forEach((_, k) => tl.at(400 + k * 220, () => hl(mainRows, k)));
-    tl.at(1700, () => { hl(mainRows, -1); items[1].classList.add('is-lit'); });
-    extraRows.forEach((_, k) => tl.at(1800 + k * 250, () => hl(extraRows, k)));
-    ticks.forEach((t, k) => tl.at(2400 + k * 300, () => t.classList.remove('is-off')));
-    tl.at(3300, () => { hl(extraRows, -1); items[2].classList.add('is-lit'); actions.classList.add('is-ready'); });
+    const arm = () => {
+      items.forEach((li) => li.classList.remove('is-lit'));
+      hl(mainRows, -1); hl(extraRows, -1);
+      ticks.forEach((t) => t.classList.add('is-off'));
+      actions.classList.remove('is-ready');
+      const tl = new Timeline();
+      tl.at(300, () => items[0].classList.add('is-lit'));
+      mainRows.forEach((_, k) => tl.at(400 + k * 220, () => hl(mainRows, k)));
+      tl.at(1700, () => { hl(mainRows, -1); items[1].classList.add('is-lit'); });
+      extraRows.forEach((_, k) => tl.at(1800 + k * 250, () => hl(extraRows, k)));
+      ticks.forEach((t, k) => tl.at(2400 + k * 300, () => t.classList.remove('is-off')));
+      tl.at(3300, () => { hl(extraRows, -1); items[2].classList.add('is-lit'); actions.classList.add('is-ready'); });
+      return tl;
+    };
 
-    watch(stage, tl);
+    watch(stage, arm);
   }
 
   /* ---------- Mounting ---------- */
@@ -284,23 +318,32 @@
 
   /* Start when about 15% is visible, with 12% of the viewport as lead from below. If the panel leaves the
      viewport before the scene is over, jump to its final frame instead of leaving it half-built. */
-  function watch(el, tl) {
-    let started = false;
+  function watch(el, arm) {
+    let tl = null;
     new IntersectionObserver((entries) => {
       const e = entries[entries.length - 1];
       const enough = e.intersectionRatio >= 0.15 || e.intersectionRect.height >= window.innerHeight * 0.3;
-      if (!started && e.isIntersecting && enough) { started = true; tl.start(); }
-      if (!e.isIntersecting && !tl.done && (started || e.boundingClientRect.bottom <= 0)) tl.finish();
+      if (!tl && e.isIntersecting && enough) { tl = arm(); el._tl = tl; tl.start(); }
+      // Fully left: stop and drop the scene back to its first frame, so it plays again on return
+      else if (tl && !e.isIntersecting) { tl.cancel(); tl = null; el._tl = null; arm().cancel(); }
     }, { rootMargin: '0px 0px 12% 0px', threshold: [0, 0.05, 0.1, 0.15, 0.25] }).observe(el);
   }
 
   function play(scene, def) {
     scene.classList.add('is-armed');
-    if (def.init) def.init(scene);
-    const tl = new Timeline();
-    def.build(tl, scene);
-    scene._tl = tl;
-    watch(scene, tl);
+    const arm = () => {
+      // Back to the first frame: clear every beat the last run switched on
+      $$(scene, '[data-b], [data-fill]').forEach((el) => el.classList.remove('is-on'));
+      $$(scene, '[data-qr]').forEach((el) => el.classList.remove('is-drawn'));
+      $$(scene, '[data-btn]').forEach((el) => el.classList.remove('is-press', 'is-done'));
+      $$(scene, '.fx__amount').forEach((el) => el.classList.remove('is-typing'));
+      if (def.init) def.init(scene);
+      const tl = new Timeline();
+      def.build(tl, scene);
+      return tl;
+    };
+    arm().cancel();   // first frame is set right away, before the scene is reached
+    watch(scene, arm);
   }
 
   function init() {

@@ -1,4 +1,4 @@
-/* Screen 4 - Gia works through the transfer, step by step, once, when the stage is in view.
+/* Screen 4 - Gia works through the transfer, step by step, each time the stage comes into view.
    Elements marked data-seq are revealed in order; each step first spins, then turns into a check. */
 (() => {
   'use strict';
@@ -25,7 +25,15 @@
   const card = seq('.gia__card');
 
   const show = (el) => el && el.classList.add('is-in');
-  const at = (ms, fn) => setTimeout(fn, ms);
+  let timers = [];
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    all.forEach((el) => el.classList.remove('is-in'));
+    steps.forEach((el) => el.classList.remove('is-done'));
+  }
 
   function play() {
     const STEP = 700;         // time between steps starting
@@ -49,9 +57,11 @@
     at(first + steps.length * STEP + 200, () => show(note));
   }
 
-  new IntersectionObserver((entries, io) => {
-    if (!entries[0].isIntersecting) return;
-    io.disconnect();
-    play();
-  }, { threshold: 0.4 }).observe(stage);
+  // Starts at 40% visible; resets once the stage has fully left, so it plays again on return.
+  let running = false;
+  new IntersectionObserver((entries) => {
+    const e = entries[entries.length - 1];
+    if (!running && e.intersectionRatio >= 0.4) { running = true; play(); }
+    else if (running && !e.isIntersecting) { running = false; reset(); }
+  }, { threshold: [0, 0.4] }).observe(stage);
 })();
